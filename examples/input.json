@@ -1,0 +1,35 @@
+{
+  "title": "一只橘猫 · 原创示例",
+  "image": "demo.png",
+  "width": 40,
+  "height": 40,
+  "mode": "bead",
+  "fit": "contain",
+  "palette": [
+    {
+      "id": "CREAM",
+      "hex": "#f7ebd0",
+      "stock": 1000
+    },
+    {
+      "id": "ORANGE",
+      "hex": "#c56e42",
+      "stock": 600
+    },
+    {
+      "id": "SHADOW",
+      "hex": "#854e38",
+      "stock": 150
+    },
+    {
+      "id": "PINK",
+      "hex": "#e9a6a1",
+      "stock": 100
+    },
+    {
+      "id": "DARK",
+      "hex": "#293d37",
+      "stock": 150
+    }
+  ]
+}
