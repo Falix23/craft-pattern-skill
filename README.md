@@ -1,6 +1,6 @@
 # 小格工坊 · craft-pattern
 
-[在线合成示例](https://lbj00jay.github.io/craft-pattern-skill/) · [Skill 工作流](SKILL.md)
+[在线合成示例](https://Falix23.github.io/craft-pattern-skill/) · [Skill 工作流](SKILL.md)
 
 把照片转换为可编辑的拼豆／十字绣格子图。原创的离线 Agent Skill：Pillow 负责缩放和指定色板映射，Agent 负责理解用户图片与制作要求，页面负责逐格修改与导出。
 
