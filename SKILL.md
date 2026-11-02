@@ -12,8 +12,9 @@ description: 将照片或插图转换成指定色板的可编辑拼豆、十字�
 3. 在用户工作区的独立输出目录运行：
 
    ```sh
-   python3 -m pip install -r <skill>/requirements.txt
-   python3 <skill>/scripts/build.py <config.json> --output <output>/pattern.html
+   python3 -m venv <output>/.venv
+   <output>/.venv/bin/python -m pip install -r <skill>/requirements.txt
+   <output>/.venv/bin/python <skill>/scripts/build.py <config.json> --output <output>/pattern.html
    ```
 
 4. 打开 HTML，检查主体轮廓、关键小细节和配色。页面可逐格修改、撤销、显示符号、导出 SVG/材料 CSV/JSON、重新导入。修改后下载 JSON 保存；不暗中写入浏览器存储。构建时输出的同名 JSON 是初始图纸，页面修改不会自动写回磁盘。
