@@ -1,0 +1,41 @@
+name: Fetch showcase sources
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sources:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Fetch attributed example photographs
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from urllib.request import Request, urlopen
+
+          root = Path('examples/showcase')
+          for case in json.loads((root / 'cases.json').read_text())['cases']:
+              target = root / case['input']
+              if target.exists():
+                  continue
+              target.parent.mkdir(parents=True, exist_ok=True)
+              request = Request(case['download'], headers={
+                  'User-Agent': 'CraftPatternShowcase/1.0 (+https://github.com/Falix23/craft-pattern-skill)'
+              })
+              with urlopen(request, timeout=60) as response:
+                  target.write_bytes(response.read())
+              print(case['id'], target.stat().st_size)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: showcase-source-photos
+          path: examples/showcase/inputs/
+          retention-days: 7

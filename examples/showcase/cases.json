@@ -1,0 +1,59 @@
+{
+  "description": "README showcase; source rights are documented in SOURCES.md, independently of the MIT code license.",
+  "cases": [
+    {
+      "id": "bubu",
+      "title": "一二布布拼豆",
+      "english": "Bubu & Dudu",
+      "input": "inputs/bubu.webp",
+      "source": "https://getstickerpack.com/stickers/xiong-mao-yi-erdi-jiu-dan-bu-bu-1",
+      "credit": "Sticker pack posted by Kumibaby; sticker #3. Character and source-image rights remain with their respective owners.",
+      "license": "No open license stated; demonstration only, excluded from MIT code license.",
+      "plans": [
+        {"name": "轻量方案", "longest_edge": 48, "color_detail": "low", "max_colors": 8, "background": "auto"},
+        {"name": "均衡方案", "longest_edge": 64, "color_detail": "medium", "max_colors": 8, "background": "auto"},
+        {"name": "细节方案", "longest_edge": 96, "color_detail": "high", "max_colors": 12, "background": "auto"}
+      ],
+      "selected_plan": 2
+    },
+    {
+      "id": "tower",
+      "title": "东方明珠拼豆",
+      "english": "Oriental Pearl Tower",
+      "input": "inputs/tower.jpg",
+      "download": "https://upload.wikimedia.org/wikipedia/commons/e/e4/2010_Oriental_Pearl_Tower%2C_Shanghai_01.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:2010_Oriental_Pearl_Tower,_Shanghai_01.jpg",
+      "credit": "Gary Todd",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "plans": [{"name": "地标场景", "longest_edge": 96, "color_detail": "medium", "max_colors": 10, "background": "keep"}],
+      "selected_plan": 1
+    },
+    {
+      "id": "caixukun",
+      "title": "蔡徐坤拼豆",
+      "english": "Cai Xukun",
+      "input": "inputs/caixukun.jpg",
+      "download": "https://upload.wikimedia.org/wikipedia/commons/d/d5/Cai_Xukun_in_2018.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Cai_Xukun_in_2018.jpg",
+      "credit": "Rosethron丨蔡徐坤; crop by Masdggg",
+      "license": "CC-BY-2.5",
+      "license_url": "https://creativecommons.org/licenses/by/2.5/",
+      "plans": [{"name": "人物肖像", "longest_edge": 96, "color_detail": "medium", "max_colors": 10, "background": "keep"}],
+      "selected_plan": 1
+    },
+    {
+      "id": "kobe",
+      "title": "科比拼豆",
+      "english": "Kobe Bryant",
+      "input": "inputs/kobe.jpg",
+      "download": "https://upload.wikimedia.org/wikipedia/commons/f/fa/Kobe_Bryant_2015_%28cropped%29.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:Kobe_Bryant_2015_(cropped).jpg",
+      "credit": "Keith Allison; source crop by KOKUYO",
+      "license": "CC-BY-SA-2.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "plans": [{"name": "人物肖像", "longest_edge": 96, "color_detail": "medium", "max_colors": 10, "background": "keep"}],
+      "selected_plan": 1
+    }
+  ]
+}
