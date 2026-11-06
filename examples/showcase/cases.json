@@ -6,8 +6,8 @@
       "title": "一二布布拼豆",
       "english": "Bubu & Dudu",
       "input": "inputs/bubu.webp",
-      "source": "https://www.xiaohongshu.com/explore/6a42b6e90000000011012379",
-      "credit": "小Q",
+      "source": "https://www.xiaohongshu.com/explore/68ea4380000000000300cb07",
+      "credit": "A9909",
       "license": "No open license stated; source material excluded from MIT code license.",
       "plans": [
         {
@@ -33,16 +33,9 @@
         }
       ],
       "selected_plan": 2,
-      "source_title": "情侣头像布布一二",
-      "source_kind": "two clear glasses avatars; selected images 6 and 5, arranged side by side",
-      "accessed": "2026-11-06",
-      "preparation": {
-        "originals": [
-          "inputs/bubu-avatar-1.webp",
-          "inputs/bubu-avatar-2.webp"
-        ],
-        "layout": "Two 600x600 equal panels, brown bear left and white bear right; no retouching."
-      }
+      "source_title": "无标题笔记：#一二布布 #抱抱 #超可爱的表情包",
+      "source_kind": "single full-body hugging illustration; selected image 1; no glasses or composition edits",
+      "accessed": "2026-11-06"
     },
     {
       "id": "tower",

@@ -5,16 +5,16 @@
     "english": "Bubu & Dudu",
     "input": "inputs/bubu.webp",
     "selected_plan": 2,
-    "source_sha256": "8cede1bec78c03483ba29814937df2fccfcba85038a52f3f3391ebbd2c0984f0",
+    "source_sha256": "de3be68aa55582c983f9aafca802b483efedbc7b915af1ef77ef496ffbae2695",
     "plans": [
       {
         "name": "轻量方案",
         "width": 64,
-        "height": 32,
+        "height": 57,
         "color_detail": "low",
-        "color_count": 5,
-        "bead_count": 840,
-        "blank_cells": 1208,
+        "color_count": 4,
+        "bead_count": 2038,
+        "blank_cells": 1610,
         "files": {
           "json": "examples/showcase/patterns/bubu-01.json",
           "svg": "examples/showcase/patterns/bubu-01.svg",
@@ -26,11 +26,11 @@
       {
         "name": "均衡方案",
         "width": 96,
-        "height": 48,
+        "height": 86,
         "color_detail": "medium",
         "color_count": 5,
-        "bead_count": 1933,
-        "blank_cells": 2675,
+        "bead_count": 4617,
+        "blank_cells": 3639,
         "files": {
           "json": "examples/showcase/patterns/bubu-02.json",
           "svg": "examples/showcase/patterns/bubu-02.svg",
@@ -42,11 +42,11 @@
       {
         "name": "细节方案",
         "width": 128,
-        "height": 64,
+        "height": 115,
         "color_detail": "high",
-        "color_count": 10,
-        "bead_count": 3427,
-        "blank_cells": 4765,
+        "color_count": 9,
+        "bead_count": 8239,
+        "blank_cells": 6481,
         "files": {
           "json": "examples/showcase/patterns/bubu-03.json",
           "svg": "examples/showcase/patterns/bubu-03.svg",

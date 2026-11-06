@@ -67,26 +67,26 @@ Node.js 用于直接出图；图片转换在本机完成，无需额外图像模
 
 下面三种方案使用**同一张布布一二输入图**，同时调整尺寸与颜色区分度，展示制作量的取舍：
 
-![布布一二眼镜情侣头像：64 格低区分度、96 格中区分度、128 格高区分度实际对比](assets/showcase/bubu-comparison.png)
+![布布一二双人拥抱：64 格低区分度、96 格中区分度、128 格高区分度实际对比](assets/showcase/bubu-comparison.png)
 
 | 方案 | 格数 | 颜色区分度 | 实际用色 | 用豆数 | 符号制作图 |
 | --- | --- | --- | --- | --- | --- |
-| 轻量 | 64×32 | 低 | 5 色 | 840 颗 | [查看](assets/showcase/bubu-01-chart.png) |
-| 均衡 | 96×48 | 中 | 5 色 | 1,933 颗 | [查看](assets/showcase/bubu-02-chart.png) |
-| 细节 | 128×64 | 高 | 10 色 | 3,427 颗 | [查看](assets/showcase/bubu-03-chart.png) |
+| 轻量 | 64×57 | 低 | 4 色 | 2,038 颗 | [查看](assets/showcase/bubu-01-chart.png) |
+| 均衡 | 96×86 | 中 | 5 色 | 4,617 颗 | [查看](assets/showcase/bubu-02-chart.png) |
+| 细节 | 128×115 | 高 | 9 色 | 8,239 颗 | [查看](assets/showcase/bubu-03-chart.png) |
 
-这组图将同一笔记中的布布和一二眼镜头像并排组合，可从 **96×48 中档**开始，能保留眼镜、表情和清楚的轮廓，用色与制作量也比较适中。低档更省材料，高档保留更多轮廓和配色层次。颜色数是上限，不会为了凑满数量保留近似色；不同档位也可能得到相同色数。
+这组图使用完整的双人拥抱原图，可从 **96×86 中档**开始；脸部表情和外轮廓清楚，5 色即可表现两只小熊、腮红和爱心。低档更省材料，高档保留更多轮廓和配色层次。颜色数是上限，不会为了凑满数量保留近似色；不同档位也可能得到相同色数。
 
 ## 四个主题，实际生成
 
 | 案例 | 本次设置 | 实际用色 / 用豆 | 完整制作图 | 材料与可编辑文件 |
 | --- | --- | --- | --- | --- |
-| 一二布布拼豆 | 96×48 · 中区分度 · 去底 | 5 色 / 1,933 颗 | [PNG](assets/showcase/bubu-02-chart.png) | [CSV](examples/showcase/patterns/bubu-02.csv) · [JSON](examples/showcase/patterns/bubu-02.json) |
+| 一二布布拼豆 | 96×86 · 中区分度 · 去底 | 5 色 / 4,617 颗 | [PNG](assets/showcase/bubu-02-chart.png) | [CSV](examples/showcase/patterns/bubu-02.csv) · [JSON](examples/showcase/patterns/bubu-02.json) |
 | 东方明珠拼豆 | 55×128 · 中区分度 · 彩色线稿、去底 | 8 色 / 1,982 颗 | [PNG](assets/showcase/tower-01-chart.png) | [CSV](examples/showcase/patterns/tower-01.csv) · [JSON](examples/showcase/patterns/tower-01.json) |
 | 蔡徐坤拼豆 | 85×128 · 中区分度 · 去底 | 6 色 / 5,751 颗 | [PNG](assets/showcase/caixukun-01-chart.png) | [CSV](examples/showcase/patterns/caixukun-01.csv) · [JSON](examples/showcase/patterns/caixukun-01.json) |
 | 科比拼豆 | 80×80 · 中区分度 · 保留背景 | 8 色 / 6,400 颗 | [PNG](assets/showcase/kobe-01-chart.png) | [CSV](examples/showcase/patterns/kobe-01.csv) · [JSON](examples/showcase/patterns/kobe-01.json) |
 
-输入类型各有不同：布布一二使用两张同组头像的并排组合；东方明珠选取彩色线稿中的单体塔身；科比使用插画；蔡徐坤使用原帖已有像素预览，展示重新采样与简化配色。原设计归原作者，右侧格子、符号及材料统计由本项目重新生成。所有统计均可对照[生成记录](examples/showcase/summary.json)与图纸 JSON。
+输入类型各有不同：布布一二使用单张完整拥抱插画；东方明珠选取彩色线稿中的单体塔身；科比使用插画；蔡徐坤使用原帖已有像素预览，展示重新采样与简化配色。原设计归原作者，右侧格子、符号及材料统计由本项目重新生成。所有统计均可对照[生成记录](examples/showcase/summary.json)与图纸 JSON。
 
 每个方案的文件各有用途：
 
