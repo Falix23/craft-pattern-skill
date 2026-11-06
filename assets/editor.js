@@ -562,11 +562,11 @@
       let rgba = ctx.getImageData(0, 0, width, height).data;
       for (let i = 3; i < rgba.length; i += 4) if (unmasked[i] >= options.alpha_threshold && rgba[i] < options.alpha_threshold) sourceRemoved++;
       if (options.cleanup === 4) {
-        const detail = document.createElement('canvas'); detail.width = width * 3; detail.height = height * 3;
+        const detail = document.createElement('canvas'); detail.width = width * 6; detail.height = height * 6;
         const detailContext = detail.getContext('2d', { willReadFrequently: true });
         if (options.background === 'keep') { detailContext.fillStyle = '#fff'; detailContext.fillRect(0, 0, detail.width, detail.height); }
         detailContext.imageSmoothingQuality = 'high';
-        detailContext.drawImage(samplingImage, (width - w) * 1.5, (height - h) * 1.5, w * 3, h * 3);
+        detailContext.drawImage(samplingImage, (width - w) * 3, (height - h) * 3, w * 6, h * 6);
         rgba = core.sampleCraftRGBA(rgba, detailContext.getImageData(0, 0, detail.width, detail.height).data, width, height, options.alpha_threshold);
       }
       // Once the source is masked, transparent margins surround the subject.

@@ -240,7 +240,7 @@ def generate(args):
             request['palette'] = palette
         if options['cleanup'] == 4:
             detail = fit_image(
-                prepared, (size[0] * 3, size[1] * 3), plan['fit'], options['background'] == 'keep'
+                prepared, (size[0] * 6, size[1] * 6), plan['fit'], options['background'] == 'keep'
             )
             request['detail'] = base64.b64encode(detail.tobytes()).decode('ascii')
         result = subprocess.run(

@@ -5,7 +5,9 @@ import argparse
 import base64
 import io
 import json
+import math
 import re
+from array import array
 from collections import Counter, deque
 from pathlib import Path
 
@@ -67,7 +69,7 @@ def srgb(v):
 def nearest(rgb, palette_rgb, palette_labs=None):
     a = oklab(rgb)
     labs = palette_labs if palette_labs is not None else [oklab(c) for c in palette_rgb]
-    return min(range(len(labs)), key=lambda j: sum((a[c] - labs[j][c]) ** 2 for c in range(3)))
+    return min(range(len(labs)), key=lambda j: color_distance(a, labs[j]))
 
 
 def neighbors(index, width, height):
@@ -282,9 +284,10 @@ def simplify_regions(cells, width, height, palette_rgb):
                 a, b = labs[region['color']], labs[target['color']]
                 chroma = (a[1] ** 2 + a[2] ** 2) ** 0.5
                 target_chroma = (b[1] ** 2 + b[2] ** 2) ** 0.5
-                distinct_hue = chroma >= 0.045 and (
+                distinct_hue = chroma >= 0.03 and (
                     target_chroma < 0.025
-                    or (a[1] * b[1] + a[2] * b[2]) / (chroma * target_chroma) < 3**0.5 / 2
+                    or (a[1] * b[1] + a[2] * b[2]) / (chroma * target_chroma)
+                    < math.cos(math.pi / 12)
                 )
                 if (
                     ((not region['blank'] or a[0] < 0.3) and a[0] < b[0] - 0.075)
@@ -316,9 +319,188 @@ def simplify_regions(cells, width, height, palette_rgb):
     return result, sum(a != b for a, b in zip(cells, result))
 
 
+def color_distance(a, b):
+    delta = sum((a[c] - b[c]) ** 2 for c in range(3))
+    ca, cb = math.hypot(a[1], a[2]), math.hypot(b[1], b[2])
+    if ca < 0.025 or cb < 0.025:
+        return delta
+    cosine = max(-1, min(1, (a[1] * b[1] + a[2] * b[2]) / (ca * cb)))
+    return delta + 4 * ca * cb * (1 - cosine)
+
+
+def extract_craft_features(detail, width, height, alpha_threshold=128):
+    """Black-hat blobs qualified by a Sobel/Shi–Tomasi structure tensor."""
+    scale = math.isqrt(len(detail) // (width * height))
+    if scale not in (3, 6) or len(detail) != width * height * scale * scale:
+        raise ValueError('细节采样尺寸无效')
+    w, h = width * scale, height * scale
+    n = w * h
+    valid = [p[3] >= alpha_threshold for p in detail]
+    light = array('f', (oklab(p[:3])[0] if valid[i] else 1 for i, p in enumerate(detail)))
+    radius = 2 if scale == 6 else 1
+
+    def filtered(values, maximum, horizontal):
+        result = array('f', [0]) * n
+        choose = max if maximum else min
+        for y in range(h):
+            for x in range(w):
+                items = []
+                for d in range(-radius, radius + 1):
+                    xx = max(0, min(w - 1, x + d)) if horizontal else x
+                    yy = y if horizontal else max(0, min(h - 1, y + d))
+                    j = yy * w + xx
+                    if valid[j]:
+                        items.append(values[j])
+                result[y * w + x] = choose(items) if items else light[y * w + x]
+        return result
+
+    closed = filtered(
+        filtered(filtered(filtered(light, True, True), True, False), False, True), False, False
+    )
+    gx, gy, corner = (array('f', [0]) * n for _ in range(3))
+    candidate = bytearray(n)
+    for y in range(1, h - 1):
+        for x in range(1, w - 1):
+            i = y * w + x
+            if not valid[i]:
+                continue
+            gx[i] = (
+                light[i - w + 1]
+                + 2 * light[i + 1]
+                + light[i + w + 1]
+                - light[i - w - 1]
+                - 2 * light[i - 1]
+                - light[i + w - 1]
+            ) / 8
+            gy[i] = (
+                light[i + w - 1]
+                + 2 * light[i + w]
+                + light[i + w + 1]
+                - light[i - w - 1]
+                - 2 * light[i - w]
+                - light[i - w + 1]
+            ) / 8
+            candidate[i] = closed[i] - light[i] >= 0.09 and light[i] < 0.62
+    for y in range(2, h - 2):
+        for x in range(2, w - 2):
+            xx = xy = yy = 0
+            for dy in range(-1, 2):
+                for dx in range(-1, 2):
+                    j = (y + dy) * w + x + dx
+                    xx += gx[j] ** 2
+                    xy += gx[j] * gy[j]
+                    yy += gy[j] ** 2
+            corner[y * w + x] = (xx + yy - math.hypot(xx - yy, 2 * xy)) / 18
+    coverage = array('f', [0]) * (width * height)
+    strengths = array('f', [0]) * (width * height)
+    colors = [(0, 0, 0)] * (width * height)
+    owners = [-1] * (width * height)
+    components = []
+    seen = bytearray(n)
+    for start in range(n):
+        if not candidate[start] or seen[start]:
+            continue
+        items = [start]
+        seen[start] = 1
+        left, right, top, bottom, peak, blanks = w, 0, h, 0, 0, 0
+        for i in items:
+            x, y = i % w, i // w
+            left, right, top, bottom = min(left, x), max(right, x), min(top, y), max(bottom, y)
+            peak = max(peak, corner[i])
+            blank = False
+            for dy in range(-1, 2):
+                for dx in range(-1, 2):
+                    xx, yy = x + dx, y + dy
+                    if not (0 <= xx < w and 0 <= yy < h):
+                        blank = True
+                        continue
+                    j = yy * w + xx
+                    if not valid[j]:
+                        blank = True
+                    if candidate[j] and not seen[j]:
+                        seen[j] = 1
+                        items.append(j)
+            blanks += blank
+        if (
+            len(items) < max(2, int(scale * scale * 0.055 + 0.5))
+            or len(items) > scale * scale * 4
+            or right - left > scale * 4
+            or bottom - top > scale * 4
+            or blanks / len(items) > 0.15
+            or peak < 0.0005
+        ):
+            continue
+        member, outside, queue = set(items), set(), []
+        for y in range(top, bottom + 1):
+            for x in range(left, right + 1):
+                i = y * w + x
+                if i not in member and (x in (left, right) or y in (top, bottom)):
+                    outside.add(i)
+                    queue.append(i)
+        for i in queue:
+            x, y = i % w, i // w
+            for xx, yy in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
+                j = yy * w + xx
+                if (
+                    left <= xx <= right
+                    and top <= yy <= bottom
+                    and j not in member
+                    and j not in outside
+                ):
+                    outside.add(j)
+                    queue.append(j)
+        if (right - left + 1) * (bottom - top + 1) - len(member) - len(outside) >= 2:
+            continue
+        overlaps = {}
+        for i in items:
+            cell = (i // w // scale) * width + (i % w // scale)
+            overlaps.setdefault(cell, []).append(i)
+        maximum = max(map(len, overlaps.values()))
+        owner = len(components)
+        components.append((left, right, top, bottom))
+        budget = max(1, math.ceil(len(items) / (scale * scale * 0.45)))
+        ranked = sorted(overlaps.items(), key=lambda v: -len(v[1]))
+        for cell, group in ranked[:budget]:
+            if len(group) < max(2, maximum * 0.4, scale * scale * 0.15) and len(group) != maximum:
+                continue
+            strength = peak * len(group)
+            if strength <= strengths[cell]:
+                continue
+            strengths[cell], owners[cell] = strength, owner
+            coverage[cell] = len(group) / (scale * scale)
+            minimum = min(light[i] for i in group)
+            ink = [i for i in group if light[i] <= minimum + 0.1]
+            colors[cell] = tuple(
+                int(sum(detail[i][c] for i in ink) / len(ink) + 0.5) for c in range(3)
+            )
+    sizes = [0] * len(components)
+    for owner in owners:
+        if owner >= 0:
+            sizes[owner] += 1
+    for i in range(len(owners)):
+        if not strengths[i]:
+            continue
+        for j in neighbors(i, width, height):
+            if not strengths[j] or owners[i] == owners[j]:
+                continue
+            a, b = components[owners[i]], components[owners[j]]
+            gap = max(b[0] - a[1] - 1, a[0] - b[1] - 1, b[2] - a[3] - 1, a[2] - b[3] - 1)
+            if gap < scale * 0.4:
+                continue
+            remove = i if strengths[i] < strengths[j] else j
+            if sizes[owners[remove]] > 1:
+                strengths[remove] = 0
+                sizes[owners[remove]] -= 1
+            if not strengths[i]:
+                break
+    return strengths, colors, coverage
+
+
 def sample_craft(pixels, detail, width, height, alpha_threshold=128):
     """Retain supported fill and compact strokes without enlarging occupancy."""
     result = list(pixels)
+    scale = math.isqrt(len(detail) // (width * height))
+    strengths, colors, coverage = extract_craft_features(detail, width, height, alpha_threshold)
 
     def delta(a, b):
         return sum((a[c] - b[c]) ** 2 for c in range(3)) ** 0.5
@@ -330,10 +512,20 @@ def sample_craft(pixels, detail, width, height, alpha_threshold=128):
         if pixel[3] < alpha_threshold:
             continue
         base = oklab(pixel[:3])
+        if strengths[i] > 0 and base[0] >= 0.55 and oklab(colors[i])[0] < base[0] - 0.1:
+            mix = min(0.85, 0.35 + coverage[i] * 0.65)
+            result[i] = tuple(
+                int(pixel[c] * (1 - mix) + colors[i][c] * mix + 0.5) for c in range(3)
+            ) + (pixel[3],)
+            continue
         samples = []
         for dy in range(3):
             for dx in range(3):
-                p = detail[(i // width * 3 + dy) * width * 3 + i % width * 3 + dx]
+                p = detail[
+                    (i // width * scale + int((dy + 0.5) * scale / 3)) * width * scale
+                    + i % width * scale
+                    + int((dx + 0.5) * scale / 3)
+                ]
                 if p[3] >= alpha_threshold:
                     lab = oklab(p[:3])
                     samples.append({'rgb': p[:3], 'lab': lab, 'light': lab[0], 'x': dx, 'y': dy})
@@ -438,12 +630,12 @@ def convert(config, image_path):
             detail = (
                 fit(
                     sampling_image,
-                    (width * 3, height * 3),
+                    (width * 6, height * 6),
                     method=Image.Resampling.LANCZOS,
                     color='white' if processing['background'] == 'keep' else (0, 0, 0, 0),
                 )
                 if fit is ImageOps.pad
-                else fit(sampling_image, (width * 3, height * 3), method=Image.Resampling.LANCZOS)
+                else fit(sampling_image, (width * 6, height * 6), method=Image.Resampling.LANCZOS)
             )
             pixels = sample_craft(
                 pixels, list(detail.getdata()), width, height, processing['alpha_threshold']

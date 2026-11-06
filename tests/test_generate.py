@@ -166,6 +166,35 @@ class DirectOutputTests(unittest.TestCase):
             self.assertEqual(pattern['processing']['background'], 'auto')
             self.assertGreater(pattern['metrics']['removed_background'], 0)
 
+    def test_low_resolution_cheeks_preserve_pink_and_yellow_as_distinct_materials(self):
+        self.source = ROOT / 'examples/showcase/inputs/bubu.webp'
+        result = self.run_cli(
+            '--plans',
+            self.plans(
+                [
+                    {'longest_edge': edge, 'color_detail': level, 'max_colors': 8}
+                    for edge, level in ((32, 'medium'), (48, 'medium'), (64, 'medium'), (64, 'low'))
+                ]
+            ),
+            '--no-archive',
+        )
+        for entry in result['plans']:
+            pattern = json.loads(Path(entry['files']['json']).read_text())
+            w, h = pattern['width'], pattern['height']
+
+            def color_at(x, y):
+                index = pattern['cells'][int(h * y) * w + int(w * x)]
+                return index, tuple(bytes.fromhex(pattern['palette'][index]['hex'][1:]))
+
+            yellow, (r, g, b) = color_at(0.65, 0.42)
+            self.assertGreater(g - b, 25, entry)
+            self.assertGreater(r - g, 15, entry)
+            pink, (r, g, b) = color_at(0.21, 0.45)
+            self.assertGreaterEqual(b - g, -5, entry)
+            self.assertGreater(r - g, 15, entry)
+            self.assertNotEqual(yellow, pink)
+            self.assertLessEqual(entry['color_count'], 8)
+
     def test_low_resolution_tower_keeps_three_red_features_and_blue_fill(self):
         self.source = ROOT / 'examples/showcase/inputs/tower.webp'
         result = self.run_cli('--longest-edge', '32', '--max-colors', '8', '--no-archive')

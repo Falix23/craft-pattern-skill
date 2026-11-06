@@ -396,6 +396,32 @@ class CleanupTests(unittest.TestCase):
         face[31] = face[32] = 3
         self.assertEqual(m.cleanup_cells(face, 7, 7, colors, 4)[0], face)
 
+    def test_pastel_hue_mapping_and_cleanup_keep_yellow_cheeks_distinct_from_tan(self):
+        colors = [(216, 173, 147), (235, 194, 144), (244, 202, 203)]
+        self.assertEqual(m.nearest((239, 198, 143), colors), 1)
+        face = [0] * 49
+        face[24] = 1
+        self.assertEqual(m.cleanup_cells(face, 7, 7, colors, 4)[0][24], 1)
+
+    def test_classical_features_preserve_two_small_strokes_without_joining_them(self):
+        width, height, scale = 6, 4, 6
+        detail = [(220, 175, 150, 255)] * (width * height * scale * scale)
+        for left in (8, 23):
+            for x, y in ((0, 0), (1, 1), (2, 2), (3, 1), (4, 0)):
+                detail[(8 + y) * width * scale + left + x] = (65, 30, 22, 255)
+        strengths, _, _ = m.extract_craft_features(detail, width, height)
+        self.assertGreater(strengths[width + 1], 0)
+        self.assertGreater(strengths[width + 4], 0)
+        self.assertEqual(strengths[width + 2], 0)
+        self.assertEqual(strengths[width + 3], 0)
+        self.assertLessEqual(sum(v > 0 for v in strengths), 4)
+        base = [(220, 175, 150, 255)] * (width * height)
+        sampled = m.sample_craft(base, detail, width, height)
+        self.assertLess(sampled[width + 1][0], 180)
+        self.assertLess(sampled[width + 4][0], 180)
+        self.assertEqual(sampled[width + 2], base[width + 2])
+        self.assertEqual(sampled[width + 3], base[width + 3])
+
 
 if __name__ == '__main__':
     unittest.main()

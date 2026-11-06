@@ -28,7 +28,7 @@
         "width": 96,
         "height": 86,
         "color_detail": "medium",
-        "color_count": 7,
+        "color_count": 8,
         "bead_count": 4617,
         "blank_cells": 3639,
         "files": {
@@ -97,7 +97,7 @@
         "width": 85,
         "height": 128,
         "color_detail": "medium",
-        "color_count": 8,
+        "color_count": 10,
         "bead_count": 5751,
         "blank_cells": 5129,
         "files": {

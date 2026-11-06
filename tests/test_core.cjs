@@ -375,3 +375,41 @@ test('craft cleanup preserves pale cheek and lip accents as well as small dark f
   face[31] = face[32] = 3;
   assert.deepEqual(Core.cleanCells(face, 7, 7, colors, 4).cells, face);
 });
+
+test('yellow and pink pastels retain their hue when tan fur is nearby', () => {
+  const source = { ...pattern(), palette: [{ id: 'FUR', hex: '#D8AD93' },
+    { id: 'YELLOW', hex: '#EBC290' }, { id: 'PINK', hex: '#F4CACB' }],
+    cells: [...Array(10).fill(0), ...Array(3).fill(1), ...Array(3).fill(2)] };
+  for (const level of ['low', 'medium', 'high']) {
+    const merged = Core.mergeSimilarColors(source, null, level);
+    assert.equal(new Set(merged.mapping).size, 3);
+  }
+  const pixels = rgba(4, 4, [239, 198, 143, 255]);
+  const mapped = Core.processRGBA(pixels, 4, 4, source.palette, { cleanup: 4 });
+  assert.deepEqual(mapped.cells, Array(16).fill(1));
+  const face = Array(49).fill(0); face[24] = 1;
+  assert.equal(Core.cleanCells(face, 7, 7, source.palette, 4).cells[24], 1);
+});
+
+test('black-hat and Shi-Tomasi preserve two compact strokes with their source gap', () => {
+  const width = 6, height = 4, scale = 6;
+  const detail = rgba(width * scale, height * scale, [220, 175, 150, 255]);
+  for (const left of [8, 23]) {
+    for (const [x, y] of [[0, 0], [1, 1], [2, 2], [3, 1], [4, 0]]) {
+      pixel(detail, width * scale, left + x, 8 + y, [65, 30, 22, 255]);
+    }
+  }
+  const before = [...detail];
+  const features = Core.extractCraftFeatures(detail, width, height);
+  assert.ok(features.strengths[width + 1] > 0);
+  assert.ok(features.strengths[width + 4] > 0);
+  assert.equal(features.strengths[width + 2], 0);
+  assert.equal(features.strengths[width + 3], 0);
+  assert.ok([...features.strengths].filter(v => v > 0).length <= 4);
+  assert.deepEqual([...detail], before);
+  const base = rgba(width, height, [220, 175, 150, 255]);
+  const sampled = Core.sampleCraftRGBA(base, detail, width, height);
+  assert.ok(sampled[(width + 1) * 4] < 180);
+  assert.ok(sampled[(width + 4) * 4] < 180);
+  for (const x of [2, 3]) assert.deepEqual([...sampled.slice((width + x) * 4, (width + x) * 4 + 4)], [...base.slice((width + x) * 4, (width + x) * 4 + 4)]);
+});
