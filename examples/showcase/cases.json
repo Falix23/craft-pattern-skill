@@ -6,61 +6,74 @@
       "title": "一二布布拼豆",
       "english": "Bubu & Dudu",
       "input": "inputs/bubu.webp",
-      "source": "https://www.xiaohongshu.com/explore/68a4ae52000000001c031ad9",
-      "credit": "最可爱的一二和布布",
+      "source": "https://www.xiaohongshu.com/explore/6a42b6e90000000011012379",
+      "credit": "小Q",
       "license": "No open license stated; source material excluded from MIT code license.",
       "plans": [
         {
           "name": "轻量方案",
-          "longest_edge": 48,
+          "longest_edge": 64,
           "color_detail": "low",
           "max_colors": 8,
           "background": "auto"
         },
         {
           "name": "均衡方案",
-          "longest_edge": 64,
+          "longest_edge": 96,
           "color_detail": "medium",
           "max_colors": 8,
           "background": "auto"
         },
         {
           "name": "细节方案",
-          "longest_edge": 96,
+          "longest_edge": 128,
           "color_detail": "high",
           "max_colors": 12,
           "background": "auto"
         }
       ],
       "selected_plan": 2,
-      "source_title": "两小只的日常🐼🐻",
-      "source_kind": "illustration; selected image 18 of the post",
-      "accessed": "2026-11-06"
+      "source_title": "情侣头像布布一二",
+      "source_kind": "two clear glasses avatars; selected images 6 and 5, arranged side by side",
+      "accessed": "2026-11-06",
+      "preparation": {
+        "originals": [
+          "inputs/bubu-avatar-1.webp",
+          "inputs/bubu-avatar-2.webp"
+        ],
+        "layout": "Two 600x600 equal panels, brown bear left and white bear right; no retouching."
+      }
     },
     {
       "id": "tower",
       "title": "东方明珠拼豆",
       "english": "Oriental Pearl Tower",
       "input": "inputs/tower.webp",
-      "source": "https://www.xiaohongshu.com/explore/6a118a340000000006037983",
-      "credit": "文博造物社",
+      "source": "https://www.xiaohongshu.com/explore/6a86eaf5000000003400e404",
+      "credit": "Sia的简笔画日常",
       "license": "No open license stated; source material excluded from MIT code license.",
       "plans": [
         {
           "name": "地标图纸",
-          "width": 48,
-          "height": 128,
-          "fit": "cover",
+          "longest_edge": 128,
           "color_detail": "medium",
           "max_colors": 8,
-          "background": "auto",
-          "background_tolerance": 24
+          "background": "auto"
         }
       ],
       "selected_plan": 1,
-      "source_title": "东方明珠拼豆效果图（附图纸）",
-      "source_kind": "physical bead-work photograph; selected image 1",
-      "accessed": "2026-11-06"
+      "source_title": "暑假旅行简笔画|上海",
+      "source_kind": "clear colored line illustration; tower cropped from the top-left of the single source image",
+      "accessed": "2026-11-06",
+      "preparation": {
+        "original": "inputs/tower-original.webp",
+        "crop": [
+          24,
+          8,
+          342,
+          750
+        ]
+      }
     },
     {
       "id": "caixukun",
