@@ -1,0 +1,32 @@
+{
+  "title": "透明机器人 · 透明区域与等比留边",
+  "image": "transparent-robot.png",
+  "width": 48,
+  "height": 48,
+  "mode": "bead",
+  "fit": "contain",
+  "background": "transparent",
+  "cleanup": 1,
+  "palette": [
+    {
+      "id": "INK",
+      "hex": "#293C47"
+    },
+    {
+      "id": "BLUE",
+      "hex": "#829DD2"
+    },
+    {
+      "id": "MINT",
+      "hex": "#B9E5D8"
+    },
+    {
+      "id": "CREAM",
+      "hex": "#FFF5DE"
+    },
+    {
+      "id": "PINK",
+      "hex": "#EBA6AE"
+    }
+  ]
+}

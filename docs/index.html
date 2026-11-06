@@ -1,15 +1,2306 @@
-<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>小格工坊 · Craft Pattern</title>
-<style>
-:root{font:15px system-ui,sans-serif;color:#26342e;background:#f5f3ec}*{box-sizing:border-box}section,aside{min-width:0}body{margin:0}header{padding:30px 5vw;background:#184d3c;color:#fff}header small{letter-spacing:.2em;color:#bbdac8}h1{margin:8px 0;font-size:32px}main{display:grid;grid-template-columns:290px 1fr;gap:24px;margin:24px 5vw}section,aside{background:#fff;border:1px solid #e1e3d9;border-radius:18px;padding:20px}button,input,select{font:inherit}button{cursor:pointer;padding:9px 13px;border:1px solid #cbd7cc;border-radius:9px;background:white;color:#184d3c;margin:3px}button:hover,button.active{background:#184d3c;color:#fff}label{display:block;margin:12px 0}input[type=range]{width:100%}.swatch{display:flex;align-items:center;gap:8px;width:100%;text-align:left}.dot{width:22px;height:22px;border-radius:6px;border:1px solid #bbb;flex-shrink:0}.muted{font-size:13px;color:#69786e;line-height:1.65}.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:5px}.viewport{overflow:auto;max-height:75vh;background:#e9ede7;border-radius:12px;margin-top:15px;padding:12px}canvas{display:block;background:white;image-rendering:pixelated;touch-action:none}#stats{font-weight:600;margin:12px 0}.short{color:#b44230}#message{min-height:20px;color:#b44230}footer{padding:15px 5vw;color:#69786e;font-size:13px}@media(max-width:800px){main{grid-template-columns:1fr;margin:16px}header{padding:24px}.viewport{max-height:60vh}h1{font-size:27px}}@media print{header{background:white;color:black;padding:8px}main{display:block;margin:0}aside,.toolbar,.muted,#message,footer{display:none}.viewport{max-height:none;overflow:visible;background:white;padding:0}section{border:0}canvas{max-width:100%;height:auto}}
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>小格工坊 · 拼豆图纸</title>
+<style>:root{color-scheme:light;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;color:#253e35;background:#f5f4ee;--green:#245c48;--muted:#75847b;--line:#e3e8df}
+*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button,select,input[type=range],input[type=checkbox]{cursor:pointer}button{border:0;transition:background .15s,color .15s}button:disabled{opacity:.4;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible,canvas:focus-visible{outline:3px solid #df9d59;outline-offset:3px}
+button.primary{background:var(--green);color:#fff;padding:10px 17px;border-radius:9px;font-weight:600}button.primary:hover:not(:disabled){background:#174533}button.secondary{background:#fff;color:var(--green);border:1px solid #d5dfd5;padding:9px 13px;border-radius:9px}button.secondary:hover:not(:disabled),button.tool:hover:not(:disabled){background:#eaf1e8}button.tool{background:transparent;color:#617168;padding:7px 10px;border-radius:7px;white-space:nowrap}button.tool.active{background:#e6eee3;color:#245c48;font-weight:600}button.text-button{background:transparent;color:var(--green);padding:3px 0;font-size:12px}.wide{width:100%}
+.page-header{max-width:1540px;margin:auto;padding:27px 34px 22px;display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:11px;color:var(--green);text-decoration:none;font-size:21px;font-weight:750;letter-spacing:.06em}.brand small{display:block;font-size:9px;letter-spacing:.2em;font-weight:500}.brand-mark{display:grid;grid-template-columns:repeat(2,12px);gap:3px;transform:rotate(-8deg)}.brand-mark i{width:12px;height:12px;background:#245c48;border-radius:4px}.brand-mark i:nth-child(2){background:#c78054}.brand-mark i:nth-child(3){background:#dcb899}.brand-mark i:nth-child(4){background:#a1b5a1}.offline-badge{font-size:12px;color:#6c7d70;display:flex;gap:7px;align-items:center}.offline-badge span{width:6px;height:6px;background:#61946e;border-radius:50%}
+.workspace{display:grid;grid-template-columns:304px minmax(0,1fr);gap:22px;max-width:1540px;margin:0 auto;padding:0 34px;align-items:start}.setup-panel,.editor-panel{border:1px solid var(--line);background:#fffefa;border-radius:17px;min-width:0}.setup-panel{padding:23px}.panel-heading{display:flex;align-items:center;gap:8px;margin-bottom:18px}.panel-heading h1{margin:0;font-size:15px;font-weight:650}.step{color:#a4ac9c;font-size:11px}.upload-area{border:1px dashed #cdd6c7;background:#f6f7f0;border-radius:12px;padding:14px;transition:background .15s}.upload-area.dragover{background:#e3efde;border-color:var(--green)}
+#source-preview{display:block;object-fit:contain;width:100%;height:115px;border-radius:6px;background-color:#fbfcf8;background-image:linear-gradient(45deg,#eceee7 25%,transparent 25%),linear-gradient(-45deg,#eceee7 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#eceee7 75%),linear-gradient(-45deg,transparent 75%,#eceee7 75%);background-size:14px 14px;background-position:0 0,0 7px,7px -7px,-7px 0}.upload-caption{text-align:center;margin:10px 0}.upload-caption strong{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.upload-caption span{display:block;font-size:11px;color:var(--muted);margin-top:2px}.upload-area button{font-size:12px;padding:7px}
+fieldset{border:0;padding:0;margin:23px 0 0}legend{font-size:13px;font-weight:650;margin-bottom:9px;padding:0}.dimension-row{display:flex;gap:10px;align-items:center}.dimension-row label{flex:1;min-width:0;font-size:11px;color:var(--muted)}.dimension-row input{display:block;width:100%;margin-top:4px;border:1px solid #d9e0d4;background:#fff;border-radius:7px;padding:7px 10px;color:#253e35}.times{padding-top:19px;color:#a5ae9c}.inline-options{margin-top:9px;display:flex;align-items:center;justify-content:space-between;gap:4px}.check{font-size:11px;color:#6e7c70;display:flex;align-items:center;gap:3px}.check input{accent-color:var(--green);margin:0}select{max-width:100%;border:1px solid #d9e0d4;color:#364f42;border-radius:7px;background:#fff;padding:8px 9px;font-size:12px}.inline-options select{padding:4px;font-size:11px}.help{font-size:11px;line-height:1.65;color:var(--muted);margin:7px 0 0}.range-label{display:block;font-size:11px;color:#74806f;margin-top:11px}.range-label output{float:right;color:#314f3c;font-variant-numeric:tabular-nums}.range-label input{display:block;width:100%;margin:7px 0 0;accent-color:var(--green);height:10px}.select-label{display:block;font-size:11px;color:#74806f;margin:15px 0 6px}#generate{margin-top:22px;display:flex;justify-content:space-between;padding:11px 15px}.settings-message{min-height:18px;text-align:center}
+.editor-panel{padding:27px;background:#fff}.editor-heading{display:flex;align-items:center;justify-content:space-between;gap:15px}.eyebrow{color:#a3ac97;font-size:9px;letter-spacing:.2em}.editor-heading h2{font-size:22px;font-weight:650;margin:5px 0 0;overflow-wrap:anywhere}.tag{color:#6f806b;background:#f2f4ed;border:1px solid #e6eadd;border-radius:20px;padding:5px 11px;font-size:11px;white-space:nowrap}.summary-row{display:grid;grid-template-columns:repeat(4,1fr);margin:25px 0 20px;padding:15px 0;border-top:1px solid #edf0e7;border-bottom:1px solid #edf0e7}.summary-row>div{padding-left:24px;border-right:1px solid #edf0e7}.summary-row>div:first-child{padding-left:0}.summary-row>div:last-child{border:0}.summary-row strong{display:block;font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.2}.summary-row span{font-size:10px;color:#86917e;display:block;margin-top:5px}
+.editor-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;flex-wrap:wrap}.tool-group{display:flex;align-items:center;gap:3px}.divider{display:inline-block;height:17px;width:1px;background:var(--line);margin:0 4px}.zoom-control{display:flex;align-items:center;gap:7px;font-size:10px;color:#7c8977}.zoom-control input{width:82px;height:8px;accent-color:var(--green)}
+.viewport{overflow:auto;display:grid;place-items:start center;max-height:690px;padding:24px;border:1px solid #e5e9de;border-radius:11px;background:#f6f7f2}.viewport canvas{display:block;cursor:crosshair;touch-action:none;image-rendering:pixelated;background-color:#fff;background-image:linear-gradient(45deg,#e9ede7 25%,transparent 25%),linear-gradient(-45deg,#e9ede7 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e9ede7 75%),linear-gradient(-45deg,transparent 75%,#e9ede7 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0;box-shadow:0 3px 14px #293c2910}.canvas-caption{display:flex;gap:10px;justify-content:space-between;margin:9px 0 0;font-size:10px;color:#87917e}.canvas-caption>span:first-child{display:flex;gap:5px;align-items:center}.checker-key{width:10px;height:10px;display:inline-block;border:1px solid #d6dcd0;background:conic-gradient(#fff 25%,#dce3d7 0 50%,#fff 0 75%,#dce3d7 0)}.notice{font-size:12px;margin-top:12px;color:#687e61;line-height:1.7;min-height:20px}.notice.error{color:#b04c38}
+.materials-section{margin-top:19px}.section-line{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:11px}h3{margin:0;font-size:13px;font-weight:650}.palette{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:8px}.swatch{display:flex;align-items:center;text-align:left;gap:8px;color:#3d5143;background:#fff;padding:9px;border:1px solid #e3e8dd;border-radius:9px;min-width:0}.swatch.active{background:#f0f5eb;border-color:#7c9a70}.dot{width:27px;height:27px;border-radius:6px;border:1px solid #0001;flex-shrink:0;display:grid;place-items:center;font:11px monospace}.swatch-label{min-width:0;flex:1}.swatch-label strong{display:block;font-size:10px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.swatch-label small{font-size:10px;color:#8a9581}.swatch-count{font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.export-bar{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}.export-bar>span{font-size:10px;color:#91a087}.export-bar>div{display:flex;gap:6px;flex-wrap:wrap}.export-bar button{font-size:11px;padding:8px 10px}footer{max-width:1540px;margin:0 auto;padding:21px 35px 28px;color:#96a08c;font-size:11px;display:flex;justify-content:space-between;gap:12px}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}[hidden]{display:none!important}
+@media(min-width:1550px){.viewport{max-height:760px}}
+@media(max-width:1150px){.workspace{grid-template-columns:270px minmax(0,1fr);gap:16px;padding:0 22px}.setup-panel{padding:18px}.editor-panel{padding:22px}.page-header{padding:22px}.summary-row>div{padding-left:15px}.summary-row strong{font-size:20px}.export-bar{flex-wrap:wrap}.canvas-caption{flex-wrap:wrap}}
+@media(max-width:760px){.page-header{padding:18px 16px}.brand{font-size:18px}.offline-badge{font-size:10px}.workspace{grid-template-columns:1fr;padding:0 12px}.setup-panel{padding:18px}#source-preview{height:135px}.dimension-row{max-width:330px}fieldset{margin-top:18px}.editor-panel{padding:18px 13px}.editor-heading h2{font-size:19px}.summary-row{margin-top:18px}.summary-row strong{font-size:18px}.summary-row>div{padding-left:10px}.viewport{padding:13px;max-height:65vh;place-items:start}.editor-toolbar{gap:12px}.tool-group button{padding:6px 8px}.zoom-control input{width:80px}.export-bar>div{gap:3px}.export-bar button{padding:8px}footer{padding:18px;display:block}footer span{display:block;margin-top:5px}}
+@media print{body{background:#fff}.page-header,.setup-panel,.editor-toolbar,.export-bar,.materials-section,.canvas-caption,.notice,footer{display:none!important}.workspace{display:block;margin:0;padding:0}.editor-panel{border:0;padding:0}.viewport{display:block;max-height:none;overflow:visible;border:0;padding:0;background:#fff}.viewport canvas{max-width:100%;height:auto;background:#fff;box-shadow:none}.summary-row{margin:15px 0}.tag{display:none}}
+
+/* Searchable collection and case details. */
+.view-nav { display: flex; gap: 4px; padding: 4px; background: #eaece2; border-radius: 11px; }
+.view-tab { padding: 7px 14px; color: #788271; background: transparent; border-radius: 8px; font-size: 12px; }
+.view-tab.active { color: #245c48; background: #fffefa; box-shadow: 0 1px 4px #243b2810; font-weight: 600; }
+.view-tab span { display: inline-block; margin-left: 3px; font-size: 10px; color: #8a9a7d; }
+.case-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 14px; font-size: 11px; color: #879579; }
+.case-bar>div { display: flex; gap: 13px; flex-shrink: 0; }.case-bar .text-button { font-size: 11px; }
+.library-view { max-width: 1472px; margin: 0 auto; padding: 30px; border: 1px solid var(--line); background: #fffefa; border-radius: 17px; }
+.library-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.library-heading h1 { margin: 5px 0 0; font-size: 27px; font-weight: 650; }.library-heading .help { overflow-wrap: anywhere; }
+.library-actions { display: flex; gap: 8px; flex-shrink: 0; }.library-actions button { font-size: 12px; }
+.library-search { margin-top: 27px; padding: 19px; border-radius: 12px; background: #f3f5ed; }
+.search-box { display: flex; gap: 9px; }.search-box input { width: 100%; min-width: 0; border: 1px solid #d8e0d0; background: #fff; padding: 11px 13px; border-radius: 9px; font-size: 13px; }.search-box button { flex-shrink: 0; }
+.library-filters { display: flex; gap: 13px; align-items: end; flex-wrap: wrap; margin-top: 14px; }.library-filters label { color: #7f8c73; font-size: 11px; flex: 1; min-width: 80px; max-width: 160px; }.library-filters input,.library-filters select { display: block; width: 100%; border: 1px solid #dce3d5; background: #fff; padding: 6px 9px; border-radius: 7px; margin-top: 4px; color: #3a5140; }.library-filters .tool { font-size: 11px; padding-bottom: 8px; }
+.library-results-line { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 23px; color: #718567; font-size: 12px; }.library-results-line .help { margin: 0; }
+.case-list { display: grid; grid-template-columns: repeat(auto-fill,minmax(230px,1fr)); gap: 18px; margin-top: 16px; }
+.case-card { background: #fff; border: 1px solid #e2e7dc; border-radius: 13px; overflow: hidden; min-width: 0; transition: box-shadow .2s; }.case-card:hover { box-shadow: 0 4px 18px #3150270c; }.case-thumb { display: block; width: 100%; height: 195px; padding: 17px; object-fit: contain; image-rendering: pixelated; background: repeating-conic-gradient(#edf0e7 0 25%,#f8f9f4 0 50%) 0/20px 20px; }
+.case-card-body { padding: 15px; }.case-card-title { display: flex; align-items: start; justify-content: space-between; gap: 7px; }.case-card h2 { font-size: 14px; line-height: 1.5; margin: 0; font-weight: 650; overflow-wrap: anywhere; }.case-state { font-size: 9px; padding: 3px 6px; border-radius: 5px; color: #728663; background: #f0f4eb; white-space: nowrap; }.case-state.final { background: #e4f0e8; color: #376a4f; }.case-state.made { background: #fbefdf; color: #9a7539; }
+.case-spec { color: #7d8c72; font-size: 11px; margin: 9px 0; }.case-tags { display: flex; flex-wrap: wrap; gap: 4px; min-height: 20px; margin-bottom: 12px; }.case-tags span { display: inline-block; padding: 2px 6px; background: #f3f5ee; color: #8a967e; border-radius: 5px; font-size: 10px; }.case-description { font-size: 11px; color: #8c9583; max-height: 36px; overflow: hidden; line-height: 1.6; margin: 7px 0; }.case-card-footer { border-top: 1px solid #edf0e8; padding-top: 11px; display: flex; align-items: center; justify-content: space-between; gap: 7px; }.case-card-footer .primary { padding: 7px 10px; font-size: 11px; }.case-card-footer .text-button { font-size: 10px; }.case-card-footer select { max-width: 92px; padding: 5px; font-size: 10px; }.case-date { font-size: 9px; color: #9aa58f; margin-top: 10px; }
+.library-empty { text-align: center; padding: 65px 15px; color: #8a987e; }.library-empty>span { font-size: 39px; color: #b4c3a7; }.library-empty h2 { font-size: 17px; color: #536b45; }.library-empty p { font-size: 12px; }.more-cases { display: block; margin: 25px auto 5px; }
+.case-info-dialog { width: 450px; max-width: calc(100vw - 28px); border: 1px solid #dae3d3; border-radius: 16px; padding: 25px; background: #fffefa; color: #2f4e3b; box-shadow: 0 15px 70px #253a2920; }.case-info-dialog::backdrop { background: #1d352650; backdrop-filter: blur(2px); }.case-info-dialog h2 { font-size: 19px; margin: 0; }.case-info-dialog label { display: block; margin-top: 15px; font-size: 12px; color: #738368; }.case-info-dialog input,.case-info-dialog textarea,.case-info-dialog select { display: block; width: 100%; border: 1px solid #d9e1d3; padding: 9px 11px; border-radius: 8px; color: #334c39; background: #fff; margin-top: 5px; font: inherit; }.case-info-dialog textarea { resize: vertical; }.case-info-dialog .notice { margin-bottom: 13px; }
+@media(max-width:1550px) { .library-view { margin: 0 34px; } }
+@media(max-width:1150px) { .library-view { margin: 0 22px; padding: 24px; }.page-header { flex-wrap: wrap; gap: 15px; }.offline-badge { font-size: 10px; }.case-bar { align-items: start; }.case-bar>div { gap: 7px; flex-wrap: wrap; max-width: 130px; }.case-bar .text-button { font-size: 10px; } }
+@media(max-width:760px) { .view-nav { order: 3; width: 100%; justify-content: center; }.view-tab { flex: 1; }.library-view { margin: 0 12px; padding: 19px 14px; }.library-heading { align-items: start; flex-direction: column; gap: 14px; }.library-heading h1 { font-size: 23px; }.library-search { padding: 12px; }.library-filters { gap: 9px; }.library-filters label { flex-basis: 40%; max-width: none; }.library-results-line { align-items: start; flex-direction: column; gap: 4px; }.case-list { grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap: 13px; }.case-thumb { height: 215px; }.case-bar>div { max-width: none; } }
+@media print { .view-nav,.case-bar,.library-view,.case-info-dialog { display: none !important; } }
+
+.resolution-presets { display:flex; gap:5px; flex-wrap:wrap; margin:12px 0; }
+.resolution-presets button { flex:1; padding:5px 3px; border:1px solid #dce3d5; border-radius:6px; color:#708264; background:#fff; font-size:11px; }
+.resolution-presets button.active { background:#e6eee3; border-color:#819d74; color:#245c48; }
+.resolution-summary { padding:8px 9px; margin:11px 0 0; border-radius:7px; background:#f1f4eb; color:#48643b; font-size:12px; font-variant-numeric:tabular-nums; }
+
+.swatch-row{display:flex;align-items:stretch;border:1px solid #e3e8dd;border-radius:9px;overflow:hidden;background:#fff;min-width:0}.swatch-row .swatch{flex:1;border:0;border-radius:0;padding:9px 7px;min-width:0}.swatch-edit{border:0;border-left:1px solid #e3e8dd;background:#f6f8f1;color:#48643b;padding:7px;font-size:11px;flex-shrink:0}.swatch-edit:hover{background:#e6eee3}.palette{grid-template-columns:repeat(auto-fill,minmax(185px,1fr))}.color-dialog{border:1px solid #dce3d5;border-radius:16px;padding:24px;width:min(360px,calc(100vw - 40px));color:#324d3e;background:#fffef9;box-shadow:0 24px 80px #18342330}.color-dialog::backdrop{background:#182c2359}.color-dialog h2{margin:0 0 10px;font-size:20px}.color-comparison{display:flex;justify-content:center;align-items:center;gap:24px;margin:20px 0}.color-comparison>div{display:grid;gap:7px;text-align:center}.color-sample{display:block;width:64px;height:54px;border:1px solid #0002;border-radius:8px}.color-comparison small{font-size:11px;color:#708264}.picker-label,.hex-label{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:12px 0;font-size:13px}.picker-label input{width:110px;height:40px;padding:3px;cursor:pointer}.hex-label input{width:110px;font-family:monospace}.quick-colors{display:grid;grid-template-columns:repeat(8,1fr);gap:7px;margin:10px 0 22px}.quick-color{height:29px;border:1px solid #0002;border-radius:6px}.quick-color:hover{outline:2px solid #7c9a70;outline-offset:2px}.color-dialog-actions{display:flex;justify-content:flex-end;gap:10px}
+@media print{.swatch-edit,.color-dialog{display:none!important}}
+.highlight-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0;padding:7px 10px;border:1px solid #f0cadf;border-radius:7px;background:#fff8fc;color:#a5005a;font-size:12px}.highlight-bar[hidden]{display:none}.highlight-bar .text-button{color:#a5005a}.material-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}@media print{.highlight-bar,.material-actions{display:none!important}}
 </style>
-<header><small>CRAFT PATTERN / 离线手工图纸</small><h1 id="title"></h1><div id="subtitle"></div></header>
-<main><aside><h2>色板与用量</h2><p class="muted">点击色号，再点击或拖动画布修改。括号内为库存；缺料只作提示。</p><div id="palette"></div><p id="stats"></p><p class="muted">色号来自你提供的色板，不代表任何品牌官方色值。打印前检查符号和尺寸。</p></aside><section><div class="toolbar"><button id="undo">撤销</button><button id="symbols">显示符号</button><button id="svg">导出 SVG</button><button id="csv">用量 CSV</button><button id="save">保存 JSON</button><button id="load">导入 JSON</button><button id="print">打印</button><input id="file" type="file" accept="application/json" hidden></div><label>格子大小 <input id="zoom" type="range" min="8" max="32" value="16"></label><div id="message" role="status"></div><div class="viewport"><canvas id="grid"></canvas></div></section></main><footer>小格工坊 · 原创 MIT 项目 · 本页面不上传图片或图纸</footer>
-<script id="initial" type="application/json">{"version": 1, "title": "一只橘猫 · 原创示例", "mode": "bead", "width": 40, "height": 40, "palette": [{"id": "CREAM", "hex": "#f7ebd0", "stock": 1000}, {"id": "ORANGE", "hex": "#c56e42", "stock": 600}, {"id": "SHADOW", "hex": "#854e38", "stock": 150}, {"id": "PINK", "hex": "#e9a6a1", "stock": 100}, {"id": "DARK", "hex": "#293d37", "stock": 150}], "cells": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 3, 1, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 3, 3, 1, 1, 1, 3, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0, 3, 1, 1, 1, 3, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 3, 3, 3, 3, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 3, 3, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 3, 0, 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0, 3, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 3, 4, 3, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 4, 2, 0, 0, 3, 1, 1, 1, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 3, 0, 0, 2, 4, 4, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 3, 4, 4, 3, 0, 3, 1, 1, 1, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 3, 0, 0, 4, 4, 4, 0, 0, 3, 1, 1, 1, 1, 1, 0, 0, 2, 4, 4, 3, 0, 3, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 3, 0, 0, 2, 4, 4, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 4, 4, 3, 0, 3, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 3, 4, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 4, 4, 0, 0, 3, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 4, 4, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 4, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "source": {"name": "demo.png", "fit": "contain"}, "notes": ["颜色由明确色板映射，屏幕色与实物色可能有差异。", "stock 用于缺料统计，不会自动扭曲图案以强制满足库存。"]}</script><script>
-'use strict';let data=JSON.parse(document.querySelector('#initial').textContent),brush=0,showSymbols=false,history=[],painting=false,changed=false;const $=s=>document.querySelector(s),canvas=$('#grid'),ctx=canvas.getContext('2d');
-function valid(d){if(!d||d.version!==1||!Number.isInteger(d.width)||!Number.isInteger(d.height)||d.width<4||d.height<4||d.width>160||d.height>160||!Array.isArray(d.palette)||d.palette.length<2||d.palette.length>36||!Array.isArray(d.cells)||d.cells.length!==d.width*d.height)throw Error('图纸结构或尺寸无效');let ids=new Set();d.palette.forEach(c=>{if(!c||typeof c.id!=='string'||!c.id||ids.has(c.id)||!/^#[0-9a-f]{6}$/i.test(c.hex)||c.stock!=null&&(!Number.isInteger(c.stock)||c.stock<0))throw Error('色板无效');ids.add(c.id)});if(d.cells.some(c=>!Number.isInteger(c)||c<0||c>=d.palette.length))throw Error('格子色号无效');return d}
-function counts(){let c=Array(data.palette.length).fill(0);data.cells.forEach(v=>c[v]++);return c}
-function palette(){const c=counts();$('#palette').replaceChildren();data.palette.forEach((v,i)=>{let b=document.createElement('button');b.className='swatch'+(brush===i?' active':'');let dot=document.createElement('span');dot.className='dot';dot.style.background=v.hex;let t=document.createElement('span');t.textContent=`${(i+1).toString(36).toUpperCase()} · ${v.id}  ${c[i]}${v.stock!=null?' / '+v.stock:''}`;if(v.stock!=null&&c[i]>v.stock){let e=document.createElement('strong');e.className='short';e.textContent=' 缺 '+(c[i]-v.stock);b.append(e)}b.prepend(dot,t);b.onclick=()=>{brush=i;palette()};$('#palette').append(b)});$('#stats').textContent=`${data.width} × ${data.height} · 共 ${data.cells.length} 格`}
-function draw(){const n=Number($('#zoom').value);canvas.width=data.width*n;canvas.height=data.height*n;for(let y=0;y<data.height;y++)for(let x=0;x<data.width;x++){let v=data.cells[y*data.width+x];ctx.fillStyle=data.palette[v].hex;ctx.fillRect(x*n,y*n,n,n);ctx.strokeStyle=(x%10===0||y%10===0)?'#56675d':'#0002';ctx.lineWidth=.5;ctx.strokeRect(x*n,y*n,n,n);if(showSymbols){let hex=data.palette[v].hex;let lum=parseInt(hex.slice(1,3),16)*.2126+parseInt(hex.slice(3,5),16)*.7152+parseInt(hex.slice(5,7),16)*.0722;ctx.fillStyle=lum>140?'#111':'#fff';ctx.font=`${n*.65}px monospace`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText((v+1).toString(36).toUpperCase(),(x+.5)*n,(y+.5)*n)}}$('#title').textContent=String(data.title||'手工图纸');$('#subtitle').textContent=(data.mode==='cross-stitch'?'十字绣':'拼豆')+' · 点击每一格，让图纸更适合你';palette()}
-function paint(e){let r=canvas.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)*canvas.width/r.width/Number($('#zoom').value)),y=Math.floor((e.clientY-r.top)*canvas.height/r.height/Number($('#zoom').value));if(x>=0&&x<data.width&&y>=0&&y<data.height){data.cells[y*data.width+x]=brush;changed=true;draw()}}
-canvas.onpointerdown=e=>{history.push(data.cells.slice());if(history.length>30)history.shift();painting=true;canvas.setPointerCapture(e.pointerId);paint(e)};canvas.onpointermove=e=>{if(painting)paint(e)};canvas.onpointerup=canvas.onpointercancel=()=>painting=false;$('#undo').onclick=()=>{if(history.length){data.cells=history.pop();draw()}};$('#zoom').oninput=draw;$('#symbols').onclick=()=>{showSymbols=!showSymbols;draw()};function download(name,body,type){let a=document.createElement('a'),u=URL.createObjectURL(new Blob([body],{type}));a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}$('#save').onclick=()=>download('pattern.json',JSON.stringify(data,null,2),'application/json');$('#load').onclick=()=>$('#file').click();$('#file').onchange=async e=>{try{let f=e.target.files[0];if(!f)return;if(f.size>5e6)throw Error('文件太大');data=valid(JSON.parse(await f.text()));history=[];brush=0;draw();$('#message').textContent='已导入'}catch(err){$('#message').textContent=err.message}e.target.value=''};$('#csv').onclick=()=>{let c=counts();download('materials.csv','\ufeff符号,色号,颜色,数量,库存,缺料\n'+data.palette.map((p,i)=>[(i+1).toString(36).toUpperCase(),'"'+((/^[=+@\-\t\r]/.test(p.id)?"'":'')+p.id).replaceAll('"','""')+'"',p.hex,c[i],p.stock??'',p.stock==null?'':Math.max(0,c[i]-p.stock)].join(',')).join('\n'),'text/csv;charset=utf-8')};$('#svg').onclick=()=>{let parts=[`<svg xmlns="http://www.w3.org/2000/svg" width="${data.width*5}mm" height="${data.height*5}mm" viewBox="0 0 ${data.width*20} ${data.height*20}">`];data.cells.forEach((v,i)=>{let x=i%data.width*20,y=Math.floor(i/data.width)*20;parts.push(`<rect x="${x}" y="${y}" width="20" height="20" fill="${data.palette[v].hex}" stroke="#777" stroke-width=".5"/>`);if(showSymbols)parts.push(`<text x="${x+10}" y="${y+14}" text-anchor="middle" font-size="12" fill="${contrast(data.palette[v].hex)}">${(v+1).toString(36).toUpperCase()}</text>`)});parts.push('</svg>');download('pattern.svg',parts.join(''),'image/svg+xml')};function contrast(h){return parseInt(h.slice(1,3),16)*.2126+parseInt(h.slice(3,5),16)*.7152+parseInt(h.slice(5,7),16)*.0722>140?'#111':'#fff'}$('#print').onclick=()=>window.print();valid(data);draw();
-</script></html>
+</head>
+<body>
+<header class="page-header">
+  <a class="brand" href="#"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>小格工坊<small>CRAFT PATTERN</small></span></a>
+  <nav class="view-nav" aria-label="工作区"><button id="show-editor" class="view-tab active" aria-pressed="true">编辑图纸</button><button id="show-library" class="view-tab" aria-pressed="false">案例库 <span id="library-count">0</span></button></nav>
+  <span class="offline-badge"><span></span> 本地处理 · 不上传云端</span>
+</header>
+<main id="editor-view" class="workspace">
+  <aside class="setup-panel" aria-label="生成设置">
+    <div class="panel-heading"><span class="step">01</span><h1>从一张喜欢的图开始</h1></div>
+    <div id="drop-zone" class="upload-area">
+      <img id="source-preview" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAADwCAYAAAA+VemSAAAJqklEQVR4nO3dMXIkRRCFYYlYCy6BoQtQFiZn4AI4RODjY+HjE4HDBTgDJlajA4yBvzasKaKNCWYlMZruzqp6L/P/PIhYqVVdf2fNrKS9//D+8ekOgKVPZl8AgP0IGDBGwIAxAgaMETBgjIABYwQMGCNgwBgBA8YIGDBGwIAxqYCXH7+ffQmA1T59dye6OO2Hn2ZfCiAbruQEVl8s1LWI7ke5CXyJaYzZFtFwLQI+I2SMtoiHK3+Edl5UeFuM9pnFBL7ENEYvi1G4tgGfETIqhyt5hN4To/PiY75lx/5RGhq2E/gS0xhVH/wpAj4jZFQJV/IIHSXbTUKMJeG+SDWBLzGNkTnc9AGfEXJdS+JwUx+hq95M1Lvf6SfwJaZxfkuRcEsGfEbI+SzFwrU+Qj98+U3Ix6l607NZAu9j1N4axXYCnxf69Mevhz4O09jXUjhc+4AvF/5oxCtC9hF9cnowjdf2CP3aDeBYXUP01H14tm8ihsFI9hP4EtM4L6bu6+4/vH98ujO7WbcsfuSTlJDrhHu6Yd8o7QfLI/Qtixz5hOVYPQdTt9gRutc71SuO1fnDPZlN3/QBR782XhFyP0zcIkfo2e9UrzhWxyLefUpM4EtMYy2Ee0y5gKNfG88MOXLzO1971XjLBtxjGp83ZWQII4/pb30u5a/rISBct2/gOCsdsNo0Vn5d/fzaVL6+h4JT91L5gGeGrBxsZNCE2w8BDzxWOwe7N2jF43ImBDxwGlfiNHVPpq9/S/098B487XP+HX4mtgGPemqyeeZi7ZMGPBobaSwenMYBq35nE5uqP9Y4QcDq2GB51vVk/AbWinehRd6prszlgdgET4ZM4CKbTxXrdwwTOADTeDvCjcEEDsSm9FqnU4IHLhM4GNNYP9xMCDgIwW5bI2KOQcAHEG3c2hH0PgS8AcH2w3QuGPB603vebILNG/Mpyb21DjhalpuaCUft68oH7Brt73/9E/rxvvr80zsHHLWLB+wUbHSkez+XatwnYs4fsEuwI2ONuDa1qE8bYnbZE9YBr984vvfXsrjcIOVot1y7cszZp7NswBmDdY/WMebsR237gB3izRhthpgzsA9YWaVwr339iiFn+FngFQF3UD3czCGrIeBAhHsdIccj4ACEuw0hx+EH+g8i3v1Yu+MI+AA24HGs4TEcoQ03Xq+j56yvaf28HKf3IWDRjT5jQ1/7nL2/ZiLeh4A36rGRHTbua9cYvRZEvB0BbxC5YTNs1MuvIWptiHgbAh4o88bsETPM34VW+va1I5ty3dyZ443+enkA3I4J3FGlaK99/QRZdAKr2LMBq8d7dC2I/jYE3AHxvsSa9EHAgDFeA9+A6VF7HZvQm6lWE3jv78QCquxD2YCVFw31LKL7UTZgAKYBqz7tUNsiuC95E6vDGxqKN1oF6xfr/sP7x6c7IYo378i7kIpfz2jZ1q8JvSvNBO58o84fQ3Ej9sb6FXsNrHSTop+ySk/tETKv3yK0T5nAAzdKhWnC+hWdwAo3ZdRTXmmaRKq0fovAfpUKeLbRm0JhE0Zi/QoHPPtpNmszZNmEVddvEZjCEgHPNHsTzP787tffzNfPPuCZTzGVm69yHa7X3SZex+wpPD1gAKYBM311r8ftelvRKVxyAqttPvXrcrnOJnpdPZUMGMhi2g8zzDp2RD6l29ffvfh/y28/278xcg3rp3UCYAIHbr5r/x8fY/1ilAo46gn51iY7uglVX8uxfnqmBKx8RHzLrZuLSVJv/ZYJ+7rUBAayKRNwyA+Xb5wKR6aI2jGQ9dM0PGDn4zOgtr/LTOCj9k4Dx9dyPbB+fRAwYIyAAWNDA3b9DpnDfy+59/go8kYM66e7z5nAgDECBowRMGCMgAFjwwLmGzhQyTJovzOBAWMEDBgjYMAYAQPGCBgwViLgo+8IHv1Fa3v/vMo796xf8YArLCQwY9+XmMBAVgTc+xgX8HuOM2D9+iBgwFiZgCNej2ydBkemh9r7BqyfpjIBAxkR8Ea3TgVeu72O9YtVKuCoY9Vbm+vw33uKHv9YPz2lAo70f5uMyXEb1s/onxdVeyKq/LI4h7V6Deuns1ZMYMBYyYDVntLq1+VynYvodfVUMmDFm612PW7Xu4hdzyhlAwYyKB2wylNb5Tpcr3sRuY4ZSgescPNnf37361/M1++o8gHP3ARZNh/rNw8BT9oM2TYf65c4YOW/+J+xKbJuPtZv/L5/1/0zmDlvjh6L77LxjmD9xuIIPWizVNt8rN8YTODO06TyxmP9+iPgjZvols3IpvsY69cPAW/E5jqG9YvFa2DA2LCAXf4qCXDa7xyhTX3759/hH/OXLz4L/5joiyO0qejYiNcTAQPGCNhY1NRk+voaGjBvZMU7Gh/xeu9zJnACeyMkXn8EDBgj4CS2TlOmbw7DA+Z1cD+3Rkm8efY3ExgwRsDJvDVdmb65TAmYY3Rf/xcp8ebb10zgpJ7HSrw5ETBgbFrAHKP9f3oJ8/czExgwRsCAsakBc4xGBm3iPmYCA8amB8wUhrM2ef9ODxiAecCzn2KA676VCBiAecAKTzPAbb/KBAzAPGCVpxrgsk/5lxkS4vue67j/8P7x6U4M/4Jd32j50cIc03fFBC44ZS//LDF7k5zAK6bw8WjXOPf8GXhM3xUTWNzRAC//+5aPxXT2IjuBV0zht6PbGxmT2X/6yge8IuKXsfWIqdeDIoMmGu+KI7SJ3gFdO2pXjled/AReMYXnWWOuHHATnr42Aa+IGKM18XjlvpXSfTGRRzPZbzYBAzAP2OWpCG/NaJ9ZBey2uPDTzPaXXcCOiwwPzXBfWQYMwDxgx6cldDXT/WQbsPOiQ0sz3kfWAbsvPuZr5vvHPuAMNwFztAT7JkXAWW4GxmlJ9kuagDPdFPTVEu2TVAFnuzmI15Ltj3QBZ7xJiNES7ouUAWe9WdivJd0PaQPOfNOwTUu8D1IHnP3m4W3Z73/6gCvcRNS97za/UicKv5onv1Yg3FITuOrNragVu7/lAq54k6toBe9ruSP0cxyp/bWC4ZaewJcq3/wMWvH7Vz7gVfVN4Kpx3zhCP8eRWh/h/ocJ/AybQxv352NM4CuYxjoI93UEfANCnodwryPgDQh5HMK9DQHvQMj9EO42BHwAIcch3H0IOAAh70e4xxBwIEK+HeHGIOBOiPkloo1HwJ0RMuH2RMADVYqZaMcg4IkyBU2wcxCwEKegCVYDAQtTCppgNRGwscjACdQTAQPG+HlgwBgBA8YIGDBGwIAxAgaMETBgjIABYwQMGCNgwBgBA8YIGDBGwIAxAgbufP0LN9xswGVxNekAAAAASUVORK5CYII=" alt="当前原图" draggable="false">
+      <div class="upload-caption"><strong id="source-name">原图</strong><span>拖入图片，或选择本地文件</span></div>
+      <button id="upload" type="button" class="secondary wide">选择图片</button>
+      <input id="image-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/avif" hidden>
+    </div>
+    <form id="settings">
+      <fieldset><legend>图纸分辨率</legend>
+        <label class="range-label">最长边（格）<output id="resolution-value">40</output><input id="resolution" aria-label="图纸分辨率最长边" type="range" min="4" max="160" value="40"></label>
+        <div class="resolution-presets" aria-label="常用分辨率"><button type="button" data-resolution="32">32</button><button type="button" data-resolution="48">48</button><button type="button" data-resolution="64">64</button><button type="button" data-resolution="96">96</button><button type="button" data-resolution="128">128</button><button type="button" data-resolution="160">160</button></div>
+        <div class="dimension-row"><label>宽度（格）<input id="width" type="number" min="4" max="160" required value="40"></label><span class="times">×</span><label>高度（格）<input id="height" type="number" min="4" max="160" required value="40"></label></div>
+        <div class="inline-options"><label class="check"><input id="lock-ratio" type="checkbox" checked>保持原图比例</label><select id="fit" aria-label="图片适配方式"><option value="contain">完整保留</option><option value="cover">居中裁切</option></select></div>
+        <p id="resolution-summary" class="resolution-summary" aria-live="polite"></p>
+        <p class="help">宽高各 4–160 格。取消保持比例可分别设置宽高。格数越多，细节越丰富，制作量通常越大；点击“生成图纸”应用。</p>
+      </fieldset>
+      <fieldset><legend>背景处理</legend>
+        <label class="sr-only" for="background">背景处理方式</label>
+        <select id="background" class="wide"><option value="auto">去除外围纯色背景</option><option value="transparent">保留原图透明区域</option><option value="keep">背景也拼出来</option></select>
+        <p id="background-help" class="help"></p>
+        <label id="tolerance-label" class="range-label">去底容差 <output id="tolerance-value">32</output><input id="tolerance" type="range" min="0" max="120" value="32"></label>
+      </fieldset>
+      <fieldset><legend>配色与细节</legend>
+        <label class="sr-only" for="palette-mode">配色方式</label>
+        <select id="palette-mode" class="wide"><option value="auto">从图片自动提色</option><option value="current">沿用当前图纸色板</option></select>
+        <label class="select-label" for="color-detail">颜色区分度</label>
+        <select id="color-detail" class="wide"><option value="low">低 · 更少用色</option><option value="medium" selected>中 · 平衡（默认）</option><option value="high">高 · 更多层次</option></select>
+        <p id="color-detail-help" class="help" aria-live="polite"></p>
+        <label id="color-limit-label" class="range-label">最多颜色 <output id="color-limit-value">8</output><input id="color-limit" type="range" min="2" max="36" value="8"></label>
+        <p class="help">自动提色会合并视觉相近的颜色；“最多颜色”是上限，不会为了凑数保留近似色。</p>
+        <p class="help">新图片默认按原图提色并生成。生成后可在下方“色板与材料”中调色；沿用当前色板可保留自定义配色。</p>
+        <label class="select-label" for="cleanup">清理杂色</label>
+        <select id="cleanup" class="wide"><option value="4">拼豆优先 · 整理碎色块</option><option value="0">原图细节 · 保留全部色点</option><option value="1">保守 · 清理近色单格</option><option value="2">适中 · 清理 1–2 格近色块</option><option value="3">加强 · 清理 1–4 格近色块</option></select>
+        <p class="help">新图片默认“拼豆优先”：将零碎色块归入邻近大色块，尽量保留暗色细节与鲜明点缀。细小浅色标记可能简化，可切回“原图细节”对比。</p>
+      </fieldset>
+      <button id="generate" class="primary wide" type="submit">生成图纸 <span aria-hidden="true">↗</span></button>
+      <p id="settings-message" class="help settings-message">调整设置后，点击生成图纸。</p>
+    </form>
+  </aside>
+  <section class="editor-panel" aria-label="图纸编辑器">
+    <div class="editor-heading"><div><span class="eyebrow">YOUR BEAD PATTERN</span><h2 id="title"></h2></div><span id="mode-badge" class="tag">拼豆图纸</span></div>
+    <div class="case-bar"><span id="archive-state" role="status">案例库正在连接…</span><div><button id="archive-retry" class="text-button" hidden>重试保存</button><button id="archive-current" class="text-button" disabled>存入案例库</button><button id="edit-case-info" class="text-button" disabled>编辑案例信息</button></div></div>
+    <div class="summary-row"><div><strong id="size-stat">40 × 40</strong><span>图纸格数</span></div><div><strong id="bead-stat">—</strong><span>实际用豆</span></div><div><strong id="blank-stat">—</strong><span>留空格子</span></div><div><strong id="color-stat">—</strong><span>使用颜色</span></div></div>
+    <div class="editor-toolbar">
+      <div class="tool-group"><button id="brush" class="tool active" aria-pressed="true">画笔</button><button id="eraser" class="tool" aria-pressed="false">留空橡皮</button><span class="divider"></span><button id="undo" class="tool" disabled>撤销</button><button id="redo" class="tool" disabled>重做</button></div>
+      <div class="tool-group"><button id="symbols" class="tool" aria-pressed="false">显示符号</button><label class="zoom-control" title="仅调整屏幕显示大小，不改变图纸格数">预览缩放<input id="zoom" aria-label="预览缩放" type="range" min="6" max="28" value="14"></label></div>
+    </div>
+    <div id="viewport" class="viewport"><canvas id="grid" role="img" aria-label="可编辑拼豆图纸" tabindex="0"></canvas></div>
+    <div class="canvas-caption"><span><i class="checker-key"></i>棋盘格表示留空，不计入材料</span><span id="cursor-info">选择色号后，点击或拖动修改</span></div>
+    <div id="highlight-bar" class="highlight-bar" hidden><span id="highlight-info" role="status" aria-live="polite"></span><button id="clear-highlight" class="text-button" type="button">取消高亮</button></div>
+    <div id="message" class="notice" role="status" aria-live="polite"></div>
+    <section class="materials-section" aria-label="色板与材料"><div class="section-line"><h3>色板与材料</h3><div class="material-actions"><button id="merge-colors" class="text-button" type="button">合并近似色</button><button id="compare" class="text-button" disabled>按住查看清理前</button></div></div><p class="help">点击色号，用玫红细线圈出同色区域轮廓并选择画笔；点击“调色”替换整图中该色号的颜色。</p><div id="palette" class="palette"></div><p class="help">每个色号右侧为本图所需颗数，留空格不计材料。颜色为通用 RGB 参考。</p></section>
+    <div class="export-bar"><span id="save-state">图纸已就绪</span><div><button id="svg" class="secondary">导出 SVG</button><button id="csv" class="secondary">材料 CSV</button><button id="save" class="primary">保存图纸</button><button id="load" class="tool">导入 JSON</button><button id="print" class="tool">打印</button></div><input id="json-file" type="file" accept="application/json,.json" hidden></div>
+  </section>
+</main>
+<section id="library-view" class="library-view" aria-label="我的拼豆案例库" hidden>
+  <div class="library-heading"><div><span class="eyebrow">YOUR PATTERN COLLECTION</span><h1>我的拼豆案例</h1><p id="library-storage" class="help">正在连接本地案例库…</p></div><div class="library-actions"><button id="import-library" class="secondary" disabled>导入备份</button><button id="backup-library" class="secondary" disabled>导出备份</button><input id="library-backup-file" type="file" accept="application/json,.json" hidden></div></div>
+  <form id="library-search" class="library-search" role="search">
+    <label class="search-box"><span class="sr-only">搜索案例</span><input id="case-query" type="search" placeholder="搜索名称、标签、备注，如：小猫 挂件" autocomplete="off"><button type="submit" class="primary">搜索</button></label>
+    <div class="library-filters"><label>最大宽度<input id="filter-width" type="number" min="4" max="160" placeholder="不限"></label><label>最大高度<input id="filter-height" type="number" min="4" max="160" placeholder="不限"></label><label>最多颜色<input id="filter-colors" type="number" min="1" max="36" placeholder="不限"></label><label>最多豆数<input id="filter-beads" type="number" min="0" max="25600" placeholder="不限"></label><label>制作状态<select id="filter-status"><option value="">全部状态</option><option value="draft">草稿</option><option value="final">已定稿</option><option value="made">已制作</option></select></label><button id="clear-search" type="button" class="tool">清空筛选</button></div>
+  </form>
+  <div class="library-results-line"><span id="library-results" role="status">暂无案例</span><span class="help">生成后自动归档，修改后可存为新版本</span></div>
+  <div id="library-message" class="notice" role="status"></div>
+  <div id="case-list" class="case-list"></div>
+  <div id="library-empty" class="library-empty" hidden><span aria-hidden="true">▦</span><h2>还没有找到案例</h2><p>生成图纸后会自动收录，也可以把当前图纸存入案例库。</p><button id="empty-to-editor" class="secondary">去编辑图纸</button></div>
+  <button id="more-cases" class="secondary more-cases" hidden>加载更多</button>
+</section>
+<dialog id="color-dialog" class="color-dialog" aria-labelledby="color-dialog-title">
+  <form id="color-form">
+    <h2 id="color-dialog-title">调色</h2>
+    <p id="color-usage" class="help"></p>
+    <div class="color-comparison"><div><span id="color-old" class="color-sample"></span><small>当前颜色</small></div><span aria-hidden="true">→</span><div><span id="color-new" class="color-sample"></span><small>新颜色</small></div></div>
+    <label class="picker-label" for="color-picker">自选颜色<input id="color-picker" type="color" value="#FFFFFF"></label>
+    <label class="hex-label" for="color-hex">HEX 色值<input id="color-hex" type="text" value="#FFFFFF" pattern="#[0-9A-Fa-f]{6}" maxlength="7" required spellcheck="false" autocomplete="off"></label>
+    <p class="help">常用颜色</p><div id="quick-colors" class="quick-colors" role="group" aria-label="常用颜色"></div>
+    <div class="color-dialog-actions"><button id="cancel-color" type="button" class="secondary">取消</button><button id="apply-color" type="submit" class="primary">应用颜色</button></div>
+  </form>
+</dialog>
+<dialog id="case-info-dialog" class="case-info-dialog" aria-labelledby="case-info-title">
+  <form id="case-info-form"><div class="section-line"><h2 id="case-info-title">案例信息</h2><button id="close-case-info" type="button" class="tool" aria-label="关闭案例信息">关闭</button></div><label>案例名称<input id="case-name" required maxlength="200"></label><label>标签<input id="case-tags" maxlength="400" placeholder="用逗号分隔，如：小猫，动物，挂件"></label><label>制作状态<select id="case-status"><option value="draft">草稿</option><option value="final">已定稿</option><option value="made">已制作</option></select></label><label>备注<textarea id="case-description" rows="3" maxlength="4000" placeholder="制作心得、适合用途或材料说明"></textarea></label><p id="case-info-message" class="notice" role="status"></p><button id="save-case-info" class="primary wide" type="submit">保存案例信息</button></form>
+</dialog>
+<footer>小格工坊 · 把喜欢的图，变成一颗颗豆子。<span>图纸生成后自动收录；案例库可备份迁移。</span></footer>
+<script id="initial" type="application/json">{"version": 2, "title": "一只橘猫 · 原创示例", "mode": "bead", "width": 40, "height": 40, "palette": [{"id": "CREAM", "hex": "#f7ebd0"}, {"id": "ORANGE", "hex": "#c56e42"}, {"id": "SHADOW", "hex": "#854e38"}, {"id": "PINK", "hex": "#e9a6a1"}, {"id": "DARK", "hex": "#293d37"}], "cells": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 0, 3, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 3, 3, null, null, null, null, null, null, null, null, null, null, null, 1, 1, 3, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 3, 1, 1, 3, null, null, null, null, null, null, null, null, null, null, null, 1, 1, 1, 1, 0, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 3, 1, 1, 1, 0, null, null, null, null, null, null, null, null, null, null, null, 1, 1, 3, 1, 1, 3, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 3, 1, 1, 1, 3, 1, 0, null, null, null, null, null, null, null, null, null, null, null, 1, 1, 3, 3, 1, 1, 1, 3, null, null, null, null, 3, 3, 3, 3, 0, null, null, null, 3, 1, 1, 1, 3, 3, 1, 1, null, null, null, null, null, null, null, null, null, null, null, null, 1, 1, 3, 3, 3, 3, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 3, 3, 3, 1, 1, null, null, null, null, null, null, null, null, null, null, null, null, 3, 1, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 1, 1, null, null, null, null, null, null, null, null, null, null, null, null, 3, 1, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 1, 1, null, null, null, null, null, null, null, null, null, null, null, null, 3, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, null, null, null, null, null, null, null, null, null, null, null, null, 3, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 3, null, null, null, null, null, null, null, null, null, null, null, null, 3, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 3, null, null, null, null, null, null, null, null, null, null, null, null, 3, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 3, null, null, null, null, null, null, null, null, null, null, null, null, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, null, null, null, null, null, null, null, null, null, null, null, 3, 1, 1, 1, 1, 1, 3, 0, 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0, 3, 1, 1, 1, 1, 1, 3, null, null, null, null, null, null, null, null, null, null, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, null, null, null, null, null, null, null, null, null, null, 1, 1, 1, 1, 1, 0, 0, 3, 4, 3, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 4, 2, 0, 0, 3, 1, 1, 1, 1, 3, null, null, null, null, null, null, null, null, 3, 1, 1, 1, 1, 3, 0, 0, 2, 4, 4, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 3, 4, 4, 3, 0, 3, 1, 1, 1, 1, 3, null, null, null, null, null, null, null, null, 3, 1, 1, 1, 1, 3, 0, 0, 4, 4, 4, 0, 0, 3, 1, 1, 1, 1, 1, 0, 0, 2, 4, 4, 3, 0, 3, 1, 1, 1, 1, 1, null, null, null, null, null, null, null, null, 1, 1, 1, 1, 1, 3, 0, 0, 2, 4, 4, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 4, 4, 3, 0, 3, 1, 1, 1, 1, 1, null, null, null, null, null, null, null, null, 1, 1, 1, 1, 1, 1, 0, 0, 3, 4, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 4, 4, 0, 0, 3, 1, 1, 1, 1, 1, null, null, null, null, null, null, null, null, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, null, null, null, null, null, null, null, null, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, null, null, null, null, null, null, null, null, 3, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, null, null, null, null, null, null, null, null, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, null, null, null, null, null, null, null, null, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, null, null, null, null, null, null, null, null, null, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, null, null, null, null, null, null, null, null, null, null, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, null, null, null, null, null, null, null, null, null, null, null, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, null, null, null, null, null, null, null, null, null, null, null, null, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, null, null, null, null, null, null, null, null, null, null, null, null, null, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 3, 3, 3, 3, 3, 3, 3, 3, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], "source": {"name": "demo.png", "fit": "contain"}, "processing": {"background": "auto", "background_tolerance": 32, "alpha_threshold": 128, "cleanup": 1, "color_detail": "medium"}, "metrics": {"blank_cells": 694, "bead_count": 906, "removed_background": 694, "cleaned_cells": 3}, "notes": ["颜色由明确色板映射，屏幕色与实物色可能有差异。", "自动去底仅适合与主体可区分的纯色背景；请检查轮廓和小细节。"]}</script>
+<script>/* Shared, dependency-free image processing and pattern export helpers. */
+(function (root, factory) {
+  'use strict';
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.PatternCore = api;
+}(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  const SYMBOLS = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0';
+  const WEIGHTS = [0.2126, 0.7152, 0.0722];
+  const COLOR_DETAILS = {
+    low: { tolerance: .11, blackL: .36, blackC: .04 },
+    medium: { tolerance: .075, blackL: .32, blackC: .035 },
+    high: { tolerance: .035, blackL: 0, blackC: 0 },
+  };
+
+  function colorDetailSettings(level) {
+    if (typeof level !== 'string' || !Object.prototype.hasOwnProperty.call(COLOR_DETAILS, level)) throw Error('颜色区分度须为 low、medium 或 high');
+    return COLOR_DETAILS[level];
+  }
+  const LINEAR = Array.from({ length: 256 }, (_, value) => {
+    const v = value / 255;
+    return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  });
+
+  function integer(value, min, max, message) {
+    if (!Number.isInteger(value) || value < min || value > max) throw Error(message);
+    return value;
+  }
+
+  function dimensions(width, height) {
+    integer(width, 4, 160, '图纸宽度须为 4–160 的整数');
+    integer(height, 4, 160, '图纸高度须为 4–160 的整数');
+  }
+
+  function normalizeOptions(input = {}) {
+    if (!input || typeof input !== 'object' || Array.isArray(input)) throw Error('处理参数须为对象');
+    const options = {
+      background: input.background ?? 'transparent',
+      background_tolerance: input.background_tolerance ?? 32,
+      alpha_threshold: input.alpha_threshold ?? 128,
+      cleanup: input.cleanup ?? 1,
+      color_detail: input.color_detail === undefined ? 'medium' : input.color_detail,
+    };
+    if (!['keep', 'transparent', 'auto'].includes(options.background)) throw Error('背景模式无效');
+    integer(options.background_tolerance, 0, 120, '去背景容差须为 0–120 的整数');
+    integer(options.alpha_threshold, 1, 255, '透明阈值须为 1–255 的整数');
+    integer(options.cleanup, 0, 4, '杂色清理强度须为 0–4 的整数');
+    colorDetailSettings(options.color_detail);
+    return options;
+  }
+
+  function validatePalette(input) {
+    if (!Array.isArray(input) || input.length < 2 || input.length > 36) throw Error('色板需要 2–36 种颜色');
+    const ids = new Set();
+    return input.map(color => {
+      if (!color || typeof color !== 'object' || typeof color.id !== 'string' || !color.id.trim() || ids.has(color.id)) {
+        throw Error('色号须非空且唯一');
+      }
+      if (typeof color.hex !== 'string' || !/^#[\da-f]{6}$/i.test(color.hex)) throw Error('颜色格式须为 #RRGGBB');
+      ids.add(color.id);
+      const result = { id: color.id, hex: color.hex.toUpperCase() };
+      return result;
+    });
+  }
+
+  function validatePattern(input) {
+    if (!input || typeof input !== 'object' || Array.isArray(input) || ![1, 2].includes(input.version)) {
+      throw Error('不支持的图纸版本');
+    }
+    dimensions(input.width, input.height);
+    const palette = validatePalette(input.palette);
+    const size = input.width * input.height;
+    const mode = input.mode ?? 'bead';
+    if (!['bead', 'cross-stitch'].includes(mode)) throw Error('图纸模式无效');
+    if (!Array.isArray(input.cells) || input.cells.length !== size) throw Error('格子数量与图纸尺寸不一致');
+    const cells = input.cells.map(value => {
+      if (value === null && input.version === 2) return null;
+      return integer(value, 0, palette.length - 1, '格子色号无效');
+    });
+    const result = {
+      version: 2,
+      title: typeof input.title === 'string' ? input.title : '手工图纸',
+      mode,
+      width: input.width,
+      height: input.height,
+      palette,
+      cells,
+    };
+    if (input.source && typeof input.source === 'object' && !Array.isArray(input.source)) {
+      result.source = {};
+      if (typeof input.source.name === 'string') result.source.name = input.source.name;
+      if (['contain', 'cover'].includes(input.source.fit)) result.source.fit = input.source.fit;
+    }
+    if (input.processing != null) result.processing = normalizeOptions(input.processing);
+    if (Array.isArray(input.notes)) result.notes = input.notes.filter(note => typeof note === 'string').slice(0, 50);
+    const blanks = cells.filter(value => value === null).length;
+    result.metrics = { blank_cells: blanks, bead_count: size - blanks, removed_background: 0, cleaned_cells: 0 };
+    if (input.metrics && typeof input.metrics === 'object' && !Array.isArray(input.metrics)) {
+      for (const key of ['removed_background', 'cleaned_cells']) {
+        const value = input.metrics[key];
+        if (Number.isInteger(value) && value >= 0 && value <= size) result.metrics[key] = value;
+      }
+    }
+    return result;
+  }
+
+  function neighbours(index, width, height) {
+    const x = index % width;
+    const y = Math.floor(index / width);
+    const items = [];
+    if (x > 0) items.push(index - 1);
+    if (x + 1 < width) items.push(index + 1);
+    if (y > 0) items.push(index - width);
+    if (y + 1 < height) items.push(index + width);
+    return items;
+  }
+
+  function edge(index, width, height) {
+    return index % width === 0 || index % width === width - 1 || index < width || index >= width * (height - 1);
+  }
+
+  function prepareRGBA(rgba, width, height, input = {}, source = false) {
+    if (source) {
+      integer(width, 1, 1024, '源图预处理宽度无效');
+      integer(height, 1, 1024, '源图预处理高度无效');
+    } else dimensions(width, height);
+    const processing = normalizeOptions(input);
+    const size = width * height;
+    if (!rgba || rgba.length !== size * 4) throw Error('图片像素数量无效');
+    const pixels = new Uint8ClampedArray(rgba);
+    const opaque = new Uint8Array(size);
+    let left = width;
+    let right = -1;
+    let top = height;
+    let bottom = -1;
+
+    for (let index = 0; index < size; index++) {
+      const offset = index * 4;
+      if (processing.background === 'keep') {
+        const alpha = pixels[offset + 3] / 255;
+        for (let channel = 0; channel < 3; channel++) pixels[offset + channel] = Math.round(pixels[offset + channel] * alpha + 255 * (1 - alpha));
+        pixels[offset + 3] = 255;
+      } else if (pixels[offset + 3] < processing.alpha_threshold) {
+        pixels[offset + 3] = 0;
+      }
+      if (pixels[offset + 3] !== 0) {
+        opaque[index] = 1;
+        const x = index % width;
+        const y = Math.floor(index / width);
+        left = Math.min(left, x);
+        right = Math.max(right, x);
+        top = Math.min(top, y);
+        bottom = Math.max(bottom, y);
+      }
+    }
+
+    let removed = 0;
+    if (processing.background === 'auto' && right >= left) {
+      const histogram = new Map();
+      let samples = 0;
+      for (let y = top; y <= bottom; y++) {
+        for (let x = left; x <= right; x++) {
+          if (x !== left && x !== right && y !== top && y !== bottom) continue;
+          const index = y * width + x;
+          if (!opaque[index]) continue;
+          const offset = index * 4;
+          const rgb = [pixels[offset], pixels[offset + 1], pixels[offset + 2]];
+          const sourceNeutral = source && Math.min(...rgb) >= 140 && Math.max(...rgb) - Math.min(...rgb) <= 24;
+          const key = sourceNeutral ? 'neutral-backdrop' : rgb.map(value => Math.floor(value / 16)).join(',');
+          if (!histogram.has(key)) histogram.set(key, { count: 0, sum: [0, 0, 0] });
+          const bin = histogram.get(key);
+          bin.count++;
+          rgb.forEach((value, channel) => { bin.sum[channel] += value; });
+          samples++;
+        }
+      }
+      let best = null;
+      for (const bin of histogram.values()) if (!best || bin.count > best.count) best = bin;
+      if (best && best.count / samples >= 0.35) {
+        const reference = best.sum.map(value => value / best.count);
+        const referenceMean = reference.reduce((a, b) => a + b) / 3;
+        const neutralBackdrop = referenceMean >= 150 && Math.max(...reference) - Math.min(...reference) <= 24;
+        const tolerance2 = processing.background_tolerance ** 2;
+        const candidates = new Uint8Array(size);
+        for (let index = 0; index < size; index++) {
+          if (!opaque[index]) continue;
+          const offset = index * 4;
+          let distance = 0;
+          for (let channel = 0; channel < 3; channel++) distance += (pixels[offset + channel] - reference[channel]) ** 2;
+          const rgb = Array.from(pixels.slice(offset, offset + 3));
+          const mean = rgb.reduce((a, b) => a + b) / 3;
+          // Studio backdrops vary mainly in brightness. Accept a bounded range
+          // of neutral shadows, but never walk into dark clothes or skin hues.
+          const shadow = neutralBackdrop && processing.background_tolerance > 0 &&
+            Math.max(...rgb) - Math.min(...rgb) <= 24 && mean >= 140 &&
+            Math.abs(mean - referenceMean) <= Math.min(64, processing.background_tolerance * 1.75) &&
+            Math.hypot(...rgb.map((v, c) => v - mean - reference[c] + referenceMean)) <= Math.max(8, processing.background_tolerance * .45);
+          if (distance <= tolerance2 || shadow) candidates[index] = 1;
+        }
+        const seen = new Uint8Array(size);
+        const queue = [];
+        for (let index = 0; index < size; index++) {
+          if (candidates[index] && (edge(index, width, height) || neighbours(index, width, height).some(next => !opaque[next]))) {
+            queue.push(index);
+            seen[index] = 1;
+          }
+        }
+        for (let cursor = 0; cursor < queue.length; cursor++) {
+          const index = queue[cursor];
+          pixels[index * 4 + 3] = 0;
+          removed++;
+          for (const next of neighbours(index, width, height)) {
+            if (candidates[next] && !seen[next]) {
+              seen[next] = 1;
+              queue.push(next);
+            }
+          }
+        }
+      }
+    }
+    return { pixels, processing, removed_background: removed };
+  }
+
+  function paletteRGB(palette) {
+    return palette.map(color => [1, 3, 5].map(offset => parseInt(color.hex.slice(offset, offset + 2), 16)));
+  }
+
+  function distance(a, b) {
+    return WEIGHTS.reduce((sum, weight, channel) => sum + weight * (LINEAR[a[channel]] - LINEAR[b[channel]]) ** 2, 0);
+  }
+
+  // sRGB to Oklab; see https://www.w3.org/TR/css-color-4/#color-conversion-code.
+  // The craft tolerance below is intentionally larger than a just-noticeable difference.
+  function oklab(rgb) {
+    const [r, g, b] = rgb.map(value => LINEAR[value]);
+    const l = Math.cbrt(.4122214708 * r + .5363325363 * g + .0514459929 * b);
+    const m = Math.cbrt(.2119034982 * r + .6806995451 * g + .1073969566 * b);
+    const s = Math.cbrt(.0883024619 * r + .2817188376 * g + .6299787005 * b);
+    return [.2104542553 * l + .793617785 * m - .0040720468 * s,
+      1.9779984951 * l - 2.428592205 * m + .4505937099 * s,
+      .0259040371 * l + .7827717662 * m - .808675766 * s];
+  }
+
+  function mergePalette(inputPalette, weights, tolerance = null, colorDetail = 'medium') {
+    const palette = validatePalette(inputPalette);
+    const settings = colorDetailSettings(colorDetail);
+    tolerance = tolerance ?? settings.tolerance;
+    if (!Number.isFinite(tolerance) || tolerance < 0 || tolerance > .2) throw Error('近色合并容差无效');
+    const rgb = paletteRGB(palette), labs = rgb.map(oklab);
+    // Near-neutral blacks are one practical bead shade. A fixed, bounded band
+    // avoids spending materials on tiny shadow differences, without swallowing
+    // dark blue/red accents or extending a grey gradient through neighbour links.
+    const nearBlack = lab => colorDetail !== 'high' && lab[0] <= settings.blackL && Math.hypot(lab[1], lab[2]) <= settings.blackC;
+    const deltas = labs.map(a => labs.map(b => {
+      if (tolerance > 0 && nearBlack(a) && nearBlack(b)) return 0;
+      const ca = Math.hypot(a[1], a[2]), cb = Math.hypot(b[1], b[2]);
+      // Pink accents and tan fur can be close in total distance yet convey
+      // different colors. Protect hue differences above 30 degrees whenever
+      // both colors have enough chroma for that distinction to be meaningful.
+      if (ca >= .025 && cb >= .025 && (a[1] * b[1] + a[2] * b[2]) / (ca * cb) < Math.cos(Math.PI / 6)) return Infinity;
+      return Math.hypot(...a.map((value, i) => value - b[i]));
+    }));
+    const groups = palette.map((_, index) => [index]);
+    // Complete-link clustering: every original color in a group must be close.
+    // This prevents a long gradient from collapsing through a chain of neighbours.
+    while (groups.length > 1) {
+      let pair = null, best = Infinity;
+      for (let a = 0; a < groups.length; a++) for (let b = a + 1; b < groups.length; b++) {
+        let diameter = 0;
+        for (const i of groups[a]) for (const j of groups[b]) diameter = Math.max(diameter, deltas[i][j]);
+        if (diameter <= tolerance && diameter < best) { pair = [a, b]; best = diameter; }
+      }
+      if (!pair) break;
+      groups[pair[0]].push(...groups[pair[1]]);
+      groups.splice(pair[1], 1);
+    }
+    const mapping = Array(palette.length);
+    const merged = groups.map((members, index) => {
+      let representative = members[0];
+      const total = members.reduce((sum, i) => sum + weights[i], 0);
+      const sum = [0, 0, 0];
+      for (const i of members) {
+        mapping[i] = index;
+        if (weights[i] > weights[representative]) representative = i;
+        rgb[i].forEach((value, channel) => { sum[channel] += value * (total ? weights[i] : 1); });
+      }
+      const hex = '#' + sum.map(value => Math.round(value / (total || members.length)).toString(16).padStart(2, '0')).join('').toUpperCase();
+      return { id: palette[representative].id, hex };
+    });
+    // The existing file format requires at least two palette entries. The spare
+    // stays unused and contrasting, so repeated merging is a no-op.
+    if (merged.length === 1) {
+      let id = 'SPARE';
+      while (merged.some(color => color.id === id)) id += '_';
+      merged.push({ id, hex: oklab(paletteRGB(merged)[0])[0] < .5 ? '#FFFFFF' : '#000000' });
+    }
+    return { palette: merged, mapping, merged_colors: palette.length - groups.length };
+  }
+
+  function mergeSimilarColors(input, tolerance = null, colorDetail = undefined) {
+    const pattern = validatePattern(input);
+    const detail = colorDetail ?? pattern.processing?.color_detail ?? 'medium';
+    const result = mergePalette(pattern.palette, counts(pattern), tolerance, detail);
+    return { ...result, cells: pattern.cells.map(value => value === null ? null : result.mapping[value]) };
+  }
+
+  function sampleCraftRGBA(rgba, detail, width, height, alphaThreshold = 128) {
+    dimensions(width, height);
+    if (rgba.length !== width * height * 4 || detail.length !== width * height * 36) throw Error('细节采样尺寸无效');
+    const result = new Uint8ClampedArray(rgba);
+    for (let i = 0; i < width * height; i++) {
+      if (rgba[i * 4 + 3] < alphaThreshold) continue;
+      const base = oklab(Array.from(rgba.slice(i * 4, i * 4 + 3)));
+      if (base[0] < .45) continue;
+      const samples = [];
+      for (let dy = 0; dy < 3; dy++) for (let dx = 0; dx < 3; dx++) {
+        const offset = ((Math.floor(i / width) * 3 + dy) * width * 3 + i % width * 3 + dx) * 4;
+        if (detail[offset + 3] < alphaThreshold) continue;
+        const rgb = Array.from(detail.slice(offset, offset + 3));
+        samples.push({ rgb, light: oklab(rgb)[0] });
+      }
+      if (samples.length < 8) continue; // Do not thicken the silhouette.
+      samples.sort((a, b) => a.light - b.light);
+      if (samples.at(-1).light - samples[0].light < .22 || samples[4].light - samples[1].light < .06) continue;
+      const light = (samples[0].light + samples[1].light) / 2;
+      if (light >= .52 || base[0] - light < .1) continue;
+      // Two dark sub-samples can represent an eye/short line which
+      // pure area averaging would erase; isolated one-sample noise is ignored.
+      for (let c = 0; c < 3; c++) result[i * 4 + c] = Math.round((samples[0].rgb[c] + samples[1].rgb[c]) / 2);
+    }
+    return result;
+  }
+
+  function cleanCells(input, width, height, inputPalette, strength = 1) {
+    dimensions(width, height);
+    integer(strength, 0, 4, '杂色清理强度须为 0–4 的整数');
+    const palette = validatePalette(inputPalette);
+    if (!Array.isArray(input) || input.length !== width * height) throw Error('格子数量无效');
+    for (const value of input) if (value !== null) integer(value, 0, palette.length - 1, '格子色号无效');
+    const cells = input.slice();
+    if (strength === 0) return { cells, cleaned: 0 };
+    if (strength === 4) return simplifyRegions(input, width, height, palette);
+    const maxSize = [0, 1, 2, 4][strength];
+    const limit = strength === 3 ? 0.06 : 0.035;
+    const rgb = paletteRGB(palette);
+    const seen = new Uint8Array(cells.length);
+    let cleaned = 0;
+    for (let start = 0; start < input.length; start++) {
+      if (seen[start] || input[start] === null) continue;
+      const color = input[start];
+      const component = [start];
+      seen[start] = 1;
+      const border = new Map();
+      let boundary = false;
+      let perimeter = 0;
+      for (let cursor = 0; cursor < component.length; cursor++) {
+        const index = component[cursor];
+        if (edge(index, width, height)) boundary = true;
+        for (const next of neighbours(index, width, height)) {
+          if (input[next] === color) {
+            if (!seen[next]) { seen[next] = 1; component.push(next); }
+          } else {
+            if (input[next] === null) boundary = true;
+            perimeter++;
+            border.set(input[next], (border.get(input[next]) ?? 0) + 1);
+          }
+        }
+      }
+      if (boundary || component.length > maxSize || perimeter === 0) continue;
+      let replacement = null;
+      let votes = 0;
+      for (const [candidate, count] of border) if (candidate !== null && count > votes) { replacement = candidate; votes = count; }
+      if (replacement !== null && votes / perimeter >= 0.75 && distance(rgb[color], rgb[replacement]) <= limit) {
+        for (const index of component) cells[index] = replacement;
+        cleaned += component.length;
+      }
+    }
+    return { cells, cleaned };
+  }
+
+  function simplifyRegions(input, width, height, palette) {
+    const cells = input.slice(), labs = paletteRGB(palette).map(oklab);
+    const maximum = Math.max(4, Math.min(12, Math.round(width * height * .003)));
+    // Two bounded passes absorb fragments into substantially larger neighbours.
+    // Each pass reads a frozen partition to limit cascaded flattening.
+    for (let pass = 0; pass < 2; pass++) {
+      const labels = new Int32Array(cells.length).fill(-1), regions = [];
+      cells.forEach((color, start) => {
+        if (color === null || labels[start] >= 0) return;
+        const region = { color, items: [start], border: new Map(), blank: false };
+        labels[start] = regions.length;
+        for (let cursor = 0; cursor < region.items.length; cursor++) {
+          const i = region.items[cursor];
+          if (edge(i, width, height)) region.blank = true;
+          for (const next of neighbours(i, width, height)) {
+            if (cells[next] === null) region.blank = true;
+            if (cells[next] === color && labels[next] < 0) { labels[next] = regions.length; region.items.push(next); }
+          }
+        }
+        regions.push(region);
+      });
+      for (const region of regions) for (const i of region.items) for (const next of neighbours(i, width, height)) {
+        const id = labels[next];
+        if (id >= 0 && regions[id] !== region) region.border.set(id, (region.border.get(id) || 0) + 1);
+      }
+      let changed = false;
+      for (const region of regions) {
+        const size = region.items.length;
+        if (size > maximum || !region.border.size) continue;
+        const perimeter = Array.from(region.border.values()).reduce((a, b) => a + b, 0);
+        let replacement = null, best = Infinity;
+        for (const [id, votes] of region.border) {
+          const target = regions[id];
+          if (target.items.length < Math.max(8, size * 3) || votes / perimeter < .5) continue;
+          const a = labs[region.color], b = labs[target.color];
+          const delta = Math.hypot(...a.map((v, c) => v - b[c]));
+          // Keep dark eyes/linework and vivid accents even when only one bead wide.
+          if (((!region.blank || a[0] < .3) && a[0] < b[0] - .075) || Math.hypot(a[1], a[2]) > .1) continue;
+          const lightFleck = !region.blank && size <= 3 && votes / perimeter >= .7 &&
+            a[0] > .35 && a[0] < .88 && Math.hypot(a[1], a[2]) < .045 && b[0] < .32;
+          if (delta > (lightFleck ? .55 : region.blank ? .27 : .18)) continue;
+          const score = delta + .06 * (1 - votes / perimeter);
+          if (score < best) { best = score; replacement = target.color; }
+        }
+        if (replacement === null) continue;
+        for (const i of region.items) cells[i] = replacement;
+        changed = true;
+      }
+      if (!changed) break;
+    }
+    return { cells, cleaned: cells.reduce((sum, color, i) => sum + (color !== input[i] ? 1 : 0), 0) };
+  }
+
+  function processRGBA(rgba, width, height, inputPalette, input = {}) {
+    const palette = validatePalette(inputPalette);
+    const prepared = prepareRGBA(rgba, width, height, input);
+    const rgb = paletteRGB(palette);
+    const cache = new Map();
+    const cells = [];
+    for (let index = 0; index < width * height; index++) {
+      const offset = index * 4;
+      if (prepared.pixels[offset + 3] === 0) { cells.push(null); continue; }
+      const pixel = Array.from(prepared.pixels.slice(offset, offset + 3));
+      const key = pixel.join(',');
+      if (!cache.has(key)) {
+        let best = 0;
+        let bestDistance = Infinity;
+        rgb.forEach((candidate, color) => {
+          const delta = distance(pixel, candidate);
+          if (delta < bestDistance) { best = color; bestDistance = delta; }
+        });
+        cache.set(key, best);
+      }
+      cells.push(cache.get(key));
+    }
+    const clean = cleanCells(cells, width, height, palette, prepared.processing.cleanup);
+    const blanks = clean.cells.filter(value => value === null).length;
+    return {
+      cells: clean.cells,
+      processing: prepared.processing,
+      metrics: {
+        blank_cells: blanks,
+        bead_count: clean.cells.length - blanks,
+        removed_background: prepared.removed_background,
+        cleaned_cells: clean.cleaned,
+      },
+    };
+  }
+
+  function derivePalette(rgba, width, height, options = {}, maxColors = 12) {
+    integer(maxColors, 2, 36, '自动提色数量须为 2–36 的整数');
+    const { pixels, processing } = prepareRGBA(rgba, width, height, options);
+    const histogram = new Map();
+    for (let index = 0; index < width * height; index++) {
+      const offset = index * 4;
+      if (!pixels[offset + 3]) continue;
+      const rgb = Array.from(pixels.slice(offset, offset + 3));
+      const key = rgb.join(',');
+      if (!histogram.has(key)) histogram.set(key, { rgb, count: 0 });
+      histogram.get(key).count++;
+    }
+    const points = Array.from(histogram.values());
+    if (!points.length) return [{ id: 'AUTO01', hex: '#FFFFFF' }, { id: 'AUTO02', hex: '#000000' }];
+
+    function box(items) {
+      const min = [255, 255, 255];
+      const max = [0, 0, 0];
+      let count = 0;
+      for (const item of items) {
+        item.rgb.forEach((value, channel) => { min[channel] = Math.min(min[channel], value); max[channel] = Math.max(max[channel], value); });
+        count += item.count;
+      }
+      const ranges = max.map((value, channel) => value - min[channel]);
+      let channel = 0;
+      ranges.forEach((range, index) => { if (range > ranges[channel]) channel = index; });
+      return { items, count, channel, score: ranges[channel] * Math.sqrt(count) };
+    }
+
+    // Seed by hue before median cuts. A small pink heart must not be averaged
+    // into a large tan character merely because their RGB ranges overlap.
+    const families = new Map();
+    for (const point of points) {
+      const lab = oklab(point.rgb);
+      const hue = (Math.atan2(lab[2], lab[1]) + Math.PI * 2) % (Math.PI * 2);
+      const family = Math.hypot(lab[1], lab[2]) < .025 ? 'neutral' : Math.floor(hue / (Math.PI / 6));
+      // Dark outlines can share a hue with bright pink accents. Keep the two
+      // broad lightness bands independent before distributing the color budget.
+      const key = family + ':' + (lab[0] < .5 ? 'dark' : 'light');
+      if (!families.has(key)) families.set(key, []);
+      families.get(key).push(point);
+    }
+    const seeds = Array.from(families.values()).map(box).sort((a, b) => b.count - a.count);
+    const boxes = seeds.slice(0, maxColors);
+    if (seeds.length > maxColors) {
+      const centers = boxes.map(group => oklab([0, 1, 2].map(channel => Math.round(group.items.reduce((sum, p) => sum + p.rgb[channel] * p.count, 0) / group.count))));
+      for (const group of seeds.slice(maxColors)) for (const point of group.items) {
+        const lab = oklab(point.rgb);
+        let best = 0, nearest = Infinity;
+        centers.forEach((center, i) => {
+          const delta = Math.hypot(...lab.map((value, c) => value - center[c]));
+          if (delta < nearest) { best = i; nearest = delta; }
+        });
+        boxes[best].items.push(point);
+      }
+      boxes.forEach((group, i) => { boxes[i] = box(group.items); });
+    }
+    while (boxes.length < maxColors) {
+      let selected = -1;
+      boxes.forEach((item, index) => {
+        if (item.items.length > 1 && (selected < 0 || item.score > boxes[selected].score)) selected = index;
+      });
+      if (selected < 0) break;
+      const current = boxes[selected];
+      const ordered = current.items.slice().sort((a, b) => a.rgb[current.channel] - b.rgb[current.channel] || a.rgb[0] - b.rgb[0] || a.rgb[1] - b.rgb[1] || a.rgb[2] - b.rgb[2]);
+      let running = 0;
+      let cut = 1;
+      for (let index = 0; index < ordered.length - 1; index++) {
+        running += ordered[index].count;
+        cut = index + 1;
+        if (running >= current.count / 2) break;
+      }
+      boxes.splice(selected, 1, box(ordered.slice(0, cut)), box(ordered.slice(cut)));
+    }
+    const colors = [], weights = [];
+    for (const current of boxes) {
+      const sum = [0, 0, 0];
+      current.items.forEach(item => item.rgb.forEach((value, channel) => { sum[channel] += value * item.count; }));
+      const hex = '#' + sum.map(value => Math.round(value / current.count).toString(16).padStart(2, '0')).join('').toUpperCase();
+      const existing = colors.indexOf(hex);
+      if (existing < 0) { colors.push(hex); weights.push(current.count); }
+      else weights[existing] += current.count;
+    }
+    if (colors.length === 1) { colors.push(colors[0] === '#000000' ? '#FFFFFF' : '#000000'); weights.push(0); }
+    const candidate = colors.map((hex, index) => ({ id: 'AUTO' + String(index + 1).padStart(2, '0'), hex }));
+    const first = mergePalette(candidate, weights, null, processing.color_detail);
+    const usage = Array(first.palette.length).fill(0);
+    weights.forEach((weight, i) => { usage[first.mapping[i]] += weight; });
+    // Reconcile representative averages once: quantization boxes can have
+    // different extremes while their final displayed colors are nearly equal.
+    return mergePalette(first.palette, usage, null, processing.color_detail).palette.map((color, index) => ({ ...color, id: 'AUTO' + String(index + 1).padStart(2, '0') }));
+  }
+
+  function counts(pattern) {
+    const result = Array(pattern.palette.length).fill(0);
+    for (const value of pattern.cells) {
+      if (value === null) continue;
+      integer(value, 0, result.length - 1, '格子色号无效');
+      result[value]++;
+    }
+    return result;
+  }
+
+  function symbol(index) {
+    return SYMBOLS[integer(index, 0, 35, '颜色符号超出范围')];
+  }
+
+  function escapeXML(value) {
+    return String(value).replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' }[character]));
+  }
+
+  function toSVG(input, showSymbols = false) {
+    const pattern = validatePattern(input);
+    const parts = [
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${pattern.width * 5}mm" height="${pattern.height * 5}mm" viewBox="0 0 ${pattern.width * 20} ${pattern.height * 20}">`,
+      `<title>${escapeXML(pattern.title)}</title>`,
+      '<desc>空白格不放豆；图纸每格 5 mm，实际颗粒间距另行核对。</desc>',
+    ];
+    pattern.cells.forEach((value, index) => {
+      const x = index % pattern.width * 20;
+      const y = Math.floor(index / pattern.width) * 20;
+      if (value === null) {
+        parts.push(`<rect x="${x}" y="${y}" width="20" height="20" fill="none" stroke="#cbd5d1" stroke-width=".4"/>`);
+        return;
+      }
+      const hex = pattern.palette[value].hex;
+      parts.push(`<rect x="${x}" y="${y}" width="20" height="20" fill="${hex}" stroke="#81938a" stroke-width=".5"/>`);
+      if (showSymbols) {
+        const rgb = [1, 3, 5].map(offset => parseInt(hex.slice(offset, offset + 2), 16));
+        const luminance = rgb.reduce((sum, channel, position) => sum + channel * WEIGHTS[position], 0);
+        parts.push(`<text x="${x + 10}" y="${y + 14}" text-anchor="middle" font-family="monospace" font-size="12" fill="${luminance > 140 ? '#111111' : '#FFFFFF'}">${symbol(value)}</text>`);
+      }
+    });
+    parts.push('</svg>');
+    return parts.join('\n');
+  }
+
+  function toCSV(input) {
+    const pattern = validatePattern(input);
+    const usage = counts(pattern);
+    const quote = value => '"' + String(value).replace(/"/g, '""') + '"';
+    const rows = ['符号,色号,颜色,数量'];
+    pattern.palette.forEach((color, index) => {
+      const safeID = /^[\s]*[=+@\-]/.test(color.id) || /^[\t\r\n]/.test(color.id) ? "'" + color.id : color.id;
+      rows.push([symbol(index), quote(safeID), color.hex, usage[index]].join(','));
+    });
+    return '\uFEFF' + rows.join('\r\n') + '\r\n';
+  }
+
+  const prepareSourceRGBA = (rgba, width, height, options) => prepareRGBA(rgba, width, height, options, true);
+  return { normalizeOptions, validatePattern, prepareRGBA, prepareSourceRGBA, sampleCraftRGBA, processRGBA, cleanCells, derivePalette, mergeSimilarColors, counts, symbol, toSVG, toCSV };
+}));
+</script>
+<script>/* Case storage: localhost SQLite when available, otherwise this browser's IndexedDB. */
+(function (root, factory) {
+  'use strict';
+  const api = factory(root);
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.CaseLibrary = api;
+}(typeof globalThis !== 'undefined' ? globalThis : this, function (root) {
+  'use strict';
+
+  const FORMAT = 'craft-pattern-library';
+  const DATABASE = 'craft-pattern-library';
+  const STATUSES = ['draft', 'final', 'made'];
+  const MISSING_API = Symbol('missing-library-api');
+  const has = (object, key) => Object.prototype.hasOwnProperty.call(object, key) && object[key] !== undefined;
+  const copy = value => JSON.parse(JSON.stringify(value));
+
+  function core() {
+    if (root.PatternCore) return root.PatternCore;
+    if (typeof require === 'function') return require('./pattern-core.js');
+    throw Error('图纸处理模块尚未载入');
+  }
+
+  function object(value, message) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) throw Error(message);
+    return value;
+  }
+
+  function text(value, fallback, maximum, label) {
+    if (value === undefined) value = fallback;
+    if (typeof value !== 'string' || value.length > maximum) throw Error(`${label}须为不超过 ${maximum} 字符的文字`);
+    return value.trim();
+  }
+
+  function normalizeMetadata(input = {}, defaults = {}) {
+    object(input, '案例信息须为对象');
+    const title = text(input.title, defaults.title ?? '未命名案例', 300, '案例标题') || '未命名案例';
+    const description = text(input.description, defaults.description ?? '', 5000, '案例说明');
+    const status = input.status ?? defaults.status ?? 'draft';
+    if (!STATUSES.includes(status)) throw Error('案例状态须为 draft、final 或 made');
+    const inputTags = input.tags ?? defaults.tags ?? [];
+    if (!Array.isArray(inputTags) || inputTags.length > 20) throw Error('标签须为不超过 20 项的数组');
+    const tags = [];
+    for (const tag of inputTags) {
+      const normalized = text(tag, '', 50, '标签');
+      if (normalized && !tags.includes(normalized)) tags.push(normalized);
+    }
+    return { title, tags, description, status };
+  }
+
+  function imageData(value, label) {
+    if (value == null || value === '') return null;
+    if (typeof value !== 'string' || !/^data:image\/(?:png|jpeg|webp);base64,[A-Za-z\d+/=\r\n]+$/.test(value)) {
+      throw Error(`${label}须为 PNG、JPEG 或 WebP 的 base64 图片`);
+    }
+    if (value.length > Math.floor(10 * 1024 * 1024 * 4 / 3) + 100) throw Error(`${label}不能超过 10 MB，请先缩小图片`);
+    return value;
+  }
+
+  function validID(value) {
+    if (typeof value !== 'string' || !/^[A-Za-z\d][A-Za-z\d._-]{0,127}$/.test(value)) throw Error('案例 ID 无效');
+    return value;
+  }
+
+  function timestamp(value, label) {
+    if (typeof value !== 'string' || !Number.isFinite(Date.parse(value))) throw Error(`${label}无效`);
+    return new Date(value).toISOString();
+  }
+
+  function stable(value) {
+    if (value === null || typeof value !== 'object') return JSON.stringify(value);
+    if (Array.isArray(value)) return '[' + value.map(stable).join(',') + ']';
+    return '{' + Object.keys(value).sort().map(key => JSON.stringify(key) + ':' + stable(value[key])).join(',') + '}';
+  }
+
+  function fingerprint(pattern, sourceData = null) {
+    const normalized = core().validatePattern(pattern);
+    return stable({
+      mode: normalized.mode,
+      width: normalized.width,
+      height: normalized.height,
+      palette: normalized.palette,
+      cells: normalized.cells,
+      processing: core().normalizeOptions(normalized.processing || {}),
+      source_data: sourceData ?? null,
+    });
+  }
+
+  function latestVersion(record) {
+    if (!Array.isArray(record.versions) || record.versions.length === 0) throw Error('案例缺少图纸版本');
+    return record.versions.reduce((latest, version) => version.version > latest.version ? version : latest);
+  }
+
+  function createSummary(record, version = latestVersion(record)) {
+    const pattern = core().validatePattern(version.pattern);
+    const counts = core().counts(pattern);
+    const beadCount = counts.reduce((sum, count) => sum + count, 0);
+    return {
+      id: record.id,
+      ...normalizeMetadata(record),
+      width: pattern.width,
+      height: pattern.height,
+      color_count: counts.filter(count => count > 0).length,
+      bead_count: beadCount,
+      blank_cells: pattern.cells.length - beadCount,
+      version_count: record.versions.length,
+      created_at: record.created_at,
+      updated_at: record.updated_at,
+      preview_url: version.preview_data || null,
+      source_name: pattern.source?.name || '',
+    };
+  }
+
+  function normalizeFilters(input = {}) {
+    object(input, '筛选条件须为对象');
+    const filters = { q: input.q == null ? '' : String(input.q).trim(), limit: 24, offset: 0 };
+    if (filters.q.length > 500) throw Error('搜索内容不能超过 500 字符');
+    for (const [field, maximum] of [['max_width', 160], ['max_height', 160], ['max_colors', 36], ['max_beads', 25600]]) {
+      if (input[field] === undefined || input[field] === null || input[field] === '') continue;
+      const value = Number(input[field]);
+      if (!Number.isInteger(value) || value < 0 || value > maximum) throw Error('筛选数量超出范围');
+      filters[field] = value;
+    }
+    if (input.status != null && input.status !== '') {
+      if (!STATUSES.includes(input.status)) throw Error('案例筛选状态无效');
+      filters.status = input.status;
+    }
+    for (const field of ['limit', 'offset']) {
+      if (input[field] === undefined || input[field] === null || input[field] === '') continue;
+      const value = Number(input[field]);
+      if (!Number.isSafeInteger(value) || value < (field === 'limit' ? 1 : 0) || value > (field === 'limit' ? 100 : 1_000_000)) throw Error('案例分页参数无效');
+      filters[field] = value;
+    }
+    return filters;
+  }
+
+  function filterCases(records, input = {}) {
+    const filters = normalizeFilters(input);
+    const words = filters.q.toLocaleLowerCase().split(/\s+/u).filter(Boolean);
+    const items = records.map(record => record.versions ? createSummary(record) : copy(record)).filter(item => {
+      const haystack = [item.title, ...(item.tags || []), item.description, item.source_name].join(' ').toLocaleLowerCase();
+      if (!words.every(word => haystack.includes(word))) return false;
+      if (filters.status && item.status !== filters.status) return false;
+      for (const [filter, field] of [['max_width', 'width'], ['max_height', 'height'], ['max_colors', 'color_count'], ['max_beads', 'bead_count']]) {
+        if (filters[filter] !== undefined && item[field] > filters[filter]) return false;
+      }
+      return true;
+    });
+    items.sort((a, b) => String(b.updated_at).localeCompare(String(a.updated_at)) || String(b.id).localeCompare(String(a.id)));
+    return { items: items.slice(filters.offset, filters.offset + filters.limit), total: items.length };
+  }
+
+  function validateBackup(input) {
+    object(input, '案例库备份须为对象');
+    if (input.format !== FORMAT || input.version !== 1 || !Array.isArray(input.cases)) throw Error('不支持的案例库备份格式');
+    if (input.cases.length > 10000) throw Error('备份案例数量超过 10000 项');
+    const ids = new Set();
+    const cases = input.cases.map(record => {
+      object(record, '备份案例格式无效');
+      const id = validID(record.id);
+      if (ids.has(id)) throw Error('备份包含重复案例 ID');
+      ids.add(id);
+      if (!Array.isArray(record.versions) || record.versions.length === 0 || record.versions.length > 1000) throw Error('备份案例需要 1–1000 个图纸版本');
+      const numbers = new Set();
+      const versions = record.versions.map(version => {
+        object(version, '备份图纸版本无效');
+        if (!Number.isSafeInteger(version.version) || version.version < 1 || numbers.has(version.version)) throw Error('备份版本编号无效或重复');
+        numbers.add(version.version);
+        return {
+          version: version.version,
+          pattern: core().validatePattern(version.pattern),
+          source_data: imageData(version.source_data, '原图'),
+          preview_data: imageData(version.preview_data, '预览图'),
+          created_at: timestamp(version.created_at, '版本时间'),
+        };
+      }).sort((a, b) => a.version - b.version);
+      return {
+        id,
+        ...normalizeMetadata(record),
+        created_at: timestamp(record.created_at, '案例创建时间'),
+        updated_at: timestamp(record.updated_at, '案例更新时间'),
+        versions,
+      };
+    });
+    return { format: FORMAT, version: 1, cases };
+  }
+
+  function defaultID() {
+    return root.crypto?.randomUUID?.() || 'case-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 12);
+  }
+
+  // The adapter has readAll() and mutate(fn). mutate calls fn(records) atomically;
+  // its result is { records: changedRecordsToPut, value: returnValue }.
+  function createStoreClient(store, options = {}) {
+    const now = options.now || (() => new Date().toISOString());
+    const newID = options.idFactory || defaultID;
+    const path = options.path || '此浏览器 · IndexedDB / craft-pattern-library';
+    const uniqueID = records => {
+      const used = new Set(records.map(record => record.id));
+      let id;
+      for (let tries = 0; tries < 100; tries++) {
+        id = validID(newID());
+        if (!used.has(id)) return id;
+      }
+      throw Error('无法分配新的案例 ID，请重试');
+    };
+    function notFound() { const error = Error('未找到这份案例或图纸版本'); error.status = 404; throw error; }
+
+    return {
+      backend: 'indexeddb',
+      path,
+      async info() { return { backend: 'indexeddb', path, case_count: (await store.readAll()).length }; },
+      async list(filters = {}) { return filterCases(await store.readAll(), filters); },
+      async save(input) {
+        object(input, '保存内容须为对象');
+        const pattern = core().validatePattern(input.pattern);
+        const suppliedSource = has(input, 'source_data') ? imageData(input.source_data, '原图') : undefined;
+        const suppliedPreview = has(input, 'preview_data') ? imageData(input.preview_data, '预览图') : undefined;
+        if (input.case_id != null) validID(input.case_id);
+        normalizeMetadata(input, { title: pattern.title });
+        return store.mutate(records => {
+          let existing = input.case_id != null ? records.find(record => record.id === input.case_id) : null;
+          if (input.case_id != null && !existing) return notFound();
+          const previous = existing ? latestVersion(existing) : null;
+          const sourceData = suppliedSource !== undefined ? suppliedSource : previous?.source_data ?? null;
+          const signature = fingerprint(pattern, sourceData);
+          if (!existing) {
+            const duplicate = records.find(record => {
+              const latest = latestVersion(record);
+              return fingerprint(latest.pattern, latest.source_data) === signature;
+            });
+            if (duplicate) return { records: [], value: { case: createSummary(duplicate), created: false, version_added: false } };
+          }
+          const date = timestamp(now(), '保存时间');
+          const metadata = normalizeMetadata(input, existing || { title: pattern.title });
+          if (!existing) {
+            const record = { id: uniqueID(records), ...metadata, created_at: date, updated_at: date, versions: [{ version: 1, pattern, source_data: sourceData, preview_data: suppliedPreview ?? null, created_at: date }] };
+            return { records: [record], value: { case: createSummary(record), created: true, version_added: true } };
+          }
+          const duplicate = fingerprint(previous.pattern, previous.source_data) === signature;
+          const record = { ...existing, ...metadata, versions: existing.versions.slice() };
+          if (!duplicate) record.versions.push({ version: previous.version + 1, pattern, source_data: sourceData, preview_data: suppliedPreview ?? null, created_at: date });
+          const metadataChanged = stable(normalizeMetadata(existing)) !== stable(metadata);
+          if (!duplicate || metadataChanged) record.updated_at = date;
+          return { records: !duplicate || metadataChanged ? [record] : [], value: { case: createSummary(record), created: false, version_added: !duplicate } };
+        });
+      },
+      async get(id, version) {
+        validID(id);
+        if (version != null && (!Number.isSafeInteger(Number(version)) || Number(version) < 1)) throw Error('版本编号无效');
+        const record = (await store.readAll()).find(item => item.id === id);
+        if (!record) return notFound();
+        const selected = version == null ? latestVersion(record) : record.versions.find(item => item.version === Number(version));
+        if (!selected) return notFound();
+        return {
+          case: createSummary(record),
+          pattern: core().validatePattern(selected.pattern),
+          source_url: selected.source_data || null,
+          preview_url: selected.preview_data || null,
+          versions: record.versions.map(item => ({ version: item.version, created_at: item.created_at })).sort((a, b) => b.version - a.version),
+        };
+      },
+      async update(id, metadata) {
+        validID(id);
+        object(metadata, '案例信息须为对象');
+        return store.mutate(records => {
+          const existing = records.find(record => record.id === id);
+          if (!existing) return notFound();
+          const normalized = normalizeMetadata(metadata, existing);
+          const changed = stable(normalizeMetadata(existing)) !== stable(normalized);
+          const record = { ...existing, ...normalized, updated_at: changed ? timestamp(now(), '保存时间') : existing.updated_at };
+          return { records: changed ? [record] : [], value: { case: createSummary(record) } };
+        });
+      },
+      async backup() {
+        const cases = (await store.readAll()).sort((a, b) => a.created_at.localeCompare(b.created_at) || a.id.localeCompare(b.id));
+        return validateBackup({ format: FORMAT, version: 1, cases });
+      },
+      async importBackup(input) {
+        const backup = validateBackup(input); // Validate every version before opening a write transaction.
+        return store.mutate(records => {
+          const existing = records.slice();
+          const changed = [];
+          const conflicts = [];
+          let skipped = 0;
+          const contentKey = record => stable(record.versions.map(version => fingerprint(version.pattern, version.source_data)));
+          const signatures = new Set(existing.map(contentKey));
+          for (const candidate of backup.cases) {
+            const key = contentKey(candidate);
+            if (signatures.has(key)) { skipped++; continue; }
+            const record = copy(candidate);
+            if (existing.some(item => item.id === record.id)) {
+              const oldID = record.id;
+              record.id = uniqueID(existing);
+              conflicts.push({ old_id: oldID, new_id: record.id });
+            }
+            existing.push(record); changed.push(record); signatures.add(key);
+          }
+          return { records: changed, value: { imported: changed.length, skipped, conflicts } };
+        });
+      },
+    };
+  }
+
+  function openIndexedDB(indexedDB) {
+    if (!indexedDB) return Promise.reject(Error('此浏览器不支持 IndexedDB；请通过本地案例库服务使用，或更换浏览器。'));
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DATABASE, 1);
+      request.onupgradeneeded = () => {
+        if (!request.result.objectStoreNames.contains('cases')) request.result.createObjectStore('cases', { keyPath: 'id' });
+      };
+      request.onerror = () => reject(request.error || Error('无法打开浏览器案例库'));
+      request.onblocked = () => reject(Error('案例库升级被其他页面阻塞，请关闭其他拼豆页面后重试。'));
+      request.onsuccess = () => {
+        const database = request.result;
+        database.onversionchange = () => database.close();
+        const failure = transaction => transaction.error?.name === 'QuotaExceededError'
+          ? Error('浏览器案例库空间不足，请先导出备份并迁移到本地 SQLite 案例库。')
+          : transaction.error || Error('浏览器案例库读写失败');
+        resolve({
+          readAll() {
+            return new Promise((done, fail) => {
+              const transaction = database.transaction('cases', 'readonly');
+              const result = transaction.objectStore('cases').getAll();
+              transaction.oncomplete = () => done(result.result);
+              transaction.onabort = () => fail(failure(transaction));
+              transaction.onerror = () => { /* onabort returns the final transaction error. */ };
+            });
+          },
+          mutate(transform) {
+            return new Promise((done, fail) => {
+              const transaction = database.transaction('cases', 'readwrite');
+              const store = transaction.objectStore('cases');
+              const result = store.getAll();
+              let value;
+              let localError;
+              result.onsuccess = () => {
+                try {
+                  const update = transform(result.result);
+                  value = update.value;
+                  for (const record of update.records) store.put(record);
+                } catch (error) { localError = error; transaction.abort(); }
+              };
+              transaction.oncomplete = () => done(value);
+              transaction.onabort = () => fail(localError || failure(transaction));
+              transaction.onerror = () => { /* Failed writes abort the whole transaction. */ };
+            });
+          },
+        });
+      };
+    });
+  }
+
+  async function responseJSON(response) {
+    let body;
+    try { body = await response.json(); } catch (cause) {
+      // A response can arrive before the connection drops while reading its
+      // body. Keep that distinct from a server returning malformed JSON.
+      if (cause?.name === 'AbortError' || cause instanceof TypeError) throw cause;
+      const error = Error(`案例库服务返回了无效数据（HTTP ${response.status}）`);
+      error.status = response.status;
+      throw error;
+    }
+    if (!response.ok) {
+      const detail = typeof body?.error === 'string' ? body.error : body?.error?.message || body?.message;
+      const error = Error(detail || `案例库请求失败（HTTP ${response.status}）`);
+      error.status = response.status;
+      throw error;
+    }
+    return body;
+  }
+
+  function connectionError(cause, timedOut = false) {
+    const error = Error(timedOut
+      ? '本地案例库服务连接超时，图纸尚未确认归档。恢复服务后请重试保存。'
+      : '本地案例库服务未连接，图纸尚未归档。恢复服务后请重试保存。');
+    error.code = timedOut ? 'LIBRARY_TIMEOUT' : 'LIBRARY_CONNECTION';
+    error.retryable = true;
+    if (cause) error.cause = cause;
+    return error;
+  }
+
+  async function fetchLibraryJSON(fetcher, url, options, timeoutMs, allowMissing = false) {
+    const controller = typeof root.AbortController === 'function' ? new root.AbortController() : null;
+    let timer;
+    let timedOut = false;
+    const timeout = new Promise((_, reject) => {
+      timer = setTimeout(() => {
+        timedOut = true;
+        controller?.abort();
+        reject(connectionError(null, true));
+      }, timeoutMs);
+    });
+    const request = (async () => {
+      let response;
+      try {
+        response = await fetcher(url, { ...options, ...(controller ? { signal: controller.signal } : {}) });
+      } catch (cause) {
+        throw connectionError(cause, timedOut);
+      }
+      // A static-hosted editor has no API. This is the only HTTP response that
+      // permits selecting IndexedDB; an unavailable existing service does not.
+      if (allowMissing && response.status === 404) return MISSING_API;
+      return responseJSON(response);
+    })();
+    try { return await Promise.race([request, timeout]); }
+    catch (error) {
+      if (error.code === 'LIBRARY_CONNECTION' || error.code === 'LIBRARY_TIMEOUT' || error.status !== undefined) throw error;
+      throw connectionError(error, timedOut);
+    } finally { clearTimeout(timer); }
+  }
+
+  function createHTTPClient(fetcher, initialInfo, timeoutMs) {
+    const request = async (url, method = 'GET', payload) => {
+      const options = { method, credentials: 'same-origin', cache: 'no-store', headers: { Accept: 'application/json' } };
+      if (payload !== undefined) { options.headers['Content-Type'] = 'application/json'; options.body = JSON.stringify(payload); }
+      return fetchLibraryJSON(fetcher, url, options, timeoutMs);
+    };
+    const route = id => '/api/library/cases/' + encodeURIComponent(validID(id));
+    return {
+      backend: 'sqlite', path: initialInfo.path,
+      info: () => request('/api/library/info'),
+      list(filters = {}) {
+        const normalized = normalizeFilters(filters);
+        const query = new URLSearchParams();
+        for (const [key, value] of Object.entries(normalized)) if (value !== '') query.set(key, String(value));
+        return request('/api/library/cases?' + query.toString());
+      },
+      save(input) {
+        object(input, '保存内容须为对象');
+        const pattern = core().validatePattern(input.pattern);
+        const metadata = normalizeMetadata(input, { title: pattern.title });
+        const body = { pattern };
+        // Keep omitted metadata omitted so saving an existing case preserves its
+        // independently edited title, tags, notes and production status.
+        for (const key of ['title', 'tags', 'description', 'status']) if (has(input, key)) body[key] = metadata[key];
+        for (const key of ['source_data', 'preview_data']) if (has(input, key)) body[key] = imageData(input[key], key === 'source_data' ? '原图' : '预览图');
+        if (input.case_id != null) body.case_id = validID(input.case_id);
+        return request('/api/library/cases', 'POST', body);
+      },
+      get(id, version) {
+        let url = route(id);
+        if (version != null) {
+          if (!Number.isSafeInteger(Number(version)) || Number(version) < 1) throw Error('版本编号无效');
+          url += '?version=' + Number(version);
+        }
+        return request(url);
+      },
+      update(id, metadata) {
+        const normalized = normalizeMetadata(metadata);
+        const body = {};
+        for (const key of ['title', 'tags', 'description', 'status']) if (has(metadata, key)) body[key] = normalized[key];
+        return request(route(id), 'PATCH', body);
+      },
+      backup: () => request('/api/library/backup'),
+      importBackup: input => request('/api/library/import', 'POST', validateBackup(input)),
+    };
+  }
+
+  async function createClient(options = {}) {
+    if (options.store) return createStoreClient(options.store, options);
+    const location = options.location || root.location;
+    const fetcher = options.fetch || (typeof root.fetch === 'function' ? root.fetch.bind(root) : null);
+    const timeoutMs = options.timeoutMs ?? 10_000;
+    if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) throw Error('案例库连接超时时间无效');
+    if (location?.protocol !== 'file:' && fetcher) {
+      const info = await fetchLibraryJSON(fetcher, '/api/library/info', {
+        credentials: 'same-origin', cache: 'no-store', headers: { Accept: 'application/json' },
+      }, timeoutMs, true);
+      if (info !== MISSING_API) {
+        if (!info || info.backend !== 'sqlite') throw Error('本地案例库服务类型不受支持');
+        return createHTTPClient(fetcher, info, timeoutMs);
+      }
+    } else if (['http:', 'https:'].includes(location?.protocol)) {
+      throw connectionError();
+    }
+    return createStoreClient(await openIndexedDB(options.indexedDB || root.indexedDB), options);
+  }
+
+  return { createClient, createStoreClient, createSummary, validateBackup, normalizeMetadata, filterCases, fingerprint };
+}));
+</script>
+<script>/* Collection UI: uses the same contract for SQLite and the offline browser store. */
+(function (root) {
+  'use strict';
+  const $ = selector => document.querySelector(selector);
+  const STATES = { draft: '草稿', final: '已定稿', made: '已制作' };
+
+  function mount(editor) {
+    let client;
+    let connection;
+    let connectionFailed = false;
+    let activeDocument = null;
+    const documents = new Map();
+    let saveQueue = Promise.resolve();
+    let searchSequence = 0;
+    let searchTimer;
+    let offset = 0;
+    let visible = false;
+    let editingCase = null;
+    let infoSequence = 0;
+    let openSequence = 0;
+    const limit = 24;
+
+    function message(text, error = false) {
+      $('#library-message').textContent = text;
+      $('#library-message').classList.toggle('error', error);
+    }
+
+    function archiveState(text, error = false) {
+      $('#archive-state').textContent = text;
+      $('#archive-state').style.color = error ? '#b04c38' : '';
+      $('#archive-retry').hidden = !error;
+    }
+
+    function enableLibraryControls() {
+      $('#library-storage').textContent = client.backend === 'sqlite'
+        ? '保存在这台电脑上 · 原图、图纸与版本一起归档'
+        : '保存在当前浏览器中 · 清理浏览器数据前，请导出备份';
+      for (const id of ['archive-current', 'backup-library', 'import-library']) $('#' + id).disabled = false;
+    }
+
+    function ensureReady() {
+      if (client) return Promise.resolve(client);
+      if (connection) return connection;
+      connection = (async () => {
+        try {
+          const connected = await CaseLibrary.createClient();
+          // Keep the selected backend even if the following count refresh fails.
+          client = connected;
+          await refreshInfo(connected);
+          connectionFailed = false;
+          enableLibraryControls();
+          archiveState('生成后自动收录到案例库');
+          return client;
+        } catch (error) {
+          connectionFailed = true;
+          $('#archive-current').disabled = false;
+          archiveState('案例库未连接。图纸仍保留在当前页面，可恢复服务后重试保存。', true);
+          message(error.message, true);
+          throw error;
+        } finally { connection = null; }
+      })();
+      return connection;
+    }
+    const ready = ensureReady();
+    // Initialization errors are shown in the UI; do not create an unhandled rejection.
+    ready.catch(() => {});
+
+    async function refreshInfo(current = client) {
+      const info = await current.info();
+      $('#library-count').textContent = info.case_count ?? 0;
+    }
+
+    function filters() {
+      const result = { q: $('#case-query').value.trim(), limit, offset };
+      for (const [id, key] of [['filter-width','max_width'],['filter-height','max_height'],['filter-colors','max_colors'],['filter-beads','max_beads']]) {
+        if ($('#' + id).value !== '') result[key] = Number($('#' + id).value);
+      }
+      if ($('#filter-status').value) result.status = $('#filter-status').value;
+      return result;
+    }
+
+    function showView(name) {
+      visible = name === 'library';
+      $('#editor-view').hidden = visible;
+      $('#library-view').hidden = !visible;
+      $('#show-editor').classList.toggle('active', !visible);
+      $('#show-library').classList.toggle('active', visible);
+      $('#show-editor').setAttribute('aria-pressed', String(!visible));
+      $('#show-library').setAttribute('aria-pressed', String(visible));
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+
+    async function search(append = false) {
+      const sequence = ++searchSequence;
+      if (!append) offset = 0;
+      try {
+        await ensureReady();
+        const result = await client.list(filters());
+        if (sequence !== searchSequence) return;
+        if (!append) $('#case-list').replaceChildren();
+        for (const item of result.items) $('#case-list').append(card(item));
+        offset += result.items.length;
+        $('#library-results').textContent = `找到 ${result.total} 个案例`;
+        $('#library-empty').hidden = result.total > 0;
+        $('#more-cases').hidden = offset >= result.total;
+        message('');
+      } catch (error) { if (sequence === searchSequence) message(error.message, true); }
+    }
+
+    function card(item) {
+      const article = document.createElement('article');
+      article.className = 'case-card';
+      const image = document.createElement('img');
+      image.className = 'case-thumb';
+      image.alt = item.title + '图纸预览';
+      image.loading = 'lazy';
+      if (item.preview_url) image.src = item.preview_url;
+      const body = document.createElement('div'); body.className = 'case-card-body';
+      const heading = document.createElement('div'); heading.className = 'case-card-title';
+      const title = document.createElement('h2'); title.textContent = item.title;
+      const state = document.createElement('span'); state.className = 'case-state ' + item.status; state.textContent = STATES[item.status] || '草稿';
+      heading.append(title, state);
+      const spec = document.createElement('p'); spec.className = 'case-spec';
+      spec.textContent = `${item.width} × ${item.height} 格 · ${item.color_count} 色 · ${item.bead_count} 颗`;
+      const tags = document.createElement('div'); tags.className = 'case-tags';
+      for (const tag of item.tags || []) { const chip = document.createElement('span'); chip.textContent = tag; tags.append(chip); }
+      const description = document.createElement('p'); description.className = 'case-description'; description.textContent = item.description || '';
+      const footer = document.createElement('div'); footer.className = 'case-card-footer';
+      const versions = document.createElement('select'); versions.setAttribute('aria-label', item.title + '的版本');
+      const count = Math.max(1, item.version_count || 1);
+      for (let version = count; version > 0; version--) {
+        const option = document.createElement('option'); option.value = version; option.textContent = version === count ? `最新 · v${version}` : `历史 · v${version}`; versions.append(option);
+      }
+      const open = document.createElement('button'); open.className = 'primary'; open.textContent = '打开编辑';
+      open.setAttribute('aria-label', '打开编辑：' + item.title);
+      open.onclick = () => openCase(item.id, Number(versions.value), open);
+      const edit = document.createElement('button'); edit.className = 'text-button'; edit.textContent = '信息'; edit.setAttribute('aria-label', '编辑信息：' + item.title);
+      edit.onclick = () => openMetadata(item.id).catch(error => message(error.message, true));
+      footer.append(versions, open, edit);
+      const date = document.createElement('div'); date.className = 'case-date';
+      date.textContent = '更新于 ' + new Date(item.updated_at).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+      body.append(heading, spec, tags, description, footer, date);
+      article.append(image, body);
+      return article;
+    }
+
+    function archive(options = {}) {
+      // Capture immediately; a later queued save must not read a different drawing.
+      const captured = editor.snapshot();
+      captured.catch(() => {});
+      const operation = saveQueue.catch(() => {}).then(async () => {
+        await ensureReady();
+        const snapshot = await captured;
+        const document = snapshot.document_id;
+        const existing = documents.get(document);
+        const payload = { pattern: snapshot.pattern, source_data: snapshot.source_data, preview_data: snapshot.preview_data };
+        if (existing && !options.newCase) payload.case_id = existing.id;
+        archiveState('正在保存到案例库…');
+        const result = await client.save(payload);
+        connectionFailed = false;
+        enableLibraryControls();
+        documents.set(document, result.case);
+        if (editor.documentId() === document) {
+          activeDocument = document;
+          archiveState(`已收录 · v${result.case.version_count}${result.version_added ? ' · 新版本' : ''}`);
+          $('#archive-current').textContent = '保存新版本';
+          $('#edit-case-info').disabled = false;
+          editor.archived(snapshot);
+        }
+        try {
+          await refreshInfo();
+          if (visible) await search();
+        } catch (error) {
+          // A failed list/count refresh must not turn a committed save into a failure.
+          message('图纸已保存。案例列表暂时无法刷新，请稍后重新打开案例库。', true);
+        }
+        return result;
+      });
+      saveQueue = operation;
+      operation.catch(error => {
+        connectionFailed = true;
+        archiveState(error.retryable ? error.message : '图纸尚未归档：' + error.message, true);
+      });
+      return operation;
+    }
+
+    async function openCase(id, version, button) {
+      const sequence = ++openSequence;
+      const intent = editor.cancelPending();
+      button.disabled = true;
+      try {
+        await ensureReady();
+        // Preserve ongoing work before replacing the editor with another case.
+        if (editor.isDirty()) await archive();
+        if (sequence !== openSequence) return;
+        const record = await client.get(id, version);
+        if (sequence !== openSequence) return;
+        const document = await editor.open(record, intent);
+        if (sequence !== openSequence) return;
+        documents.set(document, record.case);
+        activeDocument = document;
+        archiveState(`已打开「${record.case.title}」 · v${version}`);
+        $('#archive-current').textContent = '保存新版本';
+        $('#edit-case-info').disabled = false;
+        showView('editor');
+        editor.fit();
+      } catch (error) { if (sequence === openSequence) message('案例打开失败：' + error.message, true); }
+      finally { button.disabled = false; }
+    }
+
+    async function openMetadata(id) {
+      const sequence = ++infoSequence;
+      const record = await client.get(id);
+      if (sequence !== infoSequence) return;
+      editingCase = record.case;
+      $('#case-name').value = record.case.title;
+      $('#case-tags').value = (record.case.tags || []).join('，');
+      $('#case-description').value = record.case.description || '';
+      $('#case-status').value = record.case.status || 'draft';
+      $('#case-info-message').textContent = '';
+      $('#save-case-info').disabled = false;
+      $('#case-info-dialog').showModal();
+    }
+
+    $('#case-info-form').onsubmit = async event => {
+      event.preventDefault();
+      if (!editingCase) return;
+      const caseId = editingCase.id;
+      const sequence = infoSequence;
+      const button = $('#save-case-info'); button.disabled = true;
+      try {
+        const metadata = {
+          title: $('#case-name').value.trim(),
+          tags: $('#case-tags').value.split(/[,，\n]/).map(value => value.trim()).filter(Boolean),
+          description: $('#case-description').value.trim(),
+          status: $('#case-status').value,
+        };
+        await client.update(caseId, metadata);
+        for (const [document, value] of documents) if (value.id === caseId) {
+          documents.set(document, { ...value, ...metadata });
+          if (editor.documentId() === document) editor.rename(metadata.title);
+        }
+        if (sequence === infoSequence && editingCase?.id === caseId) $('#case-info-dialog').close();
+        if (visible) await search();
+        archiveState('案例信息已更新');
+      } catch (error) { if (sequence === infoSequence) $('#case-info-message').textContent = error.message; }
+      finally { if (sequence === infoSequence) button.disabled = false; }
+    };
+    $('#close-case-info').onclick = () => $('#case-info-dialog').close();
+    $('#show-library').onclick = () => { showView('library'); search(); };
+    $('#show-editor').onclick = () => showView('editor');
+    $('#empty-to-editor').onclick = () => showView('editor');
+    $('#archive-current').onclick = () => archive().catch(() => {});
+    $('#archive-retry').onclick = async () => {
+      const button = $('#archive-retry');
+      button.disabled = true;
+      try { await archive(); } catch (_) { /* Keep the drawing and retry control. */ }
+      finally { button.disabled = false; }
+    };
+    $('#edit-case-info').onclick = () => {
+      const selected = documents.get(editor.documentId());
+      if (selected) openMetadata(selected.id).catch(error => archiveState(error.message, true));
+    };
+    $('#library-search').onsubmit = event => { event.preventDefault(); clearTimeout(searchTimer); search(); };
+    $('#library-search').addEventListener('input', () => { clearTimeout(searchTimer); searchTimer = setTimeout(() => search(), 250); });
+    $('#clear-search').onclick = () => { $('#library-search').reset(); search(); };
+    $('#more-cases').onclick = () => search(true);
+
+    function download(name, value) {
+      const url = URL.createObjectURL(new Blob([JSON.stringify(value)], { type: 'application/json' }));
+      const link = document.createElement('a'); link.href = url; link.download = name; link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    $('#backup-library').onclick = async () => {
+      const button = $('#backup-library'); button.disabled = true;
+      try {
+        await ensureReady();
+        if (editor.isDirty()) await archive();
+        await saveQueue;
+        download('craft-pattern-library-' + new Date().toISOString().slice(0, 10) + '.json', await client.backup());
+        message('已导出完整案例库备份，包含原图、图纸和历史版本。');
+      } catch (error) { message('备份失败：' + error.message, true); }
+      finally { button.disabled = false; }
+    };
+    $('#import-library').onclick = () => $('#library-backup-file').click();
+    $('#library-backup-file').onchange = async event => {
+      const button = $('#import-library'); button.disabled = true;
+      try {
+        const file = event.target.files[0]; if (!file) return;
+        if (file.size > 100 * 1024 * 1024) throw Error('备份文件不能超过 100 MB。');
+        const backup = JSON.parse(await file.text());
+        await ensureReady();
+        const result = await client.importBackup(backup);
+        await refreshInfo(); await search();
+        message(`备份已导入，新增 ${result.imported ?? 0} 个案例，跳过 ${result.skipped ?? 0} 个重复案例。`);
+      } catch (error) { message('导入失败：' + error.message, true); }
+      finally { event.target.value = ''; button.disabled = false; }
+    };
+
+    function newDocument() {
+      activeDocument = null;
+      $('#archive-current').textContent = '存入案例库';
+      $('#edit-case-info').disabled = true;
+      if (connectionFailed) archiveState('案例库未连接。图纸仍保留在当前页面，可恢复服务后重试保存。', true);
+      else archiveState('生成后自动收录到案例库');
+    }
+    return { archive, newDocument, ready };
+  }
+  root.CaseLibraryUI = { mount };
+}(typeof globalThis !== 'undefined' ? globalThis : this));
+</script>
+<script>/* Offline UI. PatternCore owns data validation, quantization and export. */
+(() => {
+  'use strict';
+  const $ = selector => document.querySelector(selector);
+  const core = PatternCore;
+  let data = core.validatePattern(JSON.parse($('#initial').textContent));
+  const canvas = $('#grid');
+  const context = canvas.getContext('2d');
+  const preview = $('#source-preview');
+  let sourceImage = new Image();
+  sourceImage.src = preview.getAttribute('src');
+  let sourceName = data.source?.name || '原图';
+  let sourceAvailable = Boolean(preview.getAttribute('src'));
+  let patternSourceImage = sourceImage;
+  let patternSourceAvailable = sourceAvailable;
+  let brush = 0;
+  let highlightedColor = null;
+  let erasing = false;
+  let showSymbols = false;
+  let painting = false;
+  let lastPoint = null;
+  let undoStack = [];
+  let redoStack = [];
+  let beforeCleanup = null;
+  let comparing = false;
+  let dirty = false;
+  let pendingImage = false;
+  let generation = 0;
+  let keyboardPoint = { x: 0, y: 0 };
+  let renderPending = false;
+  let contentRevision = 0;
+  let documentId = 1;
+  let libraryUI;
+
+  function notify(message, error = false) {
+    $('#message').textContent = message;
+    $('#message').classList.toggle('error', error);
+  }
+
+  function syncSettings() {
+    $('#width').value = data.width;
+    $('#height').value = data.height;
+    $('#fit').value = data.source?.fit || 'contain';
+    const processing = core.normalizeOptions(data.processing || {});
+    $('#background').value = processing.background;
+    $('#tolerance').value = processing.background_tolerance;
+    $('#cleanup').value = processing.cleanup;
+    $('#color-detail').value = processing.color_detail;
+    $('#palette-mode').value = 'current';
+    updateOptionHelp();
+    updateResolution();
+  }
+
+  function updateOptionHelp() {
+    const mode = $('#background').value;
+    $('#background-help').textContent = {
+      auto: '去除与外围连通的近色背景及浅灰阴影，保留封闭细节。主体与背景接近时降低容差；复杂背景请先抠图。',
+      transparent: '透明像素和等比留边为空格，图片中的实色背景保留。',
+      keep: '透明部分与留边以白色铺底，整幅矩形图案都使用豆子。',
+    }[mode];
+    $('#tolerance-label').hidden = mode !== 'auto';
+    $('#tolerance-value').textContent = $('#tolerance').value;
+    $('#color-limit-label').hidden = $('#palette-mode').value !== 'auto';
+    $('#color-limit-value').textContent = $('#color-limit').value;
+    $('#color-detail-help').textContent = {
+      low: '优先合并相近色，用色更少、色块更整齐。',
+      medium: '平衡用色数量与图案层次，适合大多数图案。',
+      high: '保留更多细微色差和明暗层次，可能需要更多材料颜色。',
+    }[$('#color-detail').value] + ' 点击“生成图纸”应用；“最多颜色”仍是数量上限。';
+  }
+
+  function contrast(hex) {
+    const rgb = [1, 3, 5].map(offset => parseInt(hex.slice(offset, offset + 2), 16));
+    return rgb[0] * .2126 + rgb[1] * .7152 + rgb[2] * .0722 > 140 ? '#23362a' : '#fff';
+  }
+
+  function markEdited() {
+    contentRevision++;
+    dirty = true;
+    beforeCleanup = null;
+    comparing = false;
+    $('#compare').disabled = true;
+    $('#save-state').textContent = '有修改 · 请保存图纸';
+  }
+
+  function updateHistoryButtons() {
+    $('#undo').disabled = undoStack.length === 0;
+    $('#redo').disabled = redoStack.length === 0;
+  }
+
+  function editState() {
+    return { cells: data.cells.slice(), palette: data.palette.map(color => ({ ...color })), processing: data.processing ? { ...data.processing } : undefined, brush, highlightedColor };
+  }
+
+  function restoreEdit(state) {
+    data.cells = state.cells; data.palette = state.palette;
+    if (state.processing) data.processing = state.processing;
+    else delete data.processing;
+    brush = state.brush; highlightedColor = state.highlightedColor;
+  }
+
+  function snapshot() {
+    undoStack.push(editState());
+    if (undoStack.length > 30) undoStack.shift();
+    redoStack = [];
+    updateHistoryButtons();
+  }
+
+  function renderPalette() {
+    const usage = core.counts(data);
+    const total = usage.reduce((sum, count) => sum + count, 0);
+    data.metrics = { ...data.metrics, blank_cells: data.cells.length - total, bead_count: total };
+    $('#size-stat').textContent = `${data.width} × ${data.height}`;
+    $('#bead-stat').textContent = total.toLocaleString() + ' 颗';
+    $('#blank-stat').textContent = (data.cells.length - total).toLocaleString();
+    $('#color-stat').textContent = usage.filter(count => count > 0).length + ' 色';
+    $('#title').textContent = data.title || '我的拼豆图纸';
+    $('#mode-badge').textContent = data.mode === 'cross-stitch' ? '十字绣图纸' : '拼豆图纸';
+    const fragment = document.createDocumentFragment();
+    data.palette.forEach((color, index) => {
+      const row = document.createElement('div');
+      row.className = 'swatch-row';
+      const button = document.createElement('button');
+      button.className = 'swatch' + (!erasing && brush === index ? ' active' : '');
+      button.setAttribute('aria-label', `${color.id}，${usage[index]} 颗`);
+      button.setAttribute('aria-pressed', String(!erasing && brush === index));
+      const dot = document.createElement('span');
+      dot.className = 'dot';
+      dot.style.backgroundColor = color.hex;
+      dot.style.color = contrast(color.hex);
+      dot.textContent = core.symbol(index);
+      const label = document.createElement('span');
+      label.className = 'swatch-label';
+      const name = document.createElement('strong');
+      name.textContent = color.id;
+      const detail = document.createElement('small');
+      detail.textContent = color.hex;
+      label.append(name, detail);
+      const count = document.createElement('span');
+      count.className = 'swatch-count';
+      count.textContent = `${usage[index]} 颗`;
+      button.append(dot, label, count);
+      button.onclick = () => { brush = index; highlightedColor = index; setTool(false); };
+      const edit = document.createElement('button');
+      edit.className = 'swatch-edit';
+      edit.textContent = '调色';
+      edit.setAttribute('aria-label', `修改 ${color.id} 的颜色`);
+      edit.onclick = () => openColorEditor(index);
+      row.append(button, edit);
+      fragment.append(row);
+    });
+    $('#palette').replaceChildren(fragment);
+    $('#merge-colors').disabled = core.mergeSimilarColors(data, null, $('#color-detail').value).merged_colors === 0;
+  }
+
+  $('#merge-colors').onclick = () => {
+    const result = core.mergeSimilarColors(data, null, $('#color-detail').value);
+    if (!result.merged_colors) return;
+    snapshot();
+    data.palette = result.palette; data.cells = result.cells;
+    data.processing = { ...core.normalizeOptions(data.processing || {}), color_detail: $('#color-detail').value };
+    brush = result.mapping[brush];
+    if (highlightedColor !== null) highlightedColor = result.mapping[highlightedColor];
+    markEdited();
+    $('#palette-mode').value = 'current'; updateOptionHelp();
+    render();
+    notify(`已合并 ${result.merged_colors} 种近似色，用豆总数与留空不变；可撤销或保存为新版本。`);
+  };
+  $('#clear-highlight').onclick = () => { highlightedColor = null; draw(); };
+  $('#color-detail').onchange = () => {
+    // Re-sample the original to recover distinctions already merged away.
+    if (sourceAvailable) $('#palette-mode').value = 'auto';
+    updateOptionHelp(); renderPalette();
+    $('#settings-message').textContent = sourceAvailable
+      ? '颜色区分度已调整，点击生成图纸按原图重新提色。'
+      : '当前无原图，可点“合并近似色”；恢复更多层次需要重新选择原图。';
+  };
+
+  let editingColor = null;
+  function setColorDraft(hex) {
+    $('#color-picker').value = hex;
+    $('#color-hex').value = hex.toUpperCase();
+    $('#color-hex').setCustomValidity('');
+    $('#color-new').style.backgroundColor = hex;
+  }
+
+  function openColorEditor(index) {
+    editingColor = index;
+    const color = data.palette[index];
+    $('#color-dialog-title').textContent = `调色 · ${color.id}`;
+    $('#color-usage').textContent = `将替换图纸中此色号的 ${core.counts(data)[index]} 颗豆子，格子位置和数量保持不变。`;
+    $('#color-old').style.backgroundColor = color.hex;
+    setColorDraft(color.hex);
+    $('#color-dialog').showModal();
+  }
+
+  const quickColors = ['#FFFFFF', '#D1D5DB', '#6B7280', '#111827', '#EF4444', '#F97316', '#FACC15', '#84CC16', '#22C55E', '#14B8A6', '#38BDF8', '#2563EB', '#8B5CF6', '#D946EF', '#F472B6', '#92400E'];
+  quickColors.forEach(hex => {
+    const button = document.createElement('button');
+    button.type = 'button'; button.className = 'quick-color';
+    button.style.backgroundColor = hex;
+    button.title = hex; button.setAttribute('aria-label', `选择颜色 ${hex}`);
+    button.onclick = () => setColorDraft(hex);
+    $('#quick-colors').append(button);
+  });
+  $('#color-picker').oninput = () => setColorDraft($('#color-picker').value);
+  $('#color-hex').oninput = () => {
+    const hex = $('#color-hex').value.trim();
+    const valid = /^#[0-9a-f]{6}$/i.test(hex);
+    $('#color-hex').setCustomValidity(valid ? '' : '请输入 #RRGGBB 格式的颜色。');
+    if (valid) { $('#color-picker').value = hex; $('#color-new').style.backgroundColor = hex; }
+  };
+  $('#cancel-color').onclick = () => $('#color-dialog').close();
+  $('#color-dialog').onclose = () => { editingColor = null; };
+  $('#color-form').onsubmit = event => {
+    event.preventDefault();
+    const hex = $('#color-hex').value.trim().toUpperCase();
+    if (editingColor === null || !/^#[0-9A-F]{6}$/.test(hex)) return;
+    const color = data.palette[editingColor];
+    if (color.hex.toUpperCase() !== hex) {
+      snapshot();
+      color.hex = hex;
+      markEdited();
+      // A later resolution change should keep the user's chosen colors.
+      $('#palette-mode').value = 'current'; updateOptionHelp();
+      render();
+      notify(`已将 ${color.id} 改为 ${hex}；可撤销，或保存为案例新版本。`);
+    }
+    $('#color-dialog').close();
+  };
+
+  function draw() {
+    const n = Number($('#zoom').value);
+    canvas.width = data.width * n;
+    canvas.height = data.height * n;
+    canvas.style.backgroundSize = `${n * 2}px ${n * 2}px`;
+    canvas.style.backgroundPosition = `0 0,0 ${n}px,${n}px -${n}px,-${n}px 0`;
+    const cells = comparing && beforeCleanup ? beforeCleanup : data.cells;
+    for (let i = 0; i < cells.length; i++) {
+      const value = cells[i];
+      const x = i % data.width;
+      const y = Math.floor(i / data.width);
+      if (value !== null) {
+        const hex = data.palette[value].hex;
+        context.fillStyle = hex;
+        context.fillRect(x * n, y * n, n, n);
+        if (showSymbols) {
+          context.fillStyle = contrast(hex);
+          context.font = `${Math.max(7, n * .63)}px monospace`;
+          context.textAlign = 'center';
+          context.textBaseline = 'middle';
+          context.fillText(core.symbol(value), (x + .5) * n, (y + .53) * n);
+        }
+      }
+    }
+    context.lineWidth = .5;
+    for (let x = 0; x <= data.width; x++) {
+      context.strokeStyle = x % 10 === 0 ? '#3d514047' : '#3d51401b';
+      context.beginPath(); context.moveTo(x * n + .25, 0); context.lineTo(x * n + .25, canvas.height); context.stroke();
+    }
+    for (let y = 0; y <= data.height; y++) {
+      context.strokeStyle = y % 10 === 0 ? '#3d514047' : '#3d51401b';
+      context.beginPath(); context.moveTo(0, y * n + .25); context.lineTo(canvas.width, y * n + .25); context.stroke();
+    }
+    let highlighted = 0;
+    if (highlightedColor !== null) {
+      context.beginPath();
+      cells.forEach((value, index) => {
+        if (value !== highlightedColor) return;
+        highlighted++;
+        // Trace only the boundary of the selected color, leaving internal
+        // shared edges untouched so connected cells form one outlined region.
+        const x = index % data.width, y = Math.floor(index / data.width);
+        const left = x * n + .5, top = y * n + .5;
+        const right = Math.min(canvas.width - .5, (x + 1) * n + .5);
+        const bottom = Math.min(canvas.height - .5, (y + 1) * n + .5);
+        if (y === 0 || cells[index - data.width] !== value) { context.moveTo(left, top); context.lineTo(right, top); }
+        if (x === data.width - 1 || cells[index + 1] !== value) { context.moveTo(right, top); context.lineTo(right, bottom); }
+        if (y === data.height - 1 || cells[index + data.width] !== value) { context.moveTo(right, bottom); context.lineTo(left, bottom); }
+        if (x === 0 || cells[index - 1] !== value) { context.moveTo(left, bottom); context.lineTo(left, top); }
+      });
+      // A one-pixel vivid line with a fine light halo stays visible on both
+      // dark and bright beads, without covering their fill or symbols.
+      context.strokeStyle = '#FFFFFF'; context.lineWidth = 1.5; context.stroke();
+      context.strokeStyle = '#E6007E'; context.lineWidth = 1; context.stroke();
+    }
+    const selection = highlightedColor === null ? '' : `已标出 ${data.palette[highlightedColor].id} · ${highlighted} 格`;
+    $('#highlight-info').textContent = selection;
+    $('#highlight-bar').hidden = highlightedColor === null;
+    canvas.setAttribute('aria-label', `可编辑拼豆图纸，${data.width} 乘 ${data.height} 格。${selection ? selection + '。' : ''}方向键移动，空格键绘制。`);
+  }
+
+  function render() { draw(); renderPalette(); updateHistoryButtons(); }
+  function fitZoom() {
+    const available = $('#viewport').clientWidth - 50;
+    $('#zoom').value = Math.max(6, Math.min(22, Math.floor(available / data.width)));
+  }
+  function queueRender() {
+    if (renderPending) return;
+    renderPending = true;
+    requestAnimationFrame(() => { renderPending = false; render(); });
+  }
+
+  function setTool(erase) {
+    erasing = erase;
+    if (erase) highlightedColor = null;
+    $('#brush').classList.toggle('active', !erase);
+    $('#eraser').classList.toggle('active', erase);
+    $('#brush').setAttribute('aria-pressed', String(!erase));
+    $('#eraser').setAttribute('aria-pressed', String(erase));
+    render();
+  }
+
+  function eventPoint(event) {
+    const rect = canvas.getBoundingClientRect();
+    return { x: Math.floor((event.clientX - rect.left) / rect.width * data.width), y: Math.floor((event.clientY - rect.top) / rect.height * data.height) };
+  }
+
+  function paintPoint(point) {
+    if (point.x < 0 || point.y < 0 || point.x >= data.width || point.y >= data.height) return;
+    const index = point.y * data.width + point.x;
+    const value = erasing ? null : brush;
+    if (data.cells[index] !== value) { data.cells[index] = value; markEdited(); }
+  }
+
+  function paintLine(from, to) {
+    // Interpolate fast pointer movements so a drag does not skip cells.
+    const steps = Math.max(Math.abs(to.x - from.x), Math.abs(to.y - from.y));
+    for (let i = 0; i <= steps; i++) {
+      const fraction = steps === 0 ? 0 : i / steps;
+      paintPoint({ x: Math.round(from.x + (to.x - from.x) * fraction), y: Math.round(from.y + (to.y - from.y) * fraction) });
+    }
+    queueRender();
+  }
+
+  canvas.addEventListener('pointerdown', event => {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    canvas.focus({ preventScroll: true });
+    snapshot();
+    painting = true;
+    lastPoint = eventPoint(event);
+    keyboardPoint = lastPoint;
+    canvas.setPointerCapture(event.pointerId);
+    paintLine(lastPoint, lastPoint);
+  });
+  canvas.addEventListener('pointermove', event => {
+    const point = eventPoint(event);
+    if (point.x >= 0 && point.x < data.width && point.y >= 0 && point.y < data.height) $('#cursor-info').textContent = `第 ${point.y + 1} 行 · 第 ${point.x + 1} 列`;
+    if (painting && lastPoint) { paintLine(lastPoint, point); lastPoint = point; }
+  });
+  const endStroke = () => { painting = false; lastPoint = null; };
+  canvas.addEventListener('pointerup', endStroke);
+  canvas.addEventListener('pointercancel', endStroke);
+  canvas.addEventListener('keydown', event => {
+    const moves = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+    if (moves[event.key]) {
+      event.preventDefault();
+      const [dx, dy] = moves[event.key];
+      keyboardPoint = { x: Math.max(0, Math.min(data.width - 1, keyboardPoint.x + dx)), y: Math.max(0, Math.min(data.height - 1, keyboardPoint.y + dy)) };
+      $('#cursor-info').textContent = `第 ${keyboardPoint.y + 1} 行 · 第 ${keyboardPoint.x + 1} 列（空格键绘制）`;
+    } else if (event.key === ' ' || event.key === 'Enter') {
+      event.preventDefault(); snapshot(); paintPoint(keyboardPoint); render();
+    }
+  });
+  $('#brush').onclick = () => setTool(false);
+  $('#eraser').onclick = () => setTool(true);
+  $('#undo').onclick = () => {
+    if (!undoStack.length) return;
+    redoStack.push(editState()); restoreEdit(undoStack.pop()); markEdited(); render();
+  };
+  $('#redo').onclick = () => {
+    if (!redoStack.length) return;
+    undoStack.push(editState()); restoreEdit(redoStack.pop()); markEdited(); render();
+  };
+  $('#zoom').oninput = draw;
+  $('#symbols').onclick = () => {
+    showSymbols = !showSymbols;
+    $('#symbols').setAttribute('aria-pressed', String(showSymbols));
+    $('#symbols').classList.toggle('active', showSymbols);
+    draw();
+  };
+  const finishCompare = () => { if (comparing) { comparing = false; draw(); } };
+  $('#compare').onpointerdown = event => {
+    if (!beforeCleanup) return;
+    event.preventDefault(); comparing = true; $('#compare').setPointerCapture(event.pointerId); draw();
+  };
+  $('#compare').onpointerup = finishCompare;
+  $('#compare').onpointercancel = finishCompare;
+  $('#compare').onkeydown = event => { if ((event.key === ' ' || event.key === 'Enter') && beforeCleanup) { event.preventDefault(); comparing = true; draw(); } };
+  $('#compare').onkeyup = finishCompare;
+  $('#compare').onblur = finishCompare;
+
+  function fitDimensions(axis) {
+    if (!$('#lock-ratio').checked || !sourceAvailable || !sourceImage.naturalWidth) return;
+    const ratio = sourceImage.naturalWidth / sourceImage.naturalHeight;
+    const value = Number($('#' + axis).value);
+    if (!Number.isInteger(value) || value < 4 || value > 160) return;
+    let w = axis === 'width' ? value : Math.round(value * ratio);
+    let h = axis === 'height' ? value : Math.round(value / ratio);
+    if (w > 160) { h = Math.max(4, Math.round(h * 160 / w)); w = 160; }
+    if (h > 160) { w = Math.max(4, Math.round(w * 160 / h)); h = 160; }
+    $('#width').value = Math.max(4, w); $('#height').value = Math.max(4, h);
+  }
+
+  function updateResolution() {
+    const width = Number($('#width').value), height = Number($('#height').value);
+    if (![width, height].every(value => Number.isInteger(value) && value >= 4 && value <= 160)) {
+      $('#resolution-summary').textContent = '请输入 4–160 之间的整数格数。';
+      return;
+    }
+    const edge = Math.max(width, height);
+    $('#resolution').value = edge;
+    $('#resolution-value').textContent = edge;
+    const pending = pendingImage || width !== data.width || height !== data.height;
+    $('#resolution-summary').textContent = `${pending ? '待生成' : '当前'}：${width} × ${height} = ${(width * height).toLocaleString()} 个格位`;
+    document.querySelectorAll('[data-resolution]').forEach(button => {
+      button.classList.toggle('active', Number(button.dataset.resolution) === edge);
+      button.setAttribute('aria-pressed', String(Number(button.dataset.resolution) === edge));
+    });
+  }
+
+  function setResolution(edge) {
+    const useOriginal = $('#lock-ratio').checked && sourceAvailable && sourceImage.naturalWidth;
+    const width = useOriginal ? sourceImage.naturalWidth : Number($('#width').value) || data.width;
+    const height = useOriginal ? sourceImage.naturalHeight : Number($('#height').value) || data.height;
+    const scale = edge / Math.max(width, height);
+    $('#width').value = Math.max(4, Math.min(160, Math.round(width * scale)));
+    $('#height').value = Math.max(4, Math.min(160, Math.round(height * scale)));
+    updateResolution();
+    $('#settings-message').textContent = '分辨率已调整，点击生成图纸应用。';
+  }
+
+  $('#resolution').oninput = () => setResolution(Number($('#resolution').value));
+  document.querySelectorAll('[data-resolution]').forEach(button => {
+    button.onclick = () => setResolution(Number(button.dataset.resolution));
+  });
+  for (const axis of ['width', 'height']) $('#' + axis).onchange = () => {
+    fitDimensions(axis);
+    updateResolution();
+  };
+
+  $('#settings').addEventListener('input', event => {
+    updateResolution();
+    updateOptionHelp();
+    $('#settings-message').textContent = '设置已调整，点击生成图纸应用。';
+  });
+  $('#lock-ratio').onchange = () => { fitDimensions('width'); updateResolution(); };
+
+  async function loadImage(file) {
+    if (!file) return;
+    const accepted = ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/avif'];
+    if (!accepted.includes(file.type)) throw Error('请选择 PNG、JPEG、WebP、GIF 或 AVIF 图片。');
+    if (file.size > 20 * 1024 * 1024) throw Error('图片不能超过 20 MB。');
+    const token = ++generation;
+    $('#generate').disabled = true;
+    let image;
+    try {
+      image = await createImageBitmap(file);
+      if (image.width * image.height > 40_000_000) throw Error('图片不能超过 4000 万像素。');
+      if (token !== generation) return;
+      // createImageBitmap decodes a static first frame and honors EXIF orientation.
+      const copy = document.createElement('canvas');
+      const scale = Math.min(1, 1024 / Math.max(image.width, image.height));
+      copy.width = Math.max(1, Math.round(image.width * scale));
+      copy.height = Math.max(1, Math.round(image.height * scale));
+      copy.getContext('2d').drawImage(image, 0, 0, copy.width, copy.height);
+      const pixels = copy.getContext('2d').getImageData(0, 0, copy.width, copy.height).data;
+      let hasTransparency = false;
+      for (let offset = 3; offset < pixels.length; offset += 4) {
+        if (pixels[offset] < 128) { hasTransparency = true; break; }
+      }
+      // Decode independently: changing preview.src before commit would let an
+      // overlapping generate operation read a new image with old metadata.
+      const thumbnail = new Image();
+      thumbnail.src = copy.toDataURL('image/png');
+      await thumbnail.decode();
+      if (token !== generation) return;
+      sourceImage = thumbnail;
+      preview.src = thumbnail.src;
+      preview.hidden = false;
+      sourceName = file.name;
+      sourceAvailable = true;
+      pendingImage = true;
+      $('#source-name').textContent = sourceName;
+      $('#generate').disabled = false;
+      $('#palette-mode').value = 'auto';
+      $('#cleanup').value = '4';
+      $('#background').value = hasTransparency ? 'transparent' : 'auto';
+      fitDimensions('width');
+      updateResolution();
+      updateOptionHelp();
+      $('#settings-message').textContent = '图片已载入，正在按原图提色生成…';
+      await generatePattern();
+    } finally {
+      if (image) image.close();
+      if (token === generation) $('#generate').disabled = !sourceAvailable;
+    }
+  }
+
+  $('#upload').onclick = () => $('#image-file').click();
+  $('#image-file').onchange = async event => {
+    try { await loadImage(event.target.files[0]); } catch (error) { notify(error.message || '图片读取失败，请更换文件。', true); }
+    event.target.value = '';
+  };
+  const drop = $('#drop-zone');
+  drop.addEventListener('dragover', event => { event.preventDefault(); drop.classList.add('dragover'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('dragover'));
+  drop.addEventListener('drop', async event => {
+    event.preventDefault(); drop.classList.remove('dragover');
+    try { await loadImage(event.dataTransfer.files[0]); } catch (error) { notify(error.message, true); }
+  });
+
+  async function generatePattern() {
+    if (!sourceAvailable) { notify('请先选择原图，再生成新图纸。', true); return; }
+    const button = $('#generate');
+    const token = ++generation;
+    button.disabled = true;
+    button.textContent = '正在生成…';
+    try {
+      await sourceImage.decode();
+      if (token !== generation || !sourceAvailable) return;
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      if (token !== generation || !sourceAvailable) return;
+      if (dirty && libraryUI) {
+        await libraryUI.archive();
+        if (token !== generation || !sourceAvailable) return;
+      }
+      const width = Number($('#width').value);
+      const height = Number($('#height').value);
+      const options = core.normalizeOptions({ background: $('#background').value, background_tolerance: Number($('#tolerance').value), alpha_threshold: data.processing?.alpha_threshold ?? 128, cleanup: Number($('#cleanup').value), color_detail: $('#color-detail').value });
+      // Validate bounds before allocating a work canvas.
+      if (!Number.isInteger(width) || !Number.isInteger(height) || width < 4 || height < 4 || width > 160 || height > 160) throw Error('宽高须为 4–160 的整数。');
+      const work = document.createElement('canvas'); work.width = width; work.height = height;
+      const ctx = work.getContext('2d', { willReadFrequently: true });
+      if (options.background === 'keep') { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, width, height); }
+      const fit = $('#fit').value;
+      const scale = (fit === 'cover' ? Math.max : Math.min)(width / sourceImage.naturalWidth, height / sourceImage.naturalHeight);
+      const w = sourceImage.naturalWidth * scale;
+      const h = sourceImage.naturalHeight * scale;
+      ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(sourceImage, (width - w) / 2, (height - h) / 2, w, h);
+      const unmasked = ctx.getImageData(0, 0, width, height).data;
+      let sourceRemoved = 0;
+      let sourceBackgroundRemoved = false;
+      let samplingImage = sourceImage;
+      if (options.cleanup === 4 && options.background === 'auto') {
+        // Mask the normalized source before reducing it to beads. Otherwise
+        // interpolation bakes the backdrop into grey fringe colors at the edge.
+        const mask = document.createElement('canvas');
+        mask.width = sourceImage.naturalWidth; mask.height = sourceImage.naturalHeight;
+        const maskContext = mask.getContext('2d', { willReadFrequently: true });
+        maskContext.drawImage(sourceImage, 0, 0);
+        const original = maskContext.getImageData(0, 0, mask.width, mask.height);
+        const prepared = core.prepareSourceRGBA(original.data, mask.width, mask.height, options);
+        sourceBackgroundRemoved = prepared.removed_background > 0;
+        original.data.set(prepared.pixels); maskContext.putImageData(original, 0, 0);
+        samplingImage = mask;
+        ctx.clearRect(0, 0, width, height);
+        ctx.drawImage(mask, (width - w) / 2, (height - h) / 2, w, h);
+      }
+      let rgba = ctx.getImageData(0, 0, width, height).data;
+      for (let i = 3; i < rgba.length; i += 4) if (unmasked[i] >= options.alpha_threshold && rgba[i] < options.alpha_threshold) sourceRemoved++;
+      if (options.cleanup === 4) {
+        const detail = document.createElement('canvas'); detail.width = width * 3; detail.height = height * 3;
+        const detailContext = detail.getContext('2d', { willReadFrequently: true });
+        if (options.background === 'keep') { detailContext.fillStyle = '#fff'; detailContext.fillRect(0, 0, detail.width, detail.height); }
+        detailContext.imageSmoothingQuality = 'high';
+        detailContext.drawImage(samplingImage, (width - w) * 1.5, (height - h) * 1.5, w * 3, h * 3);
+        rgba = core.sampleCraftRGBA(rgba, detailContext.getImageData(0, 0, detail.width, detail.height).data, width, height, options.alpha_threshold);
+      }
+      // Once the source is masked, transparent margins surround the subject.
+      // Re-detecting a backdrop from that silhouette can select the clothes.
+      const samplingOptions = sourceBackgroundRemoved ? { ...options, background: 'transparent' } : options;
+      const palette = $('#palette-mode').value === 'auto' ? core.derivePalette(rgba, width, height, samplingOptions, Number($('#color-limit').value)) : data.palette;
+      const result = core.processRGBA(rgba, width, height, palette, samplingOptions);
+      result.processing = options;
+      result.metrics.removed_background += sourceRemoved;
+      beforeCleanup = result.metrics.cleaned_cells > 0 ? core.processRGBA(rgba, width, height, palette, { ...samplingOptions, cleanup: 0 }).cells : null;
+      const title = pendingImage ? sourceName.replace(/\.[^.]+$/, '') + ' · 我的拼豆图纸' : data.title;
+      const newCase = pendingImage;
+      data = core.validatePattern({ version: 2, title, mode: data.mode, width, height, palette, ...result, source: { name: sourceName, fit }, notes: ['自动提色为通用 RGB 参考，不是品牌官方色号。', '去底仅针对外围纯色背景，请检查主体轮廓。'] });
+      patternSourceImage = sourceImage;
+      patternSourceAvailable = sourceAvailable;
+      contentRevision++;
+      if (newCase) { documentId++; libraryUI?.newDocument(); }
+      pendingImage = false; dirty = true; comparing = false; undoStack = []; redoStack = []; brush = 0; highlightedColor = null;
+      keyboardPoint = { x: 0, y: 0 };
+      $('#compare').disabled = !beforeCleanup;
+      fitZoom(); setTool(false); render();
+      updateResolution();
+      const metrics = data.metrics;
+      const removal = metrics.removed_background ? `去除 ${metrics.removed_background} 格外围背景，` : '';
+      const cleanupSummary = options.cleanup === 4 ? `整理 ${metrics.cleaned_cells} 格碎色` : `合并 ${metrics.cleaned_cells} 格近色杂点`;
+      notify(`已生成：${removal}${metrics.blank_cells} 格留空，${cleanupSummary}。${metrics.bead_count === 0 ? '当前全部留空；可降低去底容差或更换背景模式。' : ''}`);
+      $('#save-state').textContent = '新图纸 · 请保存';
+      $('#settings-message').textContent = '已应用当前设置。';
+      libraryUI?.archive().catch(() => {});
+    } catch (error) { notify(error.message || '生成失败，请检查图片与设置。', true); }
+    finally { button.disabled = !sourceAvailable; button.innerHTML = '生成图纸 <span aria-hidden="true">↗</span>'; }
+  }
+  $('#settings').onsubmit = event => { event.preventDefault(); return generatePattern(); };
+
+  function download(name, body, type) {
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(new Blob([body], { type }));
+    link.href = url; link.download = name; link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  $('#save').onclick = () => {
+    const normalized = core.validatePattern(data);
+    download('pattern.json', JSON.stringify(normalized, null, 2), 'application/json');
+    dirty = false; $('#save-state').textContent = '已导出 JSON 图纸';
+    libraryUI?.archive().catch(() => {});
+  };
+  $('#svg').onclick = () => download('pattern.svg', core.toSVG(data, showSymbols), 'image/svg+xml');
+  $('#csv').onclick = () => download('materials.csv', core.toCSV(data), 'text/csv;charset=utf-8');
+  $('#print').onclick = () => window.print();
+  let printHighlight = null;
+  window.addEventListener('beforeprint', () => { printHighlight = highlightedColor; highlightedColor = null; draw(); });
+  window.addEventListener('afterprint', () => { highlightedColor = printHighlight; draw(); });
+  $('#load').onclick = () => $('#json-file').click();
+  $('#json-file').onchange = async event => {
+    try {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (file.size > 5_000_000) throw Error('图纸 JSON 不能超过 5 MB。');
+      const token = ++generation;
+      const content = await file.text();
+      if (token !== generation) return;
+      const imported = core.validatePattern(JSON.parse(content));
+      if (dirty && libraryUI) {
+        await libraryUI.archive();
+        if (token !== generation) return;
+      }
+      // JSON stores the pattern, not the original image. Do not silently regenerate
+      // an imported pattern from the unrelated image that was open before import.
+      data = imported; undoStack = []; redoStack = []; beforeCleanup = null; comparing = false;
+      brush = 0; highlightedColor = null; dirty = false; sourceAvailable = false; pendingImage = false;
+      patternSourceAvailable = false;
+      documentId++; contentRevision++;
+      libraryUI?.newDocument();
+      keyboardPoint = { x: 0, y: 0 };
+      preview.hidden = true; $('#source-name').textContent = '图纸已导入 · 重新生成需选择原图';
+      $('#generate').disabled = true; $('#compare').disabled = true;
+      syncSettings(); fitZoom(); setTool(false); render();
+      $('#save-state').textContent = '已导入图纸';
+      notify('已导入图纸，可以继续改色和导出。重新生成时，请先选择对应原图。');
+      libraryUI?.archive().catch(() => {});
+    } catch (error) { notify(error.message || '无法读取这份图纸。', true); }
+    event.target.value = '';
+  };
+  window.addEventListener('beforeunload', event => { if (dirty) { event.preventDefault(); event.returnValue = ''; } });
+  $('#source-name').textContent = sourceName;
+  syncSettings(); fitZoom(); render();
+  notify(`图纸已就绪：${data.metrics.blank_cells} 格留空，合并 ${data.metrics.cleaned_cells} 格近色杂点。`);
+
+  function patternPreview(pattern) {
+    const picture = document.createElement('canvas');
+    const scale = Math.max(2, Math.min(10, Math.floor(400 / Math.max(pattern.width, pattern.height))));
+    picture.width = pattern.width * scale; picture.height = pattern.height * scale;
+    const ctx = picture.getContext('2d');
+    pattern.cells.forEach((color, index) => {
+      if (color === null) return;
+      ctx.fillStyle = pattern.palette[color].hex;
+      ctx.fillRect(index % pattern.width * scale, Math.floor(index / pattern.width) * scale, scale, scale);
+    });
+    return picture.toDataURL('image/png');
+  }
+
+  async function librarySnapshot() {
+    const pattern = core.validatePattern(data);
+    const revision = contentRevision;
+    const identity = documentId;
+    const original = patternSourceImage;
+    const available = patternSourceAvailable;
+    const previewData = patternPreview(pattern);
+    let sourceData = null;
+    if (available) {
+      await original.decode();
+      const copy = document.createElement('canvas');
+      const scale = Math.min(1, 1024 / Math.max(original.naturalWidth, original.naturalHeight));
+      copy.width = Math.max(1, Math.round(original.naturalWidth * scale));
+      copy.height = Math.max(1, Math.round(original.naturalHeight * scale));
+      copy.getContext('2d').drawImage(original, 0, 0, copy.width, copy.height);
+      sourceData = copy.toDataURL('image/png');
+    }
+    return { pattern, source_data: sourceData, preview_data: previewData, editor_revision: revision, document_id: identity };
+  }
+
+  async function openLibraryCase(record, intent) {
+    if (intent && (intent.generation !== generation || intent.revision !== contentRevision)) throw Error('当前图纸已更新，请重新打开案例。');
+    const token = intent ? generation : ++generation;
+    const pattern = core.validatePattern(record.pattern);
+    let original = null;
+    if (record.source_url) {
+      const url = new URL(record.source_url, location.href);
+      const embedded = /^data:image\/(png|jpeg|webp|gif|avif);base64,/.test(record.source_url);
+      if (!embedded && (url.origin !== location.origin || !url.pathname.startsWith('/api/library/cases/'))) throw Error('案例原图地址无效。');
+      original = new Image(); original.src = record.source_url;
+      await original.decode();
+    }
+    if (token !== generation || (intent && intent.revision !== contentRevision)) throw Error('图纸操作已更新，请重新打开案例。');
+    data = pattern;
+    data.title = record.case.title;
+    documentId++; contentRevision++;
+    sourceAvailable = Boolean(original);
+    patternSourceAvailable = sourceAvailable;
+    sourceImage = original; patternSourceImage = original;
+    sourceName = pattern.source?.name || record.case.title;
+    preview.src = original?.src || '';
+    preview.hidden = !sourceAvailable;
+    $('#source-name').textContent = sourceAvailable ? sourceName : '本案例未保存原图，可继续修改格子';
+    undoStack = []; redoStack = []; beforeCleanup = null; comparing = false;
+    dirty = false; pendingImage = false; brush = 0; highlightedColor = null; keyboardPoint = { x: 0, y: 0 };
+    $('#compare').disabled = true; $('#generate').disabled = !sourceAvailable;
+    syncSettings(); setTool(false); fitZoom(); render();
+    $('#save-state').textContent = '已打开案例';
+    notify(sourceAvailable ? '已从案例库恢复图纸与原图，可以继续编辑或重新生成。' : '已恢复图纸；重新生成前需选择对应原图。');
+    return documentId;
+  }
+
+  libraryUI = CaseLibraryUI.mount({
+    snapshot: librarySnapshot,
+    open: openLibraryCase,
+    documentId: () => documentId,
+    cancelPending: () => ({ generation: ++generation, revision: contentRevision }),
+    fit: () => { fitZoom(); draw(); },
+    isDirty: () => dirty,
+    rename: title => { data.title = title; renderPalette(); },
+    archived: snapshot => {
+      if (snapshot.document_id === documentId && snapshot.editor_revision === contentRevision) {
+        dirty = false;
+        $('#save-state').textContent = '已保存到案例库';
+      }
+    },
+  });
+})();
+</script>
+</body>
+</html>

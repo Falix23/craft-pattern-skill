@@ -5,31 +5,29 @@
   "height": 40,
   "mode": "bead",
   "fit": "contain",
+  "background": "auto",
+  "background_tolerance": 32,
+  "cleanup": 1,
   "palette": [
     {
       "id": "CREAM",
-      "hex": "#f7ebd0",
-      "stock": 1000
+      "hex": "#f7ebd0"
     },
     {
       "id": "ORANGE",
-      "hex": "#c56e42",
-      "stock": 600
+      "hex": "#c56e42"
     },
     {
       "id": "SHADOW",
-      "hex": "#854e38",
-      "stock": 150
+      "hex": "#854e38"
     },
     {
       "id": "PINK",
-      "hex": "#e9a6a1",
-      "stock": 100
+      "hex": "#e9a6a1"
     },
     {
       "id": "DARK",
-      "hex": "#293d37",
-      "stock": 150
+      "hex": "#293d37"
     }
   ]
 }

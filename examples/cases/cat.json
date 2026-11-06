@@ -1,0 +1,33 @@
+{
+  "title": "橘猫 · 纯色去底与眼白保留",
+  "image": "../demo.png",
+  "width": 40,
+  "height": 40,
+  "mode": "bead",
+  "fit": "contain",
+  "background": "auto",
+  "background_tolerance": 32,
+  "cleanup": 1,
+  "palette": [
+    {
+      "id": "CREAM",
+      "hex": "#f7ebd0"
+    },
+    {
+      "id": "ORANGE",
+      "hex": "#c56e42"
+    },
+    {
+      "id": "SHADOW",
+      "hex": "#854e38"
+    },
+    {
+      "id": "PINK",
+      "hex": "#e9a6a1"
+    },
+    {
+      "id": "DARK",
+      "hex": "#293d37"
+    }
+  ]
+}

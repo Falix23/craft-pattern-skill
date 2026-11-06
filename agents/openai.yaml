@@ -1,4 +1,4 @@
 interface:
   display_name: "小格工坊"
-  short_description: "将照片转换为指定色板的可编辑拼豆或十字绣格子图，统计用量并导出图纸。"
-  default_prompt: "使用 $craft-pattern，根据我的输入生成可编辑成果，并检查导出与重新导入。"
+  short_description: "图片直接生成拼豆格子图与用量，比较尺寸和配色方案，并支持编辑、归档与检索。"
+  default_prompt: "使用 $craft-pattern，把我的图片直接生成拼豆格子图，提供几种尺寸和颜色区分度方案供我选择。"

@@ -1,0 +1,37 @@
+{
+  "title": "小火箭 · 固定种子近色杂点",
+  "image": "noisy-rocket.png",
+  "width": 48,
+  "height": 48,
+  "mode": "bead",
+  "fit": "contain",
+  "background": "auto",
+  "background_tolerance": 32,
+  "cleanup": 1,
+  "palette": [
+    {
+      "id": "CREAM",
+      "hex": "#F6F1E7"
+    },
+    {
+      "id": "ORANGE",
+      "hex": "#E29048"
+    },
+    {
+      "id": "MUTED_ORANGE",
+      "hex": "#BC7844"
+    },
+    {
+      "id": "INK",
+      "hex": "#3D414B"
+    },
+    {
+      "id": "FLAME",
+      "hex": "#F7C65C"
+    },
+    {
+      "id": "RED",
+      "hex": "#C65D56"
+    }
+  ]
+}

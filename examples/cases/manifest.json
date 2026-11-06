@@ -1,0 +1,19 @@
+{
+  "provenance": "Original synthetic illustrations; no personal photos; RGB colours are not official brand codes.",
+  "cases": [
+    {
+      "id": "cat",
+      "focus": "Edge-connected solid background, enclosed eye highlights."
+    },
+    {
+      "id": "robot",
+      "focus": "Native transparent PNG plus contain letterboxing."
+    },
+    {
+      "id": "rocket",
+      "focus": "Near-colour one-cell dots; preserve dark porthole detail.",
+      "seed": 20261104,
+      "injected_dots": 22
+    }
+  ]
+}
