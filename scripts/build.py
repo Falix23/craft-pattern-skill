@@ -64,16 +64,10 @@ def srgb(v):
     return v / 12.92 if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4
 
 
-def nearest(rgb, palette_rgb):
-    # Linear-light weighted distance avoids mapping dark details solely by raw RGB.
-    a = [srgb(v) for v in rgb]
-    return min(
-        range(len(palette_rgb)),
-        key=lambda j: sum(
-            w * (a[i] - srgb(palette_rgb[j][i])) ** 2
-            for i, w in enumerate((0.2126, 0.7152, 0.0722))
-        ),
-    )
+def nearest(rgb, palette_rgb, palette_labs=None):
+    a = oklab(rgb)
+    labs = palette_labs if palette_labs is not None else [oklab(c) for c in palette_rgb]
+    return min(range(len(labs)), key=lambda j: sum((a[c] - labs[j][c]) ** 2 for c in range(3)))
 
 
 def neighbors(index, width, height):
@@ -287,7 +281,16 @@ def simplify_regions(cells, width, height, palette_rgb):
                     continue
                 a, b = labs[region['color']], labs[target['color']]
                 chroma = (a[1] ** 2 + a[2] ** 2) ** 0.5
-                if ((not region['blank'] or a[0] < 0.3) and a[0] < b[0] - 0.075) or chroma > 0.1:
+                target_chroma = (b[1] ** 2 + b[2] ** 2) ** 0.5
+                distinct_hue = chroma >= 0.045 and (
+                    target_chroma < 0.025
+                    or (a[1] * b[1] + a[2] * b[2]) / (chroma * target_chroma) < 3**0.5 / 2
+                )
+                if (
+                    ((not region['blank'] or a[0] < 0.3) and a[0] < b[0] - 0.075)
+                    or chroma > 0.1
+                    or distinct_hue
+                ):
                     continue
                 delta = sum((a[c] - b[c]) ** 2 for c in range(3)) ** 0.5
                 fleck = (
@@ -314,30 +317,64 @@ def simplify_regions(cells, width, height, palette_rgb):
 
 
 def sample_craft(pixels, detail, width, height, alpha_threshold=128):
+    """Retain supported fill and compact strokes without enlarging occupancy."""
     result = list(pixels)
+
+    def delta(a, b):
+        return sum((a[c] - b[c]) ** 2 for c in range(3)) ** 0.5
+
+    def average(group):
+        return tuple(int(sum(p['rgb'][c] for p in group) / len(group) + 0.5) for c in range(3))
+
     for i, pixel in enumerate(pixels):
         if pixel[3] < alpha_threshold:
             continue
-        base = oklab(pixel[:3])[0]
-        if base < 0.45:
-            continue
+        base = oklab(pixel[:3])
         samples = []
         for dy in range(3):
             for dx in range(3):
                 p = detail[(i // width * 3 + dy) * width * 3 + i % width * 3 + dx]
                 if p[3] >= alpha_threshold:
-                    samples.append((oklab(p[:3])[0], p[:3]))
-        if len(samples) < 8:
+                    lab = oklab(p[:3])
+                    samples.append({'rgb': p[:3], 'lab': lab, 'light': lab[0], 'x': dx, 'y': dy})
+        if len(samples) < 5:
             continue
-        samples.sort(key=lambda p: p[0])
-        if samples[-1][0] - samples[0][0] < 0.22 or samples[4][0] - samples[1][0] < 0.06:
+        clusters = [
+            [p for p in samples if delta(p['lab'], anchor['lab']) < 0.09] for anchor in samples
+        ]
+        accents = []
+        for group in clusters:
+            if len(group) < 3:
+                continue
+            lab = oklab(average(group))
+            chroma = (lab[1] ** 2 + lab[2] ** 2) ** 0.5
+            base_chroma = (base[1] ** 2 + base[2] ** 2) ** 0.5
+            if (
+                chroma >= 0.075
+                and lab[0] >= 0.45
+                and base_chroma >= 0.025
+                and (lab[1] * base[1] + lab[2] * base[2]) / (chroma * base_chroma) > 0.8
+            ):
+                accents.append(group)
+        if accents:
+            result[i] = average(max(accents, key=len)) + (pixel[3],)
             continue
-        light = (samples[0][0] + samples[1][0]) / 2
-        if light >= 0.52 or base - light < 0.1:
+        if len(samples) < 8 or base[0] < 0.45:
             continue
-        result[i] = tuple(
-            int((samples[0][1][c] + samples[1][1][c]) / 2 + 0.5) for c in range(3)
-        ) + (pixel[3],)
+        samples.sort(key=lambda p: p['light'])
+        if (
+            samples[-1]['light'] - samples[0]['light'] < 0.22
+            or samples[4]['light'] - samples[1]['light'] < 0.06
+        ):
+            continue
+        light = (samples[0]['light'] + samples[1]['light']) / 2
+        if light >= 0.52 or base[0] - light < 0.1:
+            continue
+        if abs(samples[0]['x'] - samples[1]['x']) + abs(samples[0]['y'] - samples[1]['y']) != 1:
+            continue
+        if sum(p['light'] <= light + 0.08 for p in samples) > 3:
+            continue
+        result[i] = average(samples[:2]) + (pixel[3],)
     return result
 
 
@@ -417,6 +454,7 @@ def convert(config, image_path):
             pixels, width, height, processing['background_tolerance'], processing['alpha_threshold']
         )
     colors = [tuple(int(c['hex'][i : i + 2], 16) for i in (1, 3, 5)) for c in palette]
+    palette_labs = [oklab(c) for c in colors]
     cache = {}
     cells = []
     for pixel in pixels:
@@ -425,7 +463,7 @@ def convert(config, image_path):
             continue
         rgb = pixel[:3]
         if rgb not in cache:
-            cache[rgb] = nearest(rgb, colors)
+            cache[rgb] = nearest(rgb, colors, palette_labs)
         cells.append(cache[rgb])
     cells, cleaned_cells = cleanup_cells(cells, width, height, colors, processing['cleanup'])
     blank_cells = cells.count(None)

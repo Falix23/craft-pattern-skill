@@ -166,6 +166,35 @@ class DirectOutputTests(unittest.TestCase):
             self.assertEqual(pattern['processing']['background'], 'auto')
             self.assertGreater(pattern['metrics']['removed_background'], 0)
 
+    def test_low_resolution_tower_keeps_three_red_features_and_blue_fill(self):
+        self.source = ROOT / 'examples/showcase/inputs/tower.webp'
+        result = self.run_cli('--longest-edge', '32', '--max-colors', '8', '--no-archive')
+        entry = result['plans'][0]
+        pattern = json.loads(Path(entry['files']['json']).read_text())
+        w, h = pattern['width'], pattern['height']
+        rgb = [bytes.fromhex(c['hex'][1:]) for c in pattern['palette']]
+        reds = []
+        for low, high in ((0.15, 0.23), (0.29, 0.40), (0.69, 0.80)):
+            reds.append(
+                sum(
+                    r > 130 and r > g * 1.8 and r > b * 1.6
+                    for i, color in enumerate(pattern['cells'])
+                    if color is not None and low <= (i // w + 0.5) / h < high
+                    for r, g, b in [rgb[color]]
+                )
+            )
+        self.assertTrue(all(n >= minimum for n, minimum in zip(reds, (1, 7, 8))), reds)
+        blue = sum(
+            b > r * 1.2 and b > 80
+            for color in pattern['cells']
+            if color is not None
+            for r, g, b in [rgb[color]]
+        )
+        self.assertGreaterEqual(blue, 30)
+        self.assertEqual((w, h), (14, 32))
+        self.assertEqual(entry['bead_count'], 124)
+        self.assertLessEqual(entry['color_count'], 8)
+
     def test_invalid_plans_are_rejected_before_output_or_library_creation(self):
         for entries in (
             [{'width': 161}],

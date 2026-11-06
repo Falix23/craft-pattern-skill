@@ -377,6 +377,25 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(sampled[1], pixels[1])
         self.assertEqual(pixels[0], (210, 168, 148, 255))
 
+    def test_perceptual_mapping_and_fill_sampling_preserve_red_with_a_black_outline(self):
+        self.assertEqual(m.nearest((181, 45, 32), [(24, 24, 24), (245, 69, 50)]), 1)
+        pixels = [(200, 57, 40, 255)] * 16
+        pixels[1] = (200, 57, 40, 90)
+        detail = [(245, 61, 41, 255)] * 144
+        detail[0] = detail[1] = (18, 20, 18, 255)
+        sampled = m.sample_craft(pixels, detail, 4, 4)
+        self.assertGreater(sampled[0][0], 220)
+        self.assertEqual(sampled[1], pixels[1])
+        self.assertEqual([p[3] for p in sampled], [p[3] for p in pixels])
+
+    def test_craft_cleanup_preserves_pale_cheeks_and_dark_facial_strokes(self):
+        colors = [(255, 255, 255), (242, 189, 188), (53, 34, 34), (188, 88, 101)]
+        face = [0] * 49
+        face[16] = face[18] = 2
+        face[23] = face[25] = 1
+        face[31] = face[32] = 3
+        self.assertEqual(m.cleanup_cells(face, 7, 7, colors, 4)[0], face)
+
 
 if __name__ == '__main__':
     unittest.main()

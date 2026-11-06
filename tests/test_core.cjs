@@ -338,3 +338,40 @@ test('all 36 colors have distinct single-character symbols', () => {
   assert.equal(symbols.every(value => value.length === 1), true);
   assert.equal(symbols[35], '0');
 });
+
+test('supported red fill survives black sub-pixel outlines without expanding alpha', () => {
+  const base = rgba(4, 4, [200, 57, 40, 255]);
+  const detail = rgba(12, 12, [245, 61, 41, 255]);
+  pixel(detail, 12, 0, 0, [18, 20, 18, 255]);
+  pixel(detail, 12, 1, 0, [18, 20, 18, 255]);
+  pixel(base, 4, 1, 0, [200, 57, 40, 90]);
+  const result = Core.sampleCraftRGBA(base, detail, 4, 4);
+  assert.ok(result[0] > 220 && result[1] < 80);
+  assert.deepEqual([...result.slice(4, 8)], [...base.slice(4, 8)]);
+  assert.deepEqual([...result].filter((_, i) => i % 4 === 3), [...base].filter((_, i) => i % 4 === 3));
+});
+
+test('disconnected dark sub-pixels do not become extra eye or mouth beads', () => {
+  const base = rgba(4, 4, [210, 168, 148, 255]);
+  const detail = rgba(12, 12, [210, 168, 148, 255]);
+  pixel(detail, 12, 0, 0, [20, 20, 20, 255]);
+  pixel(detail, 12, 2, 2, [20, 20, 20, 255]);
+  assert.deepEqual([...Core.sampleCraftRGBA(base, detail, 4, 4).slice(0, 4)], [...base.slice(0, 4)]);
+});
+
+test('perceptual mapping retains muted red rather than assigning a dark outline', () => {
+  const colors = [{ id: 'BLACK', hex: '#181818' }, { id: 'RED', hex: '#F54532' }];
+  const pixels = rgba(4, 4, [181, 45, 32, 255]);
+  const result = Core.processRGBA(pixels, 4, 4, colors, { cleanup: 4 });
+  assert.deepEqual(result.cells, Array(16).fill(1));
+});
+
+test('craft cleanup preserves pale cheek and lip accents as well as small dark facial strokes', () => {
+  const colors = [{ id: 'FACE', hex: '#FFFFFF' }, { id: 'CHEEK', hex: '#F2BDBC' },
+    { id: 'EYE', hex: '#352222' }, { id: 'LIP', hex: '#BC5865' }];
+  const face = Array(49).fill(0);
+  face[16] = face[18] = 2;
+  face[23] = face[25] = 1;
+  face[31] = face[32] = 3;
+  assert.deepEqual(Core.cleanCells(face, 7, 7, colors, 4).cells, face);
+});

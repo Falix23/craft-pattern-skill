@@ -24,3 +24,4 @@ python scripts/build_showcase.py
 ## 低分辨率对比
 
 使用上述同一批输入，另生成最长边 32/48/64 格三档。每个主题沿用其选定方案的中档颜色区分度、颜色数量上限、背景与清理设置，只改变尺寸，不更换素材。`low-resolution-summary.json` 记录输入 SHA-256、处理设置及 12 个方案的尺寸、色数和用豆数；`low-resolution/` 保存 JSON / SVG / CSV，`../../assets/showcase/low-resolution/` 保存网格预览与符号制作图。`../../assets/showcase/low-resolution-comparison.png` 为同尺度的无辅助线预览，便于观察形状损失。运行 `python scripts/build_showcase.py` 会同时重建这组低分辨率结果。
+低格数版本使用局部填色支持、紧凑暗线保留、Oklab 最近色映射与色相点缀保护重新生成；尺寸、源图、背景、清理档位与颜色数量上限沿用原设置，算法更新可能改变实际色数。红球、眼睛和嘴线取自输入采样，无语义重绘或人工逐格补画。

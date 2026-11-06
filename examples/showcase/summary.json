@@ -12,7 +12,7 @@
         "width": 64,
         "height": 57,
         "color_detail": "low",
-        "color_count": 4,
+        "color_count": 7,
         "bead_count": 2038,
         "blank_cells": 1610,
         "files": {
@@ -28,7 +28,7 @@
         "width": 96,
         "height": 86,
         "color_detail": "medium",
-        "color_count": 5,
+        "color_count": 7,
         "bead_count": 4617,
         "blank_cells": 3639,
         "files": {
@@ -44,7 +44,7 @@
         "width": 128,
         "height": 115,
         "color_detail": "high",
-        "color_count": 9,
+        "color_count": 12,
         "bead_count": 8239,
         "blank_cells": 6481,
         "files": {
@@ -97,7 +97,7 @@
         "width": 85,
         "height": 128,
         "color_detail": "medium",
-        "color_count": 6,
+        "color_count": 8,
         "bead_count": 5751,
         "blank_cells": 5129,
         "files": {
@@ -123,7 +123,7 @@
         "width": 80,
         "height": 80,
         "color_detail": "medium",
-        "color_count": 8,
+        "color_count": 10,
         "bead_count": 6400,
         "blank_cells": 0,
         "files": {
