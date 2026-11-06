@@ -591,6 +591,210 @@ fieldset{border:0;padding:0;margin:23px 0 0}legend{font-size:13px;font-weight:65
     return { strengths, colors, coverage };
   }
 
+  function simplifyCurve(points, epsilon) {
+    if (points.length < 3) return points;
+    const a = points[0], b = points.at(-1), dx = b[0] - a[0], dy = b[1] - a[1];
+    let maximum = 0, cut = 0;
+    for (let i = 1; i < points.length - 1; i++) {
+      const p = points[i];
+      const t = dx || dy ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / (dx * dx + dy * dy))) : 0;
+      const distance = Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy);
+      if (distance > maximum) { maximum = distance; cut = i; }
+    }
+    return maximum > epsilon ? [...simplifyCurve(points.slice(0, cut + 1), epsilon).slice(0, -1), ...simplifyCurve(points.slice(cut), epsilon)] : [a, b];
+  }
+
+  function rasterLine(a, b, put) {
+    let [x, y] = a;
+    const [xx, yy] = b, dx = Math.abs(xx - x), dy = -Math.abs(yy - y), sx = x < xx ? 1 : -1, sy = y < yy ? 1 : -1;
+    let error = dx + dy;
+    for (;;) {
+      put(x, y);
+      if (x === xx && y === yy) break;
+      const e = 2 * error;
+      if (e >= dy) { error += dy; x += sx; }
+      if (e <= dx) { error += dx; y += sy; }
+    }
+  }
+
+  function retainFlatStrokes(cells, labels, stable, width, height, scale, rgb) {
+    const w = width * scale, h = height * scale, seen = new Uint8Array(w * h), protectedInk = new Set();
+    let reconstructed = 0;
+    for (let start = 0; start < labels.length; start++) {
+      const ink = labels[start];
+      if (ink < 0 || Math.max(...rgb[ink]) > 145 || seen[start]) continue;
+      const items = [start]; seen[start] = 1;
+      let left = w, right = 0, top = h, bottom = 0, blank = false, border = new Map();
+      for (let cursor = 0; cursor < items.length; cursor++) {
+        const i = items[cursor], x = i % w, y = Math.floor(i / w);
+        left = Math.min(left, x); right = Math.max(right, x); top = Math.min(top, y); bottom = Math.max(bottom, y);
+        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+          if (!dx && !dy) continue;
+          const xx = x + dx, yy = y + dy;
+          if (xx < 0 || xx >= w || yy < 0 || yy >= h) { blank = true; continue; }
+          const j = yy * w + xx;
+          if (labels[j] === ink) { if (!seen[j]) { seen[j] = 1; items.push(j); } }
+          else if (labels[j] < 0) blank = true;
+          else border.set(labels[j], (border.get(labels[j]) || 0) + 1);
+        }
+      }
+      if (blank || items.length < 3 || items.length > scale * scale * 4 || right - left > scale * 4 || bottom - top > scale * 4 || !border.size) continue;
+      // A ring enclosing another color is not an open eye/mouth stroke.
+      const member = new Set(items), outside = new Set(), flood = [];
+      for (let y = top; y <= bottom; y++) for (let x = left; x <= right; x++) {
+        const j = y * w + x;
+        if (!member.has(j) && (x === left || x === right || y === top || y === bottom)) { outside.add(j); flood.push(j); }
+      }
+      for (let cursor = 0; cursor < flood.length; cursor++) {
+        const j = flood[cursor], x = j % w, y = Math.floor(j / w);
+        for (const [xx, yy] of [[x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]]) {
+          const k = yy * w + xx;
+          if (xx >= left && xx <= right && yy >= top && yy <= bottom && !member.has(k) && !outside.has(k)) { outside.add(k); flood.push(k); }
+        }
+      }
+      if ((right - left + 1) * (bottom - top + 1) - items.length - outside.size >= 2) continue;
+      // Infer the surrounding field from stable source pixels, not interpolated
+      // grey/tan fringes around a dark stroke on a white face.
+      const ring = new Set();
+      for (const i of items) {
+        const x = i % w, y = Math.floor(i / w);
+        for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) {
+          const xx = x + dx, yy = y + dy, j = yy * w + xx;
+          if (xx >= 0 && xx < w && yy >= 0 && yy < h && stable[j] && labels[j] >= 0 && labels[j] !== ink) ring.add(j);
+        }
+      }
+      if (ring.size >= 4) { border = new Map(); for (const j of ring) border.set(labels[j], (border.get(labels[j]) || 0) + 1); }
+      const sorted = Array.from(border).sort((a, b) => b[1] - a[1]), field = sorted[0][0];
+      if (sorted[0][1] / Array.from(border.values()).reduce((a, b) => a + b, 0) < .8 || Math.max(...rgb[field]) < 170) continue;
+      function profile(vertical) {
+        const groups = new Map();
+        for (const i of items) {
+          const x = i % w, y = Math.floor(i / w), key = vertical ? y : x;
+          if (!groups.has(key)) groups.set(key, []);
+          groups.get(key).push(vertical ? x : y);
+        }
+        const points = Array.from(groups).sort((a, b) => a[0] - b[0]).map(([v, group]) => vertical ? [group.reduce((a, b) => a + b, 0) / group.length, v] : [v, group.reduce((a, b) => a + b, 0) / group.length]);
+        const a = points[0], b = points.at(-1);
+        let score = 0;
+        points.forEach((p, i) => { const t = i / Math.max(1, points.length - 1); score = Math.max(score, Math.hypot(p[0] - a[0] - (b[0] - a[0]) * t, p[1] - a[1] - (b[1] - a[1]) * t)); });
+        return { points, score, vertical };
+      }
+      const profiles = [profile(true), profile(false)].sort((a, b) => b.score - a.score);
+      let chosen = profiles[0];
+      if (chosen.score < .7 || right - left > (bottom - top) * 2.2 || bottom - top > (right - left) * 2.2) chosen = profiles.find(p => p.vertical === (bottom - top > right - left));
+      const path = chosen.points;
+      if (path.length < 2) continue;
+      let length = 0;
+      for (let i = 1; i < path.length; i++) length += Math.hypot(path[i][0] - path[i - 1][0], path[i][1] - path[i - 1][1]);
+      if (items.length / Math.max(1, length) > Math.max(scale * .9, Math.max(right - left, bottom - top) * .75)) continue;
+      const poly = simplifyCurve(path, Math.max(.35, Math.max(right - left, bottom - top) * .07));
+      const bent = chosen.score > .6 && poly.length > 2;
+      const pl = Math.min(...path.map(p => p[0])), pr = Math.max(...path.map(p => p[0])), pt = Math.min(...path.map(p => p[1])), pb = Math.max(...path.map(p => p[1]));
+      let tw = Math.max(1, Math.ceil((pr - pl + 1) / scale)), th = Math.max(1, Math.ceil((pb - pt + 1) / scale));
+      if (bent) { tw = Math.max(tw, chosen.vertical ? 2 : 3); th = Math.max(th, chosen.vertical ? 3 : 2); }
+      if (bent && !chosen.vertical && poly.length >= 5) tw = Math.max(tw, 5);
+      tw = Math.min(tw, 5); th = Math.min(th, 4);
+      const cx = (left + right) / 2 / scale - .5, cy = (top + bottom) / 2 / scale - .5;
+      const anchorX = Math.round(cx - (tw - 1) / 2), anchorY = Math.round(cy - (th - 1) / 2);
+      const overlap = new Map();
+      for (const i of items) { const cell = Math.floor(Math.floor(i / w) / scale) * width + Math.floor(i % w / scale); overlap.set(cell, (overlap.get(cell) || 0) + 1); }
+      let stamp = null, best = Infinity;
+      // Only bounded translations within one bead. Prefer the true fractional
+      // source center; do not force a wink down into the cheek to avoid a line.
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        const projected = poly.map(([x, y]) => [anchorX + dx + Math.round((x - pl) / Math.max(1, pr - pl) * (tw - 1)), anchorY + dy + Math.round((y - pt) / Math.max(1, pb - pt) * (th - 1))]);
+        const candidate = new Set(); let invalid = false;
+        for (let i = 1; i < projected.length; i++) rasterLine(projected[i - 1], projected[i], (x, y) => { if (x < 0 || x >= width || y < 0 || y >= height) invalid = true; else candidate.add(y * width + x); });
+        let cost = invalid ? Infinity : 4 * ((anchorX + dx + (tw - 1) / 2 - cx) ** 2 + (anchorY + dy + (th - 1) / 2 - cy) ** 2);
+        for (const i of candidate) {
+          if (cells[i] === null || (cells[i] !== ink && cells[i] !== field)) { cost = Infinity; break; }
+          if (cells[i] === ink && !overlap.has(i)) cost += 8;
+          if (protectedInk.has(i)) cost += 30;
+          for (const j of neighbours(i, width, height)) if (protectedInk.has(j)) cost += 10;
+        }
+        if (cost < best) { best = cost; stamp = candidate; }
+      }
+      if (!stamp || best >= 30) continue;
+      for (const [cell, count] of overlap) {
+        if (cells[cell] !== ink || protectedInk.has(cell)) continue;
+        const x = cell % width, y = Math.floor(cell / width); let inkCount = 0;
+        for (let dy = 0; dy < scale; dy++) for (let dx = 0; dx < scale; dx++) if (labels[(y * scale + dy) * w + x * scale + dx] === ink) inkCount++;
+        if (count / inkCount > .8) cells[cell] = field;
+      }
+      for (const i of stamp) { cells[i] = ink; protectedInk.add(i); }
+      reconstructed++;
+    }
+    return reconstructed;
+  }
+
+  function flatCraftRGBA(rgba, detail, width, height, input = {}, inputPalette = null, maxColors = 8) {
+    dimensions(width, height);
+    const options = normalizeOptions(input), scale = Math.sqrt(detail.length / (width * height * 4));
+    integer(maxColors, 2, 36, '自动提色数量须为 2–36 的整数');
+    if (options.cleanup !== 4) return null;
+    if (![3, 6].includes(scale) || rgba.length !== width * height * 4) throw Error('细节采样尺寸无效');
+    const w = width * scale, h = height * scale, n = w * h, stable = new Uint8Array(n), sample = new Uint8ClampedArray(detail);
+    const labCache = new Map(), labs = [];
+    let solid = 0, opaque = 0;
+    for (let i = 0; i < n; i++) {
+      const rgb = Array.from(detail.slice(i * 4, i * 4 + 3)), key = rgb.join(',');
+      if (!labCache.has(key)) labCache.set(key, oklab(rgb));
+      labs.push(labCache.get(key));
+    }
+    for (let i = 0; i < n; i++) {
+      if (detail[i * 4 + 3] < options.alpha_threshold) { sample[i * 4 + 3] = 0; continue; }
+      opaque++; const x = i % w, y = Math.floor(i / w); let count = 0;
+      for (const j of [x > 0 ? i - 1 : -1, x + 1 < w ? i + 1 : -1, y > 0 ? i - w : -1, y + 1 < h ? i + w : -1]) {
+        if (j >= 0 && detail[j * 4 + 3] >= options.alpha_threshold && Math.hypot(...labs[i].map((v, c) => v - labs[j][c])) < .025) count++;
+      }
+      if (count >= 3) { stable[i] = 1; solid++; } else sample[i * 4 + 3] = 0;
+    }
+    if (!opaque || solid / opaque < .72) return null;
+    let palette = inputPalette ? validatePalette(inputPalette) : derivePalette(sample, w, h, { ...options, background: 'transparent' }, maxColors, true);
+    if (!inputPalette) {
+      const groups = paletteRGB(palette).map(rgb => ({ rgb, weight: 0 }));
+      const groupLabs = groups.map(g => oklab(g.rgb)), assignments = new Map();
+      const nearest = lab => {
+        if (!assignments.has(lab)) { let best = 0, distance = Infinity; groupLabs.forEach((g, j) => { const d = colorDistance(lab, g); if (d < distance) { best = j; distance = d; } }); assignments.set(lab, best); }
+        return assignments.get(lab);
+      };
+      for (let i = 0; i < n; i++) if (stable[i]) groups[nearest(labs[i])].weight++;
+      const tolerance = options.color_detail === 'high' ? .025 : options.color_detail === 'low' ? .05 : .04;
+      for (let i = 0; i < groups.length; i++) for (let j = i + 1; j < groups.length; j++) {
+        const a = oklab(groups[i].rgb), b = oklab(groups[j].rgb), delta = Math.hypot(...a.map((v, c) => v - b[c]));
+        if (delta >= (a[0] < .4 && b[0] < .4 ? Math.max(tolerance, .06) : tolerance)) continue;
+        const count = groups[i].weight + groups[j].weight;
+        groups[i].rgb = groups[i].rgb.map((v, c) => Math.round((v * groups[i].weight + groups[j].rgb[c] * groups[j].weight) / (count || 1)));
+        groups[i].weight = count; groups.splice(j--, 1);
+      }
+      palette = groups.map((g, i) => ({ id: 'AUTO' + String(i + 1).padStart(2, '0'), hex: '#' + g.rgb.map(v => v.toString(16).padStart(2, '0')).join('').toUpperCase() }));
+      if (palette.length < 2) return null;
+    }
+    const rgb = paletteRGB(palette), plab = rgb.map(oklab);
+    if (palette.length > 8 || Math.max(...plab.map(l => l[0])) - Math.min(...plab.map(l => l[0])) < .3) return null;
+    const labels = new Int16Array(n).fill(-1), cache = new Map();
+    for (let i = 0; i < n; i++) {
+      if (detail[i * 4 + 3] < options.alpha_threshold) continue;
+      const key = labs[i];
+      if (!cache.has(key)) { let best = 0, distance = Infinity; plab.forEach((p, c) => { const d = colorDistance(key, p); if (d < distance) { best = c; distance = d; } }); cache.set(key, best); }
+      labels[i] = cache.get(key);
+    }
+    const cells = Array(width * height).fill(null);
+    for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+      const i = y * width + x;
+      if (rgba[i * 4 + 3] < options.alpha_threshold) continue;
+      const votes = Array(palette.length).fill(0);
+      for (let dy = 0; dy < scale; dy++) for (let dx = 0; dx < scale; dx++) { const c = labels[(y * scale + dy) * w + x * scale + dx]; if (c >= 0) votes[c]++; }
+      let best = 0, score = -1;
+      votes.forEach((v, c) => { const value = v * (plab[c][0] < .45 ? 1.8 : 1); if (value > score) { score = value; best = c; } });
+      cells[i] = best;
+    }
+    const strokes = retainFlatStrokes(cells, labels, stable, width, height, scale, rgb);
+    const result = new Uint8ClampedArray(rgba);
+    cells.forEach((c, i) => { if (c !== null) for (let channel = 0; channel < 3; channel++) result[i * 4 + channel] = rgb[c][channel]; });
+    return { rgba: result, palette, reconstructed_strokes: strokes };
+  }
+
   function sampleCraftRGBA(rgba, detail, width, height, alphaThreshold = 128) {
     dimensions(width, height);
     const scale = Math.sqrt(detail.length / (width * height * 4));
@@ -787,9 +991,9 @@ fieldset{border:0;padding:0;margin:23px 0 0}legend{font-size:13px;font-weight:65
     };
   }
 
-  function derivePalette(rgba, width, height, options = {}, maxColors = 12) {
+  function derivePalette(rgba, width, height, options = {}, maxColors = 12, source = false) {
     integer(maxColors, 2, 36, '自动提色数量须为 2–36 的整数');
-    const { pixels, processing } = prepareRGBA(rgba, width, height, options);
+    const { pixels, processing } = prepareRGBA(rgba, width, height, options, source);
     const histogram = new Map();
     for (let index = 0; index < width * height; index++) {
       const offset = index * 4;
@@ -976,7 +1180,7 @@ fieldset{border:0;padding:0;margin:23px 0 0}legend{font-size:13px;font-weight:65
   }
 
   const prepareSourceRGBA = (rgba, width, height, options) => prepareRGBA(rgba, width, height, options, true);
-  return { normalizeOptions, validatePattern, prepareRGBA, prepareSourceRGBA, extractCraftFeatures, sampleCraftRGBA, processRGBA, cleanCells, derivePalette, mergeSimilarColors, counts, symbol, toSVG, toCSV };
+  return { normalizeOptions, validatePattern, prepareRGBA, prepareSourceRGBA, extractCraftFeatures, flatCraftRGBA, sampleCraftRGBA, processRGBA, cleanCells, derivePalette, mergeSimilarColors, counts, symbol, toSVG, toCSV };
 }));
 </script>
 <script>/* Case storage: localhost SQLite when available, otherwise this browser's IndexedDB. */
@@ -2334,18 +2538,23 @@ fieldset{border:0;padding:0;margin:23px 0 0}legend{font-size:13px;font-weight:65
       }
       let rgba = ctx.getImageData(0, 0, width, height).data;
       for (let i = 3; i < rgba.length; i += 4) if (unmasked[i] >= options.alpha_threshold && rgba[i] < options.alpha_threshold) sourceRemoved++;
+      let detailRGBA = null;
       if (options.cleanup === 4) {
         const detail = document.createElement('canvas'); detail.width = width * 6; detail.height = height * 6;
         const detailContext = detail.getContext('2d', { willReadFrequently: true });
         if (options.background === 'keep') { detailContext.fillStyle = '#fff'; detailContext.fillRect(0, 0, detail.width, detail.height); }
         detailContext.imageSmoothingQuality = 'high';
         detailContext.drawImage(samplingImage, (width - w) * 3, (height - h) * 3, w * 6, h * 6);
-        rgba = core.sampleCraftRGBA(rgba, detailContext.getImageData(0, 0, detail.width, detail.height).data, width, height, options.alpha_threshold);
+        detailRGBA = detailContext.getImageData(0, 0, detail.width, detail.height).data;
       }
       // Once the source is masked, transparent margins surround the subject.
       // Re-detecting a backdrop from that silhouette can select the clothes.
       const samplingOptions = sourceBackgroundRemoved ? { ...options, background: 'transparent' } : options;
-      const palette = $('#palette-mode').value === 'auto' ? core.derivePalette(rgba, width, height, samplingOptions, Number($('#color-limit').value)) : data.palette;
+      const selectedPalette = $('#palette-mode').value === 'auto' ? null : data.palette;
+      const flat = detailRGBA ? core.flatCraftRGBA(rgba, detailRGBA, width, height, samplingOptions, selectedPalette, Number($('#color-limit').value)) : null;
+      if (flat) rgba = flat.rgba;
+      else if (detailRGBA) rgba = core.sampleCraftRGBA(rgba, detailRGBA, width, height, options.alpha_threshold);
+      const palette = flat?.palette ?? selectedPalette ?? core.derivePalette(rgba, width, height, samplingOptions, Number($('#color-limit').value));
       const result = core.processRGBA(rgba, width, height, palette, samplingOptions);
       result.processing = options;
       result.metrics.removed_background += sourceRemoved;

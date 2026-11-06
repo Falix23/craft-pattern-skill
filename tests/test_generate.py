@@ -166,6 +166,38 @@ class DirectOutputTests(unittest.TestCase):
             self.assertEqual(pattern['processing']['background'], 'auto')
             self.assertGreater(pattern['metrics']['removed_background'], 0)
 
+    def test_flat_illustration_wink_keeps_a_turn_at_32_48_and_64_with_clear_color_regions(self):
+        self.source = ROOT / 'examples/showcase/inputs/bubu.webp'
+        result = self.run_cli(
+            '--plans',
+            self.plans(
+                [
+                    {'longest_edge': edge, 'color_detail': 'medium', 'max_colors': 8}
+                    for edge in (32, 48, 64)
+                ]
+            ),
+            '--no-archive',
+        )
+        for entry in result['plans']:
+            pattern = json.loads(Path(entry['files']['json']).read_text())
+            w, h = pattern['width'], pattern['height']
+            self.assertLessEqual(entry['color_count'], 6)
+            self.assertTrue(any('纯色区域' in note for note in pattern['notes']))
+            rows = {}
+            for i, color in enumerate(pattern['cells']):
+                x, y = i % w, i // w
+                if color is None or not (0.53 * w <= x <= 0.65 * w and 0.24 * h <= y <= 0.40 * h):
+                    continue
+                if max(bytes.fromhex(pattern['palette'][color]['hex'][1:])) < 145:
+                    rows[y] = min(rows.get(y, w), x)
+            self.assertTrue(
+                any(
+                    y - 1 in rows and y + 1 in rows and x < rows[y - 1] and x < rows[y + 1]
+                    for y, x in rows.items()
+                ),
+                (entry['width'], rows),
+            )
+
     def test_low_resolution_cheeks_preserve_pink_and_yellow_as_distinct_materials(self):
         self.source = ROOT / 'examples/showcase/inputs/bubu.webp'
         result = self.run_cli(

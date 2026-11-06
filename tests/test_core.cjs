@@ -413,3 +413,19 @@ test('black-hat and Shi-Tomasi preserve two compact strokes with their source ga
   assert.ok(sampled[(width + 4) * 4] < 180);
   for (const x of [2, 3]) assert.deepEqual([...sampled.slice((width + x) * 4, (width + x) * 4 + 4)], [...base.slice((width + x) * 4, (width + x) * 4 + 4)]);
 });
+
+test('flat region sampling keeps an explicit palette, blank mask and source buffers intact', () => {
+  const width = 8, height = 8, scale = 6;
+  const base = rgba(width, height, [230, 170, 130, 255]);
+  const detail = rgba(width * scale, height * scale, [230, 170, 130, 255]);
+  for (let y = 0; y < height * scale; y++) for (let x = 0; x < 12; x++) pixel(detail, width * scale, x, y, [40, 25, 20, 255]);
+  pixel(base, width, 7, 7, [0, 0, 0, 0]);
+  const colors = [{ id: 'INK', hex: '#281914' }, { id: 'FUR', hex: '#E6AA82' }];
+  const copy = [...detail];
+  const result = Core.flatCraftRGBA(base, detail, width, height, { cleanup: 4 }, colors, 8);
+  assert.ok(result);
+  assert.deepEqual(result.palette, colors);
+  assert.deepEqual([...result.rgba].filter((_, i) => i % 4 === 3), [...base].filter((_, i) => i % 4 === 3));
+  assert.deepEqual([...detail], copy);
+  assert.equal(Core.flatCraftRGBA(base, detail, width, height, { cleanup: 0 }), null);
+});

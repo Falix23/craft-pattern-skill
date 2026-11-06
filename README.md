@@ -71,22 +71,32 @@ Node.js 用于直接出图；图片转换在本机完成，无需额外图像模
 
 | 方案 | 格数 | 颜色区分度 | 实际用色 | 用豆数 | 符号制作图 |
 | --- | --- | --- | --- | --- | --- |
-| 轻量 | 64×57 | 低 | 7 色 | 2,038 颗 | [查看](assets/showcase/bubu-01-chart.png) |
-| 均衡 | 96×86 | 中 | 8 色 | 4,617 颗 | [查看](assets/showcase/bubu-02-chart.png) |
-| 细节 | 128×115 | 高 | 12 色 | 8,239 颗 | [查看](assets/showcase/bubu-03-chart.png) |
+| 轻量 | 64×57 | 低 | 5 色 | 2,038 颗 | [查看](assets/showcase/bubu-01-chart.png) |
+| 均衡 | 96×86 | 中 | 5 色 | 4,617 颗 | [查看](assets/showcase/bubu-02-chart.png) |
+| 细节 | 128×115 | 高 | 7 色 | 8,239 颗 | [查看](assets/showcase/bubu-03-chart.png) |
 
-这组图使用完整的双人拥抱原图，可从 **96×86 中档**开始；脸部表情和外轮廓清楚，8 色分别表现毛色、粉色腮红、黄色腮红和爱心。低格数更省豆子，高档保留更多轮廓和配色层次。颜色数是上限，不会为了凑满数量保留近似色；不同档位也可能得到相同色数。
+这组图使用完整的双人拥抱原图，可从 **96×86 中档**开始；脸部表情和外轮廓清楚，5 色分别表现描边、白色、毛色、粉色腮红和黄色腮红。低格数更省豆子，高档保留更多轮廓和配色层次。颜色数是上限，不会为了凑满数量保留近似色；不同档位也可能得到相同色数。
 
 ## 四个主题，实际生成
 
 | 案例 | 本次设置 | 实际用色 / 用豆 | 完整制作图 | 材料与可编辑文件 |
 | --- | --- | --- | --- | --- |
-| 一二布布拼豆 | 96×86 · 中区分度 · 去底 | 8 色 / 4,617 颗 | [PNG](assets/showcase/bubu-02-chart.png) | [CSV](examples/showcase/patterns/bubu-02.csv) · [JSON](examples/showcase/patterns/bubu-02.json) |
+| 一二布布拼豆 | 96×86 · 中区分度 · 去底 | 5 色 / 4,617 颗 | [PNG](assets/showcase/bubu-02-chart.png) | [CSV](examples/showcase/patterns/bubu-02.csv) · [JSON](examples/showcase/patterns/bubu-02.json) |
 | 东方明珠拼豆 | 55×128 · 中区分度 · 彩色线稿、去底 | 8 色 / 1,982 颗 | [PNG](assets/showcase/tower-01-chart.png) | [CSV](examples/showcase/patterns/tower-01.csv) · [JSON](examples/showcase/patterns/tower-01.json) |
 | 蔡徐坤拼豆 | 85×128 · 中区分度 · 去底 | 10 色 / 5,751 颗 | [PNG](assets/showcase/caixukun-01-chart.png) | [CSV](examples/showcase/patterns/caixukun-01.csv) · [JSON](examples/showcase/patterns/caixukun-01.json) |
-| 科比拼豆 | 80×80 · 中区分度 · 保留背景 | 10 色 / 6,400 颗 | [PNG](assets/showcase/kobe-01-chart.png) | [CSV](examples/showcase/patterns/kobe-01.csv) · [JSON](examples/showcase/patterns/kobe-01.json) |
+| 科比拼豆 | 80×80 · 中区分度 · 保留背景 | 8 色 / 6,400 颗 | [PNG](assets/showcase/kobe-01-chart.png) | [CSV](examples/showcase/patterns/kobe-01.csv) · [JSON](examples/showcase/patterns/kobe-01.json) |
 
 输入类型各有不同：布布一二使用单张完整拥抱插画；东方明珠选取彩色线稿中的单体塔身；科比使用插画；蔡徐坤使用原帖已有像素预览，展示重新采样与简化配色。原设计归原作者，右侧格子、符号及材料统计由本项目重新生成。所有统计均可对照[生成记录](examples/showcase/summary.json)与图纸 JSON。
+
+## 清晰分区与表情：32 / 48 / 64 格
+
+同一张布布一二原图，固定中档配色、最多 8 色，只改变最长边。三档实际均使用 **5 色**：描边、白色、毛色、粉色、黄色。先识别原图中的稳定纯色区域，再缩成格子，避免轮廓边缘的混色额外占用材料。
+
+![布布一二原图、32、48、64格与眼睛嘴线局部对比](assets/showcase/bubu-expression-comparison.png)
+
+短线按原图的中心线走向和弯折重建；在格子允许时保留转角与笔画间隔，局部可在一格范围内对齐，不手工逐格修图。封闭舌头、腮红等彩色区域不按暗线改画。32 格保留概括的眯眼和嘴线，48 格适合平衡表情与制作量，64 格轮廓更细；低格数下短线仍有像素化变形。
+
+[32×29 格 · 517 颗制作图](assets/showcase/low-resolution/bubu-32-chart.png) · [48×43 格 · 1,155 颗制作图](assets/showcase/low-resolution/bubu-48-chart.png) · [64×57 格 · 2,038 颗制作图](assets/showcase/low-resolution/bubu-64-chart.png)
 
 ## 四张图的低分辨率结果
 
@@ -98,12 +108,12 @@ Node.js 用于直接出图；图片转换在本机完成，无需额外图像模
 
 | 主题 | 最长边 32 格 | 最长边 48 格 | 最长边 64 格 |
 | --- | --- | --- | --- |
-| 一二布布 | [32×29 / 8 色 / 517 颗](assets/showcase/low-resolution/bubu-32-chart.png) | [48×43 / 8 色 / 1,155 颗](assets/showcase/low-resolution/bubu-48-chart.png) | [64×57 / 8 色 / 2,038 颗](assets/showcase/low-resolution/bubu-64-chart.png) |
+| 一二布布 | [32×29 / 5 色 / 517 颗](assets/showcase/low-resolution/bubu-32-chart.png) | [48×43 / 5 色 / 1,155 颗](assets/showcase/low-resolution/bubu-48-chart.png) | [64×57 / 5 色 / 2,038 颗](assets/showcase/low-resolution/bubu-64-chart.png) |
 | 东方明珠 | [14×32 / 8 色 / 124 颗](assets/showcase/low-resolution/tower-32-chart.png) | [21×48 / 8 色 / 290 颗](assets/showcase/low-resolution/tower-48-chart.png) | [27×64 / 8 色 / 474 颗](assets/showcase/low-resolution/tower-64-chart.png) |
 | 蔡徐坤 | [21×32 / 9 色 / 347 颗](assets/showcase/low-resolution/caixukun-32-chart.png) | [32×48 / 9 色 / 833 颗](assets/showcase/low-resolution/caixukun-48-chart.png) | [43×64 / 10 色 / 1,482 颗](assets/showcase/low-resolution/caixukun-64-chart.png) |
-| 科比 | [32×32 / 10 色 / 1,024 颗](assets/showcase/low-resolution/kobe-32-chart.png) | [48×48 / 10 色 / 2,304 颗](assets/showcase/low-resolution/kobe-48-chart.png) | [64×64 / 10 色 / 4,096 颗](assets/showcase/low-resolution/kobe-64-chart.png) |
+| 科比 | [32×32 / 10 色 / 1,024 颗](assets/showcase/low-resolution/kobe-32-chart.png) | [48×48 / 7 色 / 2,304 颗](assets/showcase/low-resolution/kobe-48-chart.png) | [64×64 / 7 色 / 4,096 颗](assets/showcase/low-resolution/kobe-64-chart.png) |
 
-低格数同时保留形状与明显不同的配色：布布一二的左侧粉色腮红、右侧黄色腮红分别保留，黄色不会被并入毛色后误配成粉色；东方明珠在 32 格下仍保留三处红色球体和蓝色塔身。眼睛、嘴线使用 6× 子采样、黑帽形态学和 Shi–Tomasi 结构张量响应辅助保留，并限制笔画增粗和不同短线粘连。当前规则为 JavaScript / Python 的传统图像处理实现，无深度学习模型或新增运行依赖。32 格仍会简化曲线和五官细节，48/64 格提供更多表达空间；球衣小字等细节仍需检查。
+低格数同时检查形状和明显不同的配色：布布一二先按纯色区域采样，再按短线弯折保留表情，左右腮红分别为粉色、黄色；东方明珠仍保留三处红色球体和蓝色塔身。复杂图像沿用局部黑帽与结构张量辅助采样。所有规则均为传统图像处理实现，无深度学习模型或新增运行依赖。小字、复杂人像五官仍需逐图检查。
 
 这里的低分辨率不等于“低颜色区分度”。例如布布一二的 64 格结果在本节使用中档配色，与上面的“64 格低区分度”方案参数不同。重采样会改变颜色分组，实际色数可能上下波动；用豆数、空位和材料清单均按本次真实格子重新计算。
 

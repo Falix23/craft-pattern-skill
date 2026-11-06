@@ -561,18 +561,23 @@
       }
       let rgba = ctx.getImageData(0, 0, width, height).data;
       for (let i = 3; i < rgba.length; i += 4) if (unmasked[i] >= options.alpha_threshold && rgba[i] < options.alpha_threshold) sourceRemoved++;
+      let detailRGBA = null;
       if (options.cleanup === 4) {
         const detail = document.createElement('canvas'); detail.width = width * 6; detail.height = height * 6;
         const detailContext = detail.getContext('2d', { willReadFrequently: true });
         if (options.background === 'keep') { detailContext.fillStyle = '#fff'; detailContext.fillRect(0, 0, detail.width, detail.height); }
         detailContext.imageSmoothingQuality = 'high';
         detailContext.drawImage(samplingImage, (width - w) * 3, (height - h) * 3, w * 6, h * 6);
-        rgba = core.sampleCraftRGBA(rgba, detailContext.getImageData(0, 0, detail.width, detail.height).data, width, height, options.alpha_threshold);
+        detailRGBA = detailContext.getImageData(0, 0, detail.width, detail.height).data;
       }
       // Once the source is masked, transparent margins surround the subject.
       // Re-detecting a backdrop from that silhouette can select the clothes.
       const samplingOptions = sourceBackgroundRemoved ? { ...options, background: 'transparent' } : options;
-      const palette = $('#palette-mode').value === 'auto' ? core.derivePalette(rgba, width, height, samplingOptions, Number($('#color-limit').value)) : data.palette;
+      const selectedPalette = $('#palette-mode').value === 'auto' ? null : data.palette;
+      const flat = detailRGBA ? core.flatCraftRGBA(rgba, detailRGBA, width, height, samplingOptions, selectedPalette, Number($('#color-limit').value)) : null;
+      if (flat) rgba = flat.rgba;
+      else if (detailRGBA) rgba = core.sampleCraftRGBA(rgba, detailRGBA, width, height, options.alpha_threshold);
+      const palette = flat?.palette ?? selectedPalette ?? core.derivePalette(rgba, width, height, samplingOptions, Number($('#color-limit').value));
       const result = core.processRGBA(rgba, width, height, palette, samplingOptions);
       result.processing = options;
       result.metrics.removed_background += sourceRemoved;

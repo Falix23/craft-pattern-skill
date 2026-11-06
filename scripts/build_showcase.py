@@ -119,6 +119,81 @@ def low_resolution_overview(cases):
     image.save(ASSETS / 'low-resolution-comparison.png')
 
 
+def expression_comparison(cases):
+    """Show one illustration at three resolutions, including the same face crop."""
+    case = next(case for case in cases if case['id'] == 'bubu')
+    image = Image.new('RGB', (1280, 850), '#F4F3EB')
+    draw = ImageDraw.Draw(image)
+    draw.text(
+        (25, 18),
+        '布布一二：颜色分区与表情' if render.CJK else 'BUBU & DUDU: REGIONS AND EXPRESSION',
+        font=render.font(29),
+        fill='#214E3B',
+    )
+    draw.text(
+        (27, 63),
+        '低 32 / 中 48 / 高 64 格；配色统一为中档、最多 8 色，实际用色按格子统计。'
+        if render.CJK
+        else '32 / 48 / 64 cells. Medium color distinction, 8-color cap. Actual counts.',
+        font=render.font(18),
+        fill='#61715A',
+    )
+    with Image.open(EXAMPLES / case['input']) as source:
+        source = ImageOps.exif_transpose(source).convert('RGBA')
+        original = Image.new('RGB', source.size, 'white')
+        original.paste(source, mask=source.getchannel('A'))
+    panels = [(original, None)]
+    for plan in case['plans']:
+        pattern = json.loads((ROOT / plan['files']['json']).read_text('utf-8'))
+        panels.append((render.grid(pattern, cell=1, grid_lines=False), plan))
+    labels = (
+        ('原图参考', '低分辨率 · 32 格', '中分辨率 · 48 格', '高分辨率 · 64 格')
+        if render.CJK
+        else ('SOURCE', 'LOW: 32', 'MEDIUM: 48', 'HIGH: 64')
+    )
+    for column, ((picture, plan), label) in enumerate(zip(panels, labels)):
+        x = 20 + column * 315
+        draw.text((x + 10, 110), label, font=render.font(22), fill='#214E3B')
+        draw.rounded_rectangle((x, 151, x + 300, 488), radius=14, fill='#FFFEFA')
+        method = Image.Resampling.NEAREST if plan else Image.Resampling.LANCZOS
+        full = ImageOps.contain(picture, (278, 282), method)
+        image.paste(full, (x + (300 - full.width) // 2, 162 + (282 - full.height) // 2))
+        caption = (
+            (
+                f'{plan["width"]}×{plan["height"]} 格 · {plan["color_count"]} 色 · {plan["bead_count"]:,} 颗'
+                if render.CJK
+                else f'{plan["width"]}x{plan["height"]} | {plan["color_count"]} colors | {plan["bead_count"]:,} beads'
+            )
+            if plan
+            else ('原始配色与表情' if render.CJK else 'Original colors and expression')
+        )
+        draw.text((x + 12, 457), caption, font=render.font(17), fill='#38583E')
+        draw.rounded_rectangle((x, 548, x + 300, 802), radius=14, fill='#FFFEFA')
+        box = (
+            int(picture.width * 0.20),
+            int(picture.height * 0.23),
+            round(picture.width * 0.73),
+            round(picture.height * 0.54),
+        )
+        closeup = ImageOps.contain(picture.crop(box), (280, 222), method)
+        image.paste(closeup, (x + (300 - closeup.width) // 2, 561 + (222 - closeup.height) // 2))
+    draw.text(
+        (28, 513),
+        '眼睛、嘴线和腮红：同一区域放大' if render.CJK else 'SAME FACE AREA, ENLARGED',
+        font=render.font(21),
+        fill='#214E3B',
+    )
+    draw.text(
+        (25, 826),
+        '下排只放大显示；短线按原图弯折重建，局部可在一格范围内对齐。'
+        if render.CJK
+        else 'Bottom row is a display zoom. Short strokes follow source bends with bounded grid alignment.',
+        font=render.font(16),
+        fill='#61715A',
+    )
+    image.save(ASSETS / 'bubu-expression-comparison.png')
+
+
 def build_low_resolution(config):
     assets = ASSETS / 'low-resolution'
     patterns = EXAMPLES / 'low-resolution'
@@ -200,6 +275,7 @@ def build_low_resolution(config):
         json.dumps(summary, ensure_ascii=False, indent=2) + '\n', 'utf-8'
     )
     low_resolution_overview(summary)
+    expression_comparison(summary)
 
 
 def build_showcase():
