@@ -1,0 +1,7 @@
+*.csv text eol=lf
+
+# Generated previews and exports remain reproducible from their source inputs.
+docs/index.html linguist-generated=true
+docs/index.json linguist-generated=true
+assets/showcase/** linguist-generated=true
+examples/showcase/patterns/** linguist-generated=true

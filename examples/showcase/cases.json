@@ -1,59 +1,110 @@
 {
-  "description": "README showcase; source rights are documented in SOURCES.md, independently of the MIT code license.",
+  "description": "Four Xiaohongshu references selected for conversion demonstrations; original designs and source rights are separate from the MIT code license. See SOURCES.md.",
   "cases": [
     {
       "id": "bubu",
       "title": "一二布布拼豆",
       "english": "Bubu & Dudu",
       "input": "inputs/bubu.webp",
-      "source": "https://getstickerpack.com/stickers/xiong-mao-yi-erdi-jiu-dan-bu-bu-1",
-      "credit": "Sticker pack posted by Kumibaby; sticker #3. Character and source-image rights remain with their respective owners.",
-      "license": "No open license stated; demonstration only, excluded from MIT code license.",
+      "source": "https://www.xiaohongshu.com/explore/68a4ae52000000001c031ad9",
+      "credit": "最可爱的一二和布布",
+      "license": "No open license stated; source material excluded from MIT code license.",
       "plans": [
-        {"name": "轻量方案", "longest_edge": 48, "color_detail": "low", "max_colors": 8, "background": "auto"},
-        {"name": "均衡方案", "longest_edge": 64, "color_detail": "medium", "max_colors": 8, "background": "auto"},
-        {"name": "细节方案", "longest_edge": 96, "color_detail": "high", "max_colors": 12, "background": "auto"}
+        {
+          "name": "轻量方案",
+          "longest_edge": 48,
+          "color_detail": "low",
+          "max_colors": 8,
+          "background": "auto"
+        },
+        {
+          "name": "均衡方案",
+          "longest_edge": 64,
+          "color_detail": "medium",
+          "max_colors": 8,
+          "background": "auto"
+        },
+        {
+          "name": "细节方案",
+          "longest_edge": 96,
+          "color_detail": "high",
+          "max_colors": 12,
+          "background": "auto"
+        }
       ],
-      "selected_plan": 2
+      "selected_plan": 2,
+      "source_title": "两小只的日常🐼🐻",
+      "source_kind": "illustration; selected image 18 of the post",
+      "accessed": "2026-11-06"
     },
     {
       "id": "tower",
       "title": "东方明珠拼豆",
       "english": "Oriental Pearl Tower",
-      "input": "inputs/tower.jpg",
-      "download": "https://upload.wikimedia.org/wikipedia/commons/e/e4/2010_Oriental_Pearl_Tower%2C_Shanghai_01.jpg",
-      "source": "https://commons.wikimedia.org/wiki/File:2010_Oriental_Pearl_Tower,_Shanghai_01.jpg",
-      "credit": "Gary Todd",
-      "license": "CC0-1.0",
-      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
-      "plans": [{"name": "地标场景", "longest_edge": 96, "color_detail": "medium", "max_colors": 10, "background": "keep"}],
-      "selected_plan": 1
+      "input": "inputs/tower.webp",
+      "source": "https://www.xiaohongshu.com/explore/6a118a340000000006037983",
+      "credit": "文博造物社",
+      "license": "No open license stated; source material excluded from MIT code license.",
+      "plans": [
+        {
+          "name": "地标图纸",
+          "width": 48,
+          "height": 128,
+          "fit": "cover",
+          "color_detail": "medium",
+          "max_colors": 8,
+          "background": "auto",
+          "background_tolerance": 24
+        }
+      ],
+      "selected_plan": 1,
+      "source_title": "东方明珠拼豆效果图（附图纸）",
+      "source_kind": "physical bead-work photograph; selected image 1",
+      "accessed": "2026-11-06"
     },
     {
       "id": "caixukun",
       "title": "蔡徐坤拼豆",
       "english": "Cai Xukun",
-      "input": "inputs/caixukun.jpg",
-      "download": "https://upload.wikimedia.org/wikipedia/commons/d/d5/Cai_Xukun_in_2018.jpg",
-      "source": "https://commons.wikimedia.org/wiki/File:Cai_Xukun_in_2018.jpg",
-      "credit": "Rosethron丨蔡徐坤; crop by Masdggg",
-      "license": "CC-BY-2.5",
-      "license_url": "https://creativecommons.org/licenses/by/2.5/",
-      "plans": [{"name": "人物肖像", "longest_edge": 96, "color_detail": "medium", "max_colors": 10, "background": "keep"}],
-      "selected_plan": 1
+      "input": "inputs/caixukun.webp",
+      "source": "https://www.xiaohongshu.com/explore/6ad6316d000000002a00f503",
+      "credit": "豌里个豆",
+      "license": "No open license stated; source material excluded from MIT code license.",
+      "plans": [
+        {
+          "name": "肖像少色图纸",
+          "longest_edge": 128,
+          "color_detail": "medium",
+          "max_colors": 10,
+          "background": "auto"
+        }
+      ],
+      "selected_plan": 1,
+      "source_title": "蔡徐坤拼豆图纸｜100格宽分区版",
+      "source_kind": "existing pixel-art preview; selected image 1; original creator reports 100x139 / 30 colors",
+      "accessed": "2026-11-06"
     },
     {
       "id": "kobe",
       "title": "科比拼豆",
       "english": "Kobe Bryant",
-      "input": "inputs/kobe.jpg",
-      "download": "https://upload.wikimedia.org/wikipedia/commons/f/fa/Kobe_Bryant_2015_%28cropped%29.jpg",
-      "source": "https://commons.wikimedia.org/wiki/File:Kobe_Bryant_2015_(cropped).jpg",
-      "credit": "Keith Allison; source crop by KOKUYO",
-      "license": "CC-BY-SA-2.0",
-      "license_url": "https://creativecommons.org/licenses/by-sa/2.0/",
-      "plans": [{"name": "人物肖像", "longest_edge": 96, "color_detail": "medium", "max_colors": 10, "background": "keep"}],
-      "selected_plan": 1
+      "input": "inputs/kobe.webp",
+      "source": "https://www.xiaohongshu.com/explore/6ab9f6b30000000018010d33",
+      "credit": "撒东西NBA壁纸",
+      "license": "No open license stated; source material excluded from MIT code license.",
+      "plans": [
+        {
+          "name": "卡通肖像",
+          "longest_edge": 80,
+          "color_detail": "medium",
+          "max_colors": 10,
+          "background": "keep"
+        }
+      ],
+      "selected_plan": 1,
+      "source_title": "NBA版 Grok bot 第三弹",
+      "source_kind": "illustration; selected image 1; platform labels possible AI-generated content",
+      "accessed": "2026-11-06"
     }
   ]
 }

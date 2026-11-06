@@ -1,117 +1,168 @@
 # 小格工坊 · craft-pattern
 
-[Skill 工作流](SKILL.md)
+**给 Agent 一张图片，直接拿到拼豆格子图。**
 
-本项目按私有开发项目管理，GitHub 仓库保持 Private。用户可直接把图片交给 agent，在聊天中取得拼豆格子图与几种制作方案；需要自己改图时，也可使用本地编辑器。
+可以指定横纵格数、控制颜色区分度，也可以一次生成几种方案，比较效果、用色和制作量后再选。每张图都有逐色用量、符号制作图和可编辑文件；需要自己改图时，再打开编辑器。
 
-把照片或插画转换为拼豆／十字绣格子图。直接出图支持自动提色、不同尺寸与颜色区分度的批量方案，输出 PNG 制作图、SVG、材料 CSV 和可编辑 JSON；也可按配置构建独立 HTML 或在页面上传图片。案例库保存图纸、源图、预览和版本，支持检索与继续编辑。Agent 负责理解图片和制作要求，所有处理与归档均在本地完成。
+[快速使用](#快速使用) · [多方案对比](#同一张图给你几种选择) · [下载示例](#四个主题实际生成) · [参数说明](#哪些可以自己指定) · [Skill 工作流](SKILL.md)
 
-![拼豆图纸与本地案例库](assets/preview.png)
+![一二布布、东方明珠、蔡徐坤与科比：小红书参考素材与本 skill 实际生成预览](assets/showcase/overview.png)
 
-## 直接给 agent 图片
+左侧素材选自小红书，右侧由本 skill 实际转换。首屏使用无辅助线预览方便看清形状，完整网格与符号制作图可在下方打开。[笔记来源、作者及处理说明](examples/showcase/SOURCES.md)。
 
-例如：“把这张图直接做成拼豆格子图，不用打开页面”，或“给我三个不同尺寸和颜色区分度的方案”。Skill 默认实际生成并在聊天展示图片；只要一张就返回一张，多方案提供对比、实际色数和用豆数，附带符号与逐色用量的制作图。用户随后可以要求继续修改，也可以直接使用图纸。
+## 这个 skill 能做什么
 
-安装 `requirements.txt` 中的 Pillow，并准备 Node.js 18+，运行：
+| 你想要的结果 | skill 会交付什么 |
+| --- | --- |
+| **直接出图** | 上传照片、插画或像素参考，用自然语言提要求，Agent 直接在聊天里展示 PNG 格子图 |
+| **几种方案一起看** | 按不同尺寸、低/中/高颜色区分度生成对比图，列出实际色数与用豆数 |
+| **知道要准备多少豆子** | 按实际格子统计各色所需颗数，透明空位不计材料，支持下载 CSV |
+| **拿去照着制作** | 带坐标、符号、色号和用量的 PNG 图纸，以及可缩放 SVG |
+| **继续调整** | 保留可编辑 JSON；页面支持上传、调格数、统一换色、区域高亮、画笔、留空橡皮和撤销 |
+| **下次还能找回来** | 自动存入本地案例库，按名称、标签、尺寸、色数和用豆数检索，保留版本与源图 |
 
-```sh
-python scripts/generate.py /用户目录/photo.png
-python scripts/generate.py /用户目录/photo.png --compare --background auto
-python scripts/generate.py /用户目录/photo.png --width 48 --color-detail low --max-colors 6
-```
+## 快速使用
 
-单图默认最长边 64 格、中区分度、最多 8 色、拼豆优先整理；`--compare` 生成 48/低、64/中、96/高三个起始方案。尺寸与区分度可通过 `--plans` 自定义组合。结果写入用户目录的新输出文件夹，stdout 与 `manifest.json` 返回各文件绝对路径和统计；无需浏览器、服务或模型 API。自动配色复用页面 PatternCore 算法，Pillow 与浏览器的解码、缩放可能使边缘格略有差别。
+### 1. 安装 skill
 
-每个方案有 `preview.png`、带坐标/符号/逐色用量的 `pattern.png`、`pattern.svg`、`materials.csv` 和 `pattern.json`，多方案另有 `comparison.png`。默认自动保存为同一案例的不同版本，支持 `--case-id` 追加、`--library` 指定库和 `--no-archive` 跳过归档。全部为空或归档失败会明确返回警告；真实图纸放用户目录，不进仓库。完整参数与交付约定见[直接出图协议](references/direct-output.md)。
-
-## 页面使用
-
-1. 选择或拖入 PNG、JPEG、WebP、GIF 或 AVIF 图片；页面先载入原图预览，再自动按原图提色生成图纸并收录。GIF 取首帧，格式解码以浏览器支持为准。单图不超过 20 MiB（界面标作 20 MB）和 4000 万像素。
-2. 用“图纸分辨率”滑杆或 32/48/64/96/128/160 预设调整最长边，也可输入横纵格数（各 4–160）；取消“保持原图比例”即可分别设置宽高。界面显示待生成的格位总数，点击“生成图纸”应用。完整保留与居中裁切决定图片如何适配网格；“预览缩放”只改变屏幕显示大小。
-3. 选择背景处理：保留原图透明区域、去除外围纯色背景、或将背景一起拼出。透明棋盘格表示不放豆子。
-4. 从图片自动提取最多 2–36 种通用 RGB 参考色，并按视觉距离合并近似色；颜色数是上限，不强行凑满。也可沿用当前图纸色板。已有图纸可在“色板与材料”中点“合并近似色”，用豆总数和留空位置保持不变，支持撤销与保存新版本。自动色号不是品牌官方色号；已有材料清单可通过带色板的图纸 JSON 导入后沿用。
-5. 用“颜色区分度”选低/中/高：低档优先少色、合并近色；中档平衡用色与细节，默认推荐；高档保留更多细微色差和明暗层次。切换后点“生成图纸”按原图重新提色，颜色数仍受“最多颜色”上限约束。档位随案例版本、JSON 和整库备份保存，旧图纸按中档恢复。
-6. 新图片默认“拼豆优先”：先在原图预览尺寸上去除背景和浅灰阴影，再以 3×3 子采样照顾局部暗色细节，按区域大小、邻接关系和色差将碎色并入大色块。默认最多 8 色，可自由增加。可切回“原图细节”或保守/适中/加强清理；细小浅色标记可能被简化，生成后可按住查看整理前效果，并检查五官等关键位置。
-7. 点击色号选择画笔，并用醒目的玫红细线圈出同色区域轮廓，区域内部不重复框格，显示匹配格数；可取消高亮，也可逐格或拖动绘制。高亮仅用于查看，不改动图纸、不进入导出或打印。点击旁边“调色”可用颜色选择器、HEX 色值或常用色块，统一替换该色号在整张图中的颜色。确认前可取消，换色、合并与绘制共用 30 步撤销/重做，颜色同步用于图纸、材料清单和导出。自定义后自动切换“沿用当前图纸色板”；想重新按原图提色，可切回自动提色再生成。快速拖画会插值补齐笔迹；用留空橡皮擦除背景。
-
-每次生成、导入图纸 JSON、导出保存 JSON 时，页面会自动收录到案例库。手工修改后可点“存入案例库”或“保存新版本”；点“保存图纸”还会下载一份独立 JSON。图纸 JSON 只含图纸与参数，不含原图片；单独导入 JSON 后重新生成需选择原图，从案例库打开则可恢复该版本保存的源图。
-
-可导出 SVG、材料 CSV、JSON，或使用浏览器打印。SVG 空格保持透明，CSV 列出各色所需颗数，实际用豆数不计空格。页面与输出文件可离线使用；本地服务只通过 `127.0.0.1` 写入本机案例库，图片不发送到外部服务器。
-
-## 运行
+准备 **Python 3.9+**、**Node.js 18+**；在可访问本仓库的账号下安装到 Codex 的技能目录：
 
 ```sh
+git clone https://github.com/Falix23/craft-pattern-skill.git ~/.codex/skills/craft-pattern
+cd ~/.codex/skills/craft-pattern
 python3 -m venv .venv
 . .venv/bin/activate
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
+```
+
+Node.js 用于直接出图；图片转换在本机完成，无需额外图像模型 API 或 API Key。使用页面编辑器本身无需 Node.js。Agent 可使用上述虚拟环境中的 Python 执行脚本。
+
+### 2. 给 Agent 图片，再说你想怎么拼
+
+直接出一张：
+
+```text
+使用 $craft-pattern，把这张一二布布做成 64 格宽的拼豆图，
+背景留空、配色简洁，直接返回格子图、符号制作图和各色用量。
+```
+
+一次给几种选择：
+
+```text
+使用 $craft-pattern，用同一张图片做三种方案：
+48 格低区分度、64 格中区分度、96 格高区分度。
+展示对比图，列出每种方案的色数和用豆数，帮我推荐一个。
+```
+
+固定尺寸，只比较配色：
+
+```text
+都做成 64×64 格，分别用低、中、高三档颜色区分度。
+主体完整保留，直接给我三张图和用量，不用打开编辑页面。
+```
+
+只要求一张就生成一张；已指定尺寸时按要求生成。未指定参数时，单图从最长边 64 格、中区分度、最多 8 色开始，Agent 会查看实际结果再交付。
+
+## 同一张图，给你几种选择
+
+下面三种方案使用**同一张布布一二输入图**，同时调整尺寸与颜色区分度，展示制作量的取舍：
+
+![布布一二：48 格低区分度、64 格中区分度、96 格高区分度实际对比](assets/showcase/bubu-comparison.png)
+
+| 方案 | 格数 | 颜色区分度 | 实际用色 | 用豆数 | 符号制作图 |
+| --- | --- | --- | --- | --- | --- |
+| 轻量 | 48×48 | 低 | 4 色 | 995 颗 | [查看](assets/showcase/bubu-01-chart.png) |
+| 均衡 | 64×64 | 中 | 6 色 | 1,748 颗 | [查看](assets/showcase/bubu-02-chart.png) |
+| 细节 | 96×96 | 高 | 10 色 | 3,944 颗 | [查看](assets/showcase/bubu-03-chart.png) |
+
+这组图可从 **64×64 中档**开始，能保留两只小熊的表情、枕头和被子，用色与制作量也比较适中。低档更省材料，高档保留更多轮廓和配色层次。颜色数是上限，不会为了凑满数量保留近似色；不同档位也可能得到相同色数。
+
+## 四个主题，实际生成
+
+| 案例 | 本次设置 | 实际用色 / 用豆 | 完整制作图 | 材料与可编辑文件 |
+| --- | --- | --- | --- | --- |
+| 一二布布拼豆 | 64×64 · 中区分度 · 去底 | 6 色 / 1,748 颗 | [PNG](assets/showcase/bubu-02-chart.png) | [CSV](examples/showcase/patterns/bubu-02.csv) · [JSON](examples/showcase/patterns/bubu-02.json) |
+| 东方明珠拼豆 | 48×128 · 中区分度 · 居中裁切、去灰底 | 7 色 / 1,720 颗 | [PNG](assets/showcase/tower-01-chart.png) | [CSV](examples/showcase/patterns/tower-01.csv) · [JSON](examples/showcase/patterns/tower-01.json) |
+| 蔡徐坤拼豆 | 85×128 · 中区分度 · 去底 | 6 色 / 5,751 颗 | [PNG](assets/showcase/caixukun-01-chart.png) | [CSV](examples/showcase/patterns/caixukun-01.csv) · [JSON](examples/showcase/patterns/caixukun-01.json) |
+| 科比拼豆 | 80×80 · 中区分度 · 保留背景 | 8 色 / 6,400 颗 | [PNG](assets/showcase/kobe-01-chart.png) | [CSV](examples/showcase/patterns/kobe-01.csv) · [JSON](examples/showcase/patterns/kobe-01.json) |
+
+输入类型各有不同：布布一二和科比使用插画；东方明珠使用实物照片；蔡徐坤使用原帖已有像素预览，展示重新采样与简化配色。原设计与实物作品归原作者，右侧格子、符号及材料统计由本项目重新生成；实物转图不等于还原原作者的逐颗图纸。所有统计均可对照[生成记录](examples/showcase/summary.json)与图纸 JSON。
+
+每个方案的文件各有用途：
+
+| 文件 | 用途 |
+| --- | --- |
+| `preview.png` | 带辅助网格的配色预览，快速检查形状 |
+| `pattern.png` | 带坐标、逐格符号、色号和用量的制作图，点开可放大 |
+| `pattern.svg` | 可缩放、可打印的符号图纸 |
+| `materials.csv` | 各色所需颗数，方便备料 |
+| `pattern.json` | 完整格子数据与处理参数，可继续编辑 |
+| `comparison.png` | 多方案并排对比；只生成单图时不产生 |
+
+## 哪些可以自己指定
+
+| 选项 | 怎么说 / 有什么作用 |
+| --- | --- |
+| 图纸格数 | “宽 48 格”或“最长边 96 格”按原图比例计算另一边；“64×80 格”使用指定画布。横纵各支持 4–160 格 |
+| 图片适配 | 完整保留并留边，或居中裁切铺满；默认等比适配，不拉伸主体 |
+| 颜色区分度 | **低**优先合并近色、少用材料；**中**平衡用色与层次；**高**保留更多细微色差 |
+| 最多颜色 | 自动提取 2–36 色，默认最多 8 色；也可以提供自己的色板，保留自定义色号 |
+| 背景 | 保留透明、去除外围纯色背景，或把背景一起拼出。棋盘格表示不放豆子 |
+| 碎色整理 | 默认“拼豆优先”，将小范围近色碎块并入邻近区域；需要时保留更多原图细节 |
+| 交付数量 | 一张、三张或自定义方案组合；同一张输入可比较尺寸，也可固定尺寸比较配色 |
+
+“64×64”是 4,096 个**画布格位**，用豆数还要减去空位。实际成品大小取决于豆子间距；自动 RGB 配色不是品牌官方色号，背景复杂或五官细小时仍需检查。
+
+## 不通过 Agent，也能直接运行
+
+在仓库目录、已激活上述 Python 环境时：
+
+```sh
+# 直接出图：指定宽度，按比例计算高度
+python scripts/generate.py examples/showcase/inputs/bubu.webp --width 64 --background auto
+
+# 一次比较 48/低、64/中、96/高三种起始方案
+python scripts/generate.py examples/showcase/inputs/bubu.webp --compare --background auto
+
+# 固定画布、颜色区分度和颜色上限
+python scripts/generate.py /绝对路径/photo.png --width 64 --height 80 --color-detail low --max-colors 6
+```
+
+默认输出到 `~/.craft-pattern/outputs/` 下的新目录，stdout 和 `manifest.json` 给出各文件的绝对路径、格数、实际色数与用豆数；默认自动归档。`--plans` 可自定义方案组合，`--palette` 使用指定色板，`--output` 指定新的输出目录。完整说明见[直接出图协议](references/direct-output.md)。
+
+## 需要自己编辑时
+
+```sh
 python scripts/serve.py --background
 ```
 
-打开 [本地编辑器](http://127.0.0.1:8765/docs/index.html)。服务默认只监听 `127.0.0.1:8765`，可用 `--port` 调整端口。SQLite 案例库默认位于 `~/.craft-pattern/library`，与项目仓库分开；可通过 `CRAFT_PATTERN_LIBRARY` 环境变量或 `--library` 指定其他目录。
+打开 [本地编辑器](http://127.0.0.1:8765/docs/index.html)，选择或拖入图片，调整格数、背景、配色和清理强度后生成。点击材料色号可圈出同色区域；“调色”统一替换该颜色，也能逐格绘制、擦除、撤销，最后导出 SVG / CSV / JSON 或打印。
 
-后台服务独立于启动命令运行，关闭当前终端或结束聊天后仍可使用。重复启动会复用同一服务。用 `python scripts/serve.py --status` 查看状态，`--stop` 停止服务；电脑重启后重新运行启动命令。日志在案例库目录的 `server.log`。服务暂时断开时，页面会保留当前图纸并显示“重试保存”；恢复服务后可直接重试，无需重新上传图片。
-
-按配置构建 HTML：
+案例库默认在 `~/.craft-pattern/library`，与仓库分开。生成会自动保存，手工修改可存为新版本。Agent 可检索已有作品，例如：
 
 ```sh
-python scripts/build.py examples/input.json --output outputs/demo.html --tags "示例,橘猫"
+python scripts/library.py search "布布" --max-colors 8 --max-beads 2000
 ```
 
-CLI 默认同时收录到 SQLite 案例库；`--no-archive` 仅构建文件，`--case-id` 保存为已有案例的新版本。构建输出 `demo.html` 与初始 `demo.json`；HTML 内嵌所需样式、脚本和最长边 1024 像素的源图预览。可通过服务打开 [构建结果](http://127.0.0.1:8765/outputs/demo.html)，也可以直接打开单文件 HTML。
+`--library` 或 `CRAFT_PATTERN_LIBRARY` 可指定其他库。直接打开单文件 HTML 时使用独立的浏览器 IndexedDB，迁移用整库备份。服务管理、版本与备份见[案例库协议](references/library.md)。图片转换及归档均在本地完成。
 
-直接打开 HTML 时，案例库自动改用当前浏览器的 IndexedDB，与 SQLite 库相互独立，不会自动同步。浏览器清理站点数据可能删除其中的案例；请用“导出备份”和“导入备份”保存或迁移。备份包含所有案例的版本与图片，普通图纸 JSON 只保存一张图纸。
-
-## 案例库
-
-点击“案例库”浏览作品，按名称、标签、备注或源文件名查找，并按最大宽高、颜色数、用豆数和制作状态筛选。状态为草稿（`draft`）、已定稿（`final`）、已制作（`made`）。案例卡可选择历史版本打开，恢复图纸和已保存的源图，或修改名称、标签、备注与状态。
-
-保存与当前最新版本相同的图纸、参数和源图时，不重复增加版本；打开历史版本后再次保存不同于当前最新版本的内容，会追加新版本。没有保存源图的案例仍可逐格编辑，重新生成前需要补充原图。案例库提供关键词与数值筛选，不进行语义向量或图片相似搜索，也不抓取外部案例。
-
-Agent 可通过 CLI 查询元数据、取得图纸并继续处理，例如：
-
-```sh
-python scripts/library.py search "橘猫" --max-width 60 --max-colors 8 --max-beads 2000
-```
-
-CLI 初始化、版本读取、手工归档、备份与目录说明见[案例库协议](references/library.md)。`library.py backup` 导出整库备份 JSON，不生成单案例 HTML；从案例打开编辑器推荐使用本地服务页面。
-
-## 验证与示例
-
-开发验证使用 Python 3.9+ 和 Node.js 18+。先安装开发依赖，再运行统一检查；本地与 GitHub Actions 使用同一个入口，涵盖代码格式、Python/JavaScript 回归、示例同步与多方案直接出图：
+## 开发与验证
 
 ```sh
 python -m pip install -r requirements-dev.txt
 python scripts/check.py
-```
 
-Node.js 用于直接出图与算法测试（CI 使用 22）；使用编辑器本身无需安装 Node.js。
+# 重建 README 的四组展示图；读取已选本地素材，不写用户案例库
+python scripts/build_showcase.py
 
-源码按用途分开维护：`assets/` 保存模板、样式、图纸算法、编辑器与案例库客户端；`scripts/` 提供生成、渲染、归档与本地服务；`tests/` 对应功能回归；`references/` 保存各工作流的协议。`docs/index.html` 和 `docs/index.json` 是由源码与原创猫咪示例生成的离线页面，不直接修改。更新模板或脚本后重新构建，检查入口会阻止提交过期示例：
-
-```sh
+# 更新内置编辑器示例；修改模板或脚本后运行
 python scripts/build_demo.py
-python -m ruff check --fix .
-python -m ruff format .
 ```
 
-验证过程将输出和案例库放在临时目录，不读写用户作品库。运行依赖与开发工具分别在 `requirements.txt` 和 `requirements-dev.txt`；本地 `.env`、日志、SQLite、缓存和 `outputs/` 不纳入版本控制。
+`assets/` 保存模板、样式与浏览器模块；`scripts/` 提供生成、渲染、案例库与服务；`tests/` 覆盖回归；`references/` 保存协议。`docs/index.html` 与 `docs/index.json` 是生成文件；统一检查会验证源码与示例同步。开发检查使用临时目录，运行依赖与开发工具分开维护。
 
-生成三个原创合成案例及优化前后对比：
+[Skill 工作流](SKILL.md) · [直接出图协议](references/direct-output.md) · [图纸与参数协议](references/schema.md) · [案例库协议](references/library.md)
 
-```sh
-python scripts/build_cases.py
-```
+## 素材与许可
 
-输入位于 `examples/cases/`，打开 `outputs/cases/index.html` 查看橘猫去底、透明机器人和近色杂点清理案例。每组使用同一张输入图片与同一套色板，适合核对功能；复杂实拍照片仍需单独检查。
-
-## 安装为 Skill
-
-将本仓库克隆到 `~/.codex/skills/craft-pattern`；也可把本目录复制到对应位置。依赖安装在运行该 skill 的 Python 环境中，直接出图另需 Node.js 18+。发图并说：“使用 $craft-pattern，把这张图直接做成 40 格宽的拼豆图，返回图片。”也可说：“给我低中高三种配色方案”，或“从我的案例库找 60 格以内、最多 8 色的橘猫，继续修改。”详见 [SKILL.md](SKILL.md)、[直接出图](references/direct-output.md)、[数据协议](references/schema.md)与[案例库协议](references/library.md)。
-
-## 实现范围
-
-配色是基于 RGB 色板的量化近似。自动去底根据外围颜色和连通性处理纯色背景，并非语义抠图；主体与背景接近时需降低容差、改用透明模式或手工修正。杂色清理保留高对比细节和边缘，仍需检查小图案。浏览器 Canvas 与 Pillow 的缩放结果可能略有差异，详见[数据协议](references/schema.md)。
-
-`cross-stitch` 与 `bead` 使用同一种格子数据，不生成自由刺绣针法。SVG 每格 5 mm 仅是图纸比例，实物尺寸由材料决定；大图打印可能需要打印软件分块。
-
-`examples/demo.png` 与 `examples/cases/` 为本项目原创合成示例，配置与色号均用于演示。真实用户照片和图纸留在用户工作区及用户目录案例库，不加入项目示例或公开发布。依赖 Pillow 按其自身许可分发；本项目原创代码和示例采用 [MIT](LICENSE)。
+项目代码采用 [MIT](LICENSE)。本页四个小红书示例的原始插画、像素设计、照片和相关角色权利不包含在代码许可中，详见[来源、署名与处理记录](examples/showcase/SOURCES.md)。`examples/demo.png` 与 `examples/cases/` 仍保留为本项目原创合成回归样例。普通用户的照片、图纸和案例库保存在用户目录，不随项目提交。

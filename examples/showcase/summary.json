@@ -1,0 +1,139 @@
+[
+  {
+    "id": "bubu",
+    "title": "一二布布拼豆",
+    "english": "Bubu & Dudu",
+    "input": "inputs/bubu.webp",
+    "selected_plan": 2,
+    "source_sha256": "fa1a4158f2ec178a67daf8f0f72af10ac66c01b4c9bebab4426d1287ce6f4a57",
+    "plans": [
+      {
+        "name": "轻量方案",
+        "width": 48,
+        "height": 48,
+        "color_detail": "low",
+        "color_count": 4,
+        "bead_count": 995,
+        "blank_cells": 1309,
+        "files": {
+          "json": "examples/showcase/patterns/bubu-01.json",
+          "svg": "examples/showcase/patterns/bubu-01.svg",
+          "materials": "examples/showcase/patterns/bubu-01.csv",
+          "preview": "assets/showcase/bubu-01-preview.png",
+          "chart": "assets/showcase/bubu-01-chart.png"
+        }
+      },
+      {
+        "name": "均衡方案",
+        "width": 64,
+        "height": 64,
+        "color_detail": "medium",
+        "color_count": 6,
+        "bead_count": 1748,
+        "blank_cells": 2348,
+        "files": {
+          "json": "examples/showcase/patterns/bubu-02.json",
+          "svg": "examples/showcase/patterns/bubu-02.svg",
+          "materials": "examples/showcase/patterns/bubu-02.csv",
+          "preview": "assets/showcase/bubu-02-preview.png",
+          "chart": "assets/showcase/bubu-02-chart.png"
+        }
+      },
+      {
+        "name": "细节方案",
+        "width": 96,
+        "height": 96,
+        "color_detail": "high",
+        "color_count": 10,
+        "bead_count": 3944,
+        "blank_cells": 5272,
+        "files": {
+          "json": "examples/showcase/patterns/bubu-03.json",
+          "svg": "examples/showcase/patterns/bubu-03.svg",
+          "materials": "examples/showcase/patterns/bubu-03.csv",
+          "preview": "assets/showcase/bubu-03-preview.png",
+          "chart": "assets/showcase/bubu-03-chart.png"
+        }
+      }
+    ],
+    "comparison": "assets/showcase/bubu-comparison.png"
+  },
+  {
+    "id": "tower",
+    "title": "东方明珠拼豆",
+    "english": "Oriental Pearl Tower",
+    "input": "inputs/tower.webp",
+    "selected_plan": 1,
+    "source_sha256": "e7d008a677fea26b80c703c3adb2f00cf229546c2c8def9c806a56be77312832",
+    "plans": [
+      {
+        "name": "地标图纸",
+        "width": 48,
+        "height": 128,
+        "color_detail": "medium",
+        "color_count": 7,
+        "bead_count": 1720,
+        "blank_cells": 4424,
+        "files": {
+          "json": "examples/showcase/patterns/tower-01.json",
+          "svg": "examples/showcase/patterns/tower-01.svg",
+          "materials": "examples/showcase/patterns/tower-01.csv",
+          "preview": "assets/showcase/tower-01-preview.png",
+          "chart": "assets/showcase/tower-01-chart.png"
+        }
+      }
+    ]
+  },
+  {
+    "id": "caixukun",
+    "title": "蔡徐坤拼豆",
+    "english": "Cai Xukun",
+    "input": "inputs/caixukun.webp",
+    "selected_plan": 1,
+    "source_sha256": "847c313fb10b646542ef98de826cc97cbb09397938a8502260d50c3e4fa76fd9",
+    "plans": [
+      {
+        "name": "肖像少色图纸",
+        "width": 85,
+        "height": 128,
+        "color_detail": "medium",
+        "color_count": 6,
+        "bead_count": 5751,
+        "blank_cells": 5129,
+        "files": {
+          "json": "examples/showcase/patterns/caixukun-01.json",
+          "svg": "examples/showcase/patterns/caixukun-01.svg",
+          "materials": "examples/showcase/patterns/caixukun-01.csv",
+          "preview": "assets/showcase/caixukun-01-preview.png",
+          "chart": "assets/showcase/caixukun-01-chart.png"
+        }
+      }
+    ]
+  },
+  {
+    "id": "kobe",
+    "title": "科比拼豆",
+    "english": "Kobe Bryant",
+    "input": "inputs/kobe.webp",
+    "selected_plan": 1,
+    "source_sha256": "1f6259d56460aa44cdf07338cc88109c7fab63a3cd8236279cd5816f80df4376",
+    "plans": [
+      {
+        "name": "卡通肖像",
+        "width": 80,
+        "height": 80,
+        "color_detail": "medium",
+        "color_count": 8,
+        "bead_count": 6400,
+        "blank_cells": 0,
+        "files": {
+          "json": "examples/showcase/patterns/kobe-01.json",
+          "svg": "examples/showcase/patterns/kobe-01.svg",
+          "materials": "examples/showcase/patterns/kobe-01.csv",
+          "preview": "assets/showcase/kobe-01-preview.png",
+          "chart": "assets/showcase/kobe-01-chart.png"
+        }
+      }
+    ]
+  }
+]

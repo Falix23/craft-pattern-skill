@@ -39,7 +39,7 @@ def counts(pattern):
     return usage
 
 
-def grid(pattern, cell=12, symbols=False):
+def grid(pattern, cell=12, symbols=False, grid_lines=True):
     width, height = pattern['width'], pattern['height']
     image = Image.new('RGB', (width * cell, height * cell), 'white')
     draw = ImageDraw.Draw(image)
@@ -65,6 +65,8 @@ def grid(pattern, cell=12, symbols=False):
                 font=font(max(9, cell - 6)),
                 fill=ink,
             )
+    if not grid_lines:
+        return image
     for x in range(width + 1):
         draw.line(
             (min(x * cell, image.width - 1), 0, min(x * cell, image.width - 1), image.height - 1),
