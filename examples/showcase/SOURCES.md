@@ -20,3 +20,7 @@ python scripts/build_showcase.py
 ```
 
 脚本只读取已选定的本地输入，使用临时目录和 `--no-archive` 生成，不访问账号、不自动搜集笔记、不读写用户案例库。完整选图原件及其可见署名保存在 `inputs/`，单体裁切和来源信息记录在 `cases.json`。选定参数与结果可逐一对照 `cases.json`、`summary.json` 和图纸 JSON。
+
+## 低分辨率对比
+
+使用上述同一批输入，另生成最长边 32/48/64 格三档。每个主题沿用其选定方案的中档颜色区分度、颜色数量上限、背景与清理设置，只改变尺寸，不更换素材。`low-resolution-summary.json` 记录输入 SHA-256、处理设置及 12 个方案的尺寸、色数和用豆数；`low-resolution/` 保存 JSON / SVG / CSV，`../../assets/showcase/low-resolution/` 保存网格预览与符号制作图。`../../assets/showcase/low-resolution-comparison.png` 为同尺度的无辅助线预览，便于观察形状损失。运行 `python scripts/build_showcase.py` 会同时重建这组低分辨率结果。

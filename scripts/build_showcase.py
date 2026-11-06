@@ -64,6 +64,144 @@ def overview(cases):
     image.save(ASSETS / 'overview.png')
 
 
+def low_resolution_overview(cases):
+    """Compare only resolution; each subject keeps its selected processing settings."""
+    image = Image.new('RGB', (1416, 1670), '#F4F3EB')
+    draw = ImageDraw.Draw(image)
+    heading = '低分辨率对比：32 / 48 / 64 格' if render.CJK else 'LOW RESOLUTION: 32 / 48 / 64'
+    subtitle = (
+        '同一输入、同一配色设置，只调整最长边；预览省略辅助线，便于观察轮廓和细节。'
+        if render.CJK
+        else 'Same source and color settings. Only the longest edge changes. Grid-free previews.'
+    )
+    draw.text((30, 20), heading, font=render.font(30), fill='#214E3B')
+    draw.text((32, 66), subtitle, font=render.font(18), fill='#61715A')
+    for column, edge in enumerate((32, 48, 64)):
+        draw.text(
+            (190 + column * 400, 106),
+            f'{edge} 格' if render.CJK else f'{edge} cells',
+            font=render.font(24),
+            fill='#214E3B',
+        )
+    for row, case in enumerate(cases):
+        y = 150 + row * 370
+        name = case['title'].replace('拼豆', '') if render.CJK else case['english']
+        draw.text(
+            (25, y + 140),
+            render.fit_text(draw, name, render.font(23), 145),
+            font=render.font(23),
+            fill='#214E3B',
+        )
+        for column, plan in enumerate(case['plans']):
+            x = 180 + column * 400
+            draw.rounded_rectangle((x, y, x + 380, y + 348), radius=15, fill='#FFFEFA')
+            pattern = json.loads((ROOT / plan['files']['json']).read_text('utf-8'))
+            pixel = ImageOps.contain(
+                render.grid(pattern, cell=1, grid_lines=False), (256, 256), Image.Resampling.NEAREST
+            )
+            image.paste(pixel, (x + (380 - pixel.width) // 2, y + 16 + (256 - pixel.height) // 2))
+            label = (
+                f'{plan["width"]} × {plan["height"]} 格 · {plan["color_count"]} 色'
+                if render.CJK
+                else f'{plan["width"]} x {plan["height"]} | {plan["color_count"]} colors'
+            )
+            amount = f'{plan["bead_count"]:,} 颗' if render.CJK else f'{plan["bead_count"]:,} beads'
+            draw.text((x + 20, y + 284), label, font=render.font(18), fill='#38583E')
+            draw.text((x + 20, y + 313), amount, font=render.font(18), fill='#61715A')
+    draw.text(
+        (30, 1642),
+        '棋盘格表示留空；每个方案另附完整网格、符号与逐色用量。'
+        if render.CJK
+        else 'Checkerboard = no bead. Each plan includes a symbol chart and exact material counts.',
+        font=render.font(16),
+        fill='#61715A',
+    )
+    image.save(ASSETS / 'low-resolution-comparison.png')
+
+
+def build_low_resolution(config):
+    assets = ASSETS / 'low-resolution'
+    patterns = EXAMPLES / 'low-resolution'
+    assets.mkdir(parents=True, exist_ok=True)
+    patterns.mkdir(parents=True, exist_ok=True)
+    summary = []
+    with tempfile.TemporaryDirectory(prefix='craft-pattern-low-resolution-') as directory:
+        for case in config['cases']:
+            source = EXAMPLES / case['input']
+            selected = case['plans'][case['selected_plan'] - 1]
+            # Keep color distinction, palette cap, background, fit and cleanup fixed.
+            settings = {
+                k: v
+                for k, v in selected.items()
+                if k not in ('name', 'width', 'height', 'longest_edge')
+            }
+            plans = [
+                settings | {'name': f'{edge} 格', 'longest_edge': edge} for edge in (32, 48, 64)
+            ]
+            plan_file = Path(directory) / f'{case["id"]}-plans.json'
+            plan_file.write_text(json.dumps(plans, ensure_ascii=False), 'utf-8')
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(ROOT / 'scripts' / 'generate.py'),
+                    str(source),
+                    '--plans',
+                    str(plan_file),
+                    '--title',
+                    case['title'],
+                    '--no-archive',
+                    '--output',
+                    str(Path(directory) / case['id']),
+                ],
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            generated = json.loads(result.stdout)
+            entry = {k: case[k] for k in ('id', 'title', 'english', 'input')}
+            entry['source_sha256'] = hashlib.sha256(source.read_bytes()).hexdigest()
+            entry['settings'] = settings | {
+                'cleanup': settings.get('cleanup', 4),
+                'fit': settings.get('fit', 'contain'),
+            }
+            entry['plans'] = []
+            for edge, plan in zip((32, 48, 64), generated['plans']):
+                values = {
+                    k: plan[k]
+                    for k in (
+                        'width',
+                        'height',
+                        'color_detail',
+                        'color_count',
+                        'bead_count',
+                        'blank_cells',
+                    )
+                }
+                values['longest_edge'] = edge
+                values['files'] = {}
+                for key, suffix in (
+                    ('json', '.json'),
+                    ('svg', '.svg'),
+                    ('materials', '.csv'),
+                    ('preview', '-preview.png'),
+                    ('chart', '-chart.png'),
+                ):
+                    target = (
+                        assets if key in ('preview', 'chart') else patterns
+                    ) / f'{case["id"]}-{edge}{suffix}'
+                    if key == 'materials':
+                        target.write_text(Path(plan['files'][key]).read_text('utf-8'), 'utf-8')
+                    else:
+                        shutil.copyfile(plan['files'][key], target)
+                    values['files'][key] = target.relative_to(ROOT).as_posix()
+                entry['plans'].append(values)
+            summary.append(entry)
+    (EXAMPLES / 'low-resolution-summary.json').write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2) + '\n', 'utf-8'
+    )
+    low_resolution_overview(summary)
+
+
 def build_showcase():
     config = json.loads((EXAMPLES / 'cases.json').read_text('utf-8'))
     ASSETS.mkdir(parents=True, exist_ok=True)
@@ -128,6 +266,7 @@ def build_showcase():
         json.dumps(summary, ensure_ascii=False, indent=2) + '\n', 'utf-8'
     )
     overview(summary)
+    build_low_resolution(config)
     print(json.dumps(summary, ensure_ascii=False, indent=2))
 
 

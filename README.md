@@ -4,7 +4,7 @@
 
 可以指定横纵格数、控制颜色区分度，也可以一次生成几种方案，比较效果、用色和制作量后再选。每张图都有逐色用量、符号制作图和可编辑文件；需要自己改图时，再打开编辑器。
 
-[快速使用](#快速使用) · [多方案对比](#同一张图给你几种选择) · [下载示例](#四个主题实际生成) · [参数说明](#哪些可以自己指定) · [Skill 工作流](SKILL.md)
+[快速使用](#快速使用) · [多方案对比](#同一张图给你几种选择) · [低分辨率结果](#四张图的低分辨率结果) · [下载示例](#四个主题实际生成) · [参数说明](#哪些可以自己指定) · [Skill 工作流](SKILL.md)
 
 ![一二布布、东方明珠、蔡徐坤与科比：小红书参考素材与本 skill 实际生成预览](assets/showcase/overview.png)
 
@@ -87,6 +87,27 @@ Node.js 用于直接出图；图片转换在本机完成，无需额外图像模
 | 科比拼豆 | 80×80 · 中区分度 · 保留背景 | 8 色 / 6,400 颗 | [PNG](assets/showcase/kobe-01-chart.png) | [CSV](examples/showcase/patterns/kobe-01.csv) · [JSON](examples/showcase/patterns/kobe-01.json) |
 
 输入类型各有不同：布布一二使用单张完整拥抱插画；东方明珠选取彩色线稿中的单体塔身；科比使用插画；蔡徐坤使用原帖已有像素预览，展示重新采样与简化配色。原设计归原作者，右侧格子、符号及材料统计由本项目重新生成。所有统计均可对照[生成记录](examples/showcase/summary.json)与图纸 JSON。
+
+## 四张图的低分辨率结果
+
+同样的四张输入，分别按**最长边 32、48、64 格**等比生成。每一行都保持原有背景处理、清理方式、中档颜色区分度和颜色上限，只改变格数，便于判断分辨率本身的影响。
+
+![四个主题在最长边32、48、64格下的实际生成结果](assets/showcase/low-resolution-comparison.png)
+
+下表每项为“实际横×纵格数 / 实际色数 / 用豆数”，点击可打开带符号、坐标与材料统计的完整制作图。
+
+| 主题 | 最长边 32 格 | 最长边 48 格 | 最长边 64 格 |
+| --- | --- | --- | --- |
+| 一二布布 | [32×29 / 6 色 / 517 颗](assets/showcase/low-resolution/bubu-32-chart.png) | [48×43 / 5 色 / 1,155 颗](assets/showcase/low-resolution/bubu-48-chart.png) | [64×57 / 5 色 / 2,038 颗](assets/showcase/low-resolution/bubu-64-chart.png) |
+| 东方明珠 | [14×32 / 7 色 / 124 颗](assets/showcase/low-resolution/tower-32-chart.png) | [21×48 / 8 色 / 290 颗](assets/showcase/low-resolution/tower-48-chart.png) | [27×64 / 8 色 / 474 颗](assets/showcase/low-resolution/tower-64-chart.png) |
+| 蔡徐坤 | [21×32 / 6 色 / 347 颗](assets/showcase/low-resolution/caixukun-32-chart.png) | [32×48 / 6 色 / 833 颗](assets/showcase/low-resolution/caixukun-48-chart.png) | [43×64 / 5 色 / 1,482 颗](assets/showcase/low-resolution/caixukun-64-chart.png) |
+| 科比 | [32×32 / 7 色 / 1,024 颗](assets/showcase/low-resolution/kobe-32-chart.png) | [48×48 / 8 色 / 2,304 颗](assets/showcase/low-resolution/kobe-48-chart.png) | [64×64 / 8 色 / 4,096 颗](assets/showcase/low-resolution/kobe-64-chart.png) |
+
+从实际结果看：布布一二在 48 格时已能分清拥抱动作，64 格的表情更清楚；东方明珠在 32 格时细杆和支撑结构损失较多；蔡徐坤肖像在 32 格时只能保留大致明暗，64 格的五官更完整；科比卡通头像在 32 格时可辨认，但球衣文字难以保留。
+
+这里的低分辨率不等于“低颜色区分度”。例如布布一二的 64 格结果在本节使用中档配色，与上面的“64 格低区分度”方案参数不同。重采样会改变颜色分组，实际色数可能上下波动；用豆数、空位和材料清单均按本次真实格子重新计算。
+
+完整低分辨率记录与各方案 JSON / SVG / CSV 见[生成记录](examples/showcase/low-resolution-summary.json)和[图纸目录](examples/showcase/low-resolution/)。
 
 每个方案的文件各有用途：
 

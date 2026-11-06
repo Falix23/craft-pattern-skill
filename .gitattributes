@@ -5,3 +5,4 @@ docs/index.html linguist-generated=true
 docs/index.json linguist-generated=true
 assets/showcase/** linguist-generated=true
 examples/showcase/patterns/** linguist-generated=true
+examples/showcase/low-resolution/** linguist-generated=true

@@ -1,0 +1,258 @@
+[
+  {
+    "id": "bubu",
+    "title": "一二布布拼豆",
+    "english": "Bubu & Dudu",
+    "input": "inputs/bubu.webp",
+    "source_sha256": "de3be68aa55582c983f9aafca802b483efedbc7b915af1ef77ef496ffbae2695",
+    "settings": {
+      "color_detail": "medium",
+      "max_colors": 8,
+      "background": "auto",
+      "cleanup": 4,
+      "fit": "contain"
+    },
+    "plans": [
+      {
+        "width": 32,
+        "height": 29,
+        "color_detail": "medium",
+        "color_count": 6,
+        "bead_count": 517,
+        "blank_cells": 411,
+        "longest_edge": 32,
+        "files": {
+          "json": "examples/showcase/low-resolution/bubu-32.json",
+          "svg": "examples/showcase/low-resolution/bubu-32.svg",
+          "materials": "examples/showcase/low-resolution/bubu-32.csv",
+          "preview": "assets/showcase/low-resolution/bubu-32-preview.png",
+          "chart": "assets/showcase/low-resolution/bubu-32-chart.png"
+        }
+      },
+      {
+        "width": 48,
+        "height": 43,
+        "color_detail": "medium",
+        "color_count": 5,
+        "bead_count": 1155,
+        "blank_cells": 909,
+        "longest_edge": 48,
+        "files": {
+          "json": "examples/showcase/low-resolution/bubu-48.json",
+          "svg": "examples/showcase/low-resolution/bubu-48.svg",
+          "materials": "examples/showcase/low-resolution/bubu-48.csv",
+          "preview": "assets/showcase/low-resolution/bubu-48-preview.png",
+          "chart": "assets/showcase/low-resolution/bubu-48-chart.png"
+        }
+      },
+      {
+        "width": 64,
+        "height": 57,
+        "color_detail": "medium",
+        "color_count": 5,
+        "bead_count": 2038,
+        "blank_cells": 1610,
+        "longest_edge": 64,
+        "files": {
+          "json": "examples/showcase/low-resolution/bubu-64.json",
+          "svg": "examples/showcase/low-resolution/bubu-64.svg",
+          "materials": "examples/showcase/low-resolution/bubu-64.csv",
+          "preview": "assets/showcase/low-resolution/bubu-64-preview.png",
+          "chart": "assets/showcase/low-resolution/bubu-64-chart.png"
+        }
+      }
+    ]
+  },
+  {
+    "id": "tower",
+    "title": "东方明珠拼豆",
+    "english": "Oriental Pearl Tower",
+    "input": "inputs/tower.webp",
+    "source_sha256": "47afec24c0c16f4c013f1c8eac1dac812436a9112ba583ed985fa302138fc3f0",
+    "settings": {
+      "color_detail": "medium",
+      "max_colors": 8,
+      "background": "auto",
+      "cleanup": 4,
+      "fit": "contain"
+    },
+    "plans": [
+      {
+        "width": 14,
+        "height": 32,
+        "color_detail": "medium",
+        "color_count": 7,
+        "bead_count": 124,
+        "blank_cells": 324,
+        "longest_edge": 32,
+        "files": {
+          "json": "examples/showcase/low-resolution/tower-32.json",
+          "svg": "examples/showcase/low-resolution/tower-32.svg",
+          "materials": "examples/showcase/low-resolution/tower-32.csv",
+          "preview": "assets/showcase/low-resolution/tower-32-preview.png",
+          "chart": "assets/showcase/low-resolution/tower-32-chart.png"
+        }
+      },
+      {
+        "width": 21,
+        "height": 48,
+        "color_detail": "medium",
+        "color_count": 8,
+        "bead_count": 290,
+        "blank_cells": 718,
+        "longest_edge": 48,
+        "files": {
+          "json": "examples/showcase/low-resolution/tower-48.json",
+          "svg": "examples/showcase/low-resolution/tower-48.svg",
+          "materials": "examples/showcase/low-resolution/tower-48.csv",
+          "preview": "assets/showcase/low-resolution/tower-48-preview.png",
+          "chart": "assets/showcase/low-resolution/tower-48-chart.png"
+        }
+      },
+      {
+        "width": 27,
+        "height": 64,
+        "color_detail": "medium",
+        "color_count": 8,
+        "bead_count": 474,
+        "blank_cells": 1254,
+        "longest_edge": 64,
+        "files": {
+          "json": "examples/showcase/low-resolution/tower-64.json",
+          "svg": "examples/showcase/low-resolution/tower-64.svg",
+          "materials": "examples/showcase/low-resolution/tower-64.csv",
+          "preview": "assets/showcase/low-resolution/tower-64-preview.png",
+          "chart": "assets/showcase/low-resolution/tower-64-chart.png"
+        }
+      }
+    ]
+  },
+  {
+    "id": "caixukun",
+    "title": "蔡徐坤拼豆",
+    "english": "Cai Xukun",
+    "input": "inputs/caixukun.webp",
+    "source_sha256": "847c313fb10b646542ef98de826cc97cbb09397938a8502260d50c3e4fa76fd9",
+    "settings": {
+      "color_detail": "medium",
+      "max_colors": 10,
+      "background": "auto",
+      "cleanup": 4,
+      "fit": "contain"
+    },
+    "plans": [
+      {
+        "width": 21,
+        "height": 32,
+        "color_detail": "medium",
+        "color_count": 6,
+        "bead_count": 347,
+        "blank_cells": 325,
+        "longest_edge": 32,
+        "files": {
+          "json": "examples/showcase/low-resolution/caixukun-32.json",
+          "svg": "examples/showcase/low-resolution/caixukun-32.svg",
+          "materials": "examples/showcase/low-resolution/caixukun-32.csv",
+          "preview": "assets/showcase/low-resolution/caixukun-32-preview.png",
+          "chart": "assets/showcase/low-resolution/caixukun-32-chart.png"
+        }
+      },
+      {
+        "width": 32,
+        "height": 48,
+        "color_detail": "medium",
+        "color_count": 6,
+        "bead_count": 833,
+        "blank_cells": 703,
+        "longest_edge": 48,
+        "files": {
+          "json": "examples/showcase/low-resolution/caixukun-48.json",
+          "svg": "examples/showcase/low-resolution/caixukun-48.svg",
+          "materials": "examples/showcase/low-resolution/caixukun-48.csv",
+          "preview": "assets/showcase/low-resolution/caixukun-48-preview.png",
+          "chart": "assets/showcase/low-resolution/caixukun-48-chart.png"
+        }
+      },
+      {
+        "width": 43,
+        "height": 64,
+        "color_detail": "medium",
+        "color_count": 5,
+        "bead_count": 1482,
+        "blank_cells": 1270,
+        "longest_edge": 64,
+        "files": {
+          "json": "examples/showcase/low-resolution/caixukun-64.json",
+          "svg": "examples/showcase/low-resolution/caixukun-64.svg",
+          "materials": "examples/showcase/low-resolution/caixukun-64.csv",
+          "preview": "assets/showcase/low-resolution/caixukun-64-preview.png",
+          "chart": "assets/showcase/low-resolution/caixukun-64-chart.png"
+        }
+      }
+    ]
+  },
+  {
+    "id": "kobe",
+    "title": "科比拼豆",
+    "english": "Kobe Bryant",
+    "input": "inputs/kobe.webp",
+    "source_sha256": "1f6259d56460aa44cdf07338cc88109c7fab63a3cd8236279cd5816f80df4376",
+    "settings": {
+      "color_detail": "medium",
+      "max_colors": 10,
+      "background": "keep",
+      "cleanup": 4,
+      "fit": "contain"
+    },
+    "plans": [
+      {
+        "width": 32,
+        "height": 32,
+        "color_detail": "medium",
+        "color_count": 7,
+        "bead_count": 1024,
+        "blank_cells": 0,
+        "longest_edge": 32,
+        "files": {
+          "json": "examples/showcase/low-resolution/kobe-32.json",
+          "svg": "examples/showcase/low-resolution/kobe-32.svg",
+          "materials": "examples/showcase/low-resolution/kobe-32.csv",
+          "preview": "assets/showcase/low-resolution/kobe-32-preview.png",
+          "chart": "assets/showcase/low-resolution/kobe-32-chart.png"
+        }
+      },
+      {
+        "width": 48,
+        "height": 48,
+        "color_detail": "medium",
+        "color_count": 8,
+        "bead_count": 2304,
+        "blank_cells": 0,
+        "longest_edge": 48,
+        "files": {
+          "json": "examples/showcase/low-resolution/kobe-48.json",
+          "svg": "examples/showcase/low-resolution/kobe-48.svg",
+          "materials": "examples/showcase/low-resolution/kobe-48.csv",
+          "preview": "assets/showcase/low-resolution/kobe-48-preview.png",
+          "chart": "assets/showcase/low-resolution/kobe-48-chart.png"
+        }
+      },
+      {
+        "width": 64,
+        "height": 64,
+        "color_detail": "medium",
+        "color_count": 8,
+        "bead_count": 4096,
+        "blank_cells": 0,
+        "longest_edge": 64,
+        "files": {
+          "json": "examples/showcase/low-resolution/kobe-64.json",
+          "svg": "examples/showcase/low-resolution/kobe-64.svg",
+          "materials": "examples/showcase/low-resolution/kobe-64.csv",
+          "preview": "assets/showcase/low-resolution/kobe-64-preview.png",
+          "chart": "assets/showcase/low-resolution/kobe-64-chart.png"
+        }
+      }
+    ]
+  }
+]
