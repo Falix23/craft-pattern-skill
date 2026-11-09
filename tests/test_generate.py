@@ -131,6 +131,57 @@ class DirectOutputTests(unittest.TestCase):
         self.assertEqual(entry['blank_cells'], 0)
         self.assertEqual(entry['bead_count'], 1024)
 
+    def test_confirmed_text_is_composed_before_exports_and_preserved_in_archive(self):
+        path = self.directory / 'lettering.json'
+        layers = [
+            {
+                'text': 'BLG 2026',
+                'box': [0, 0.65, 1, 0.35],
+                'foreground': '#121419',
+                'background': '#FFFFFF',
+            }
+        ]
+        path.write_text(json.dumps(layers), 'utf-8')
+        result = self.run_cli(
+            '--width', '64', '--height', '64', '--background', 'keep', '--lettering', str(path)
+        )
+        entry = result['plans'][0]
+        self.assertEqual(entry['lettering'][0]['lines'], ['BLG 2026'])
+        pattern = json.loads(Path(entry['files']['json']).read_text())
+        self.assertEqual(pattern['text_layers'][0]['text'], 'BLG 2026')
+        archive = (
+            self.library
+            / 'cases'
+            / entry['archive']['case_id']
+            / f'v{entry["archive"]["version"]:06d}'
+            / 'pattern.json'
+        )
+        recovered = json.loads(archive.read_text())
+        self.assertEqual(pattern['text_layers'], recovered['text_layers'])
+        self.assertEqual(pattern['cells'], recovered['cells'])
+        rows = list(
+            csv.reader(Path(entry['files']['materials']).read_text('utf-8-sig').splitlines())
+        )
+        self.assertEqual(sum(int(row[-1]) for row in rows[1:]), entry['bead_count'])
+        self.assertTrue(any('非原品牌字体' in note for note in recovered['notes']))
+
+    def test_unconfirmed_characters_are_rejected_before_creating_output_or_library(self):
+        path = self.directory / 'lettering.json'
+        path.write_text(json.dumps([{'text': '中文字', 'box': [0, 0.5, 1, 0.5]}]), 'utf-8')
+        result = self.run_cli('--lettering', str(path), success=False)
+        self.assertIn('大写英文', result['error'])
+        self.assertFalse(self.output.exists())
+        self.assertFalse(self.library.exists())
+
+    def test_text_does_not_shrink_or_discard_letters_when_grid_is_too_small(self):
+        path = self.directory / 'lettering.json'
+        path.write_text(json.dumps([{'text': 'BILIBILI GAMING', 'box': [0, 0.5, 1, 0.5]}]), 'utf-8')
+        result = self.run_cli(
+            '--width', '16', '--height', '16', '--lettering', str(path), success=False
+        )
+        self.assertIn('23格宽', result['error'])
+        self.assertFalse(self.library.exists())
+
     def test_low_and_high_color_detail_apply_without_changing_requested_grid(self):
         image = Image.new('RGBA', (48, 24))
         ImageDraw.Draw(image).rectangle((4, 4, 23, 19), fill='#121419')

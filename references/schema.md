@@ -84,6 +84,7 @@
 | `processing` | 实际采用的 `background`、`background_tolerance`、`alpha_threshold`、`cleanup`、`color_detail` |
 | `metrics` | `blank_cells` 空格数、`bead_count` 实际用豆数、`removed_background` 本次生成去掉的背景格数、`cleaned_cells` 本次生成合并的杂色格数 |
 | `notes` | 字符串说明数组 |
+| `text_layers` | 可选，最多4个已确认文字分区；包含内容、比例区域、前景/背景与换行策略。格子中已合成点阵字，字段只记录生成配置；详见[文字分区](lettering.md) |
 
 编辑后空格与用豆数随图纸更新，去底和清理数保留最近一次生成的记录。JSON 不含原图，也不保存撤销历史。单独导入 JSON 后可继续逐格编辑，重新生成需要重新选择对应原图；从案例库打开有源图的版本可直接恢复。Python 构建的 HTML 自带内嵌脚本、样式及原图预览，可以离线调整设置；构建旁路 JSON 是初始图纸，页面修改可归档到案例库，或点“保存图纸”另存 JSON。
 

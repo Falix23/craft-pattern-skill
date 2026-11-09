@@ -34,6 +34,7 @@ PLAN_KEYS = {
     'alpha_threshold',
     'cleanup',
     'fit',
+    'text_layers',
 }
 
 
@@ -91,6 +92,8 @@ def validate_plans(raw, image, defaults, palette, mode):
         if not isinstance(name, str) or not name.strip() or len(name) > 80:
             raise ValueError('方案 name 须为 1–80 字符')
         width, height = dimensions(plan, image.size)
+        if 'text_layers' in plan:
+            plan['text_layers'] = library.normalize_text_layers(plan['text_layers'])
         integer(plan['max_colors'], 2, 36, 'max_colors')
         # Reuse the existing explicit-palette and processing validation contract.
         build.validate(
@@ -136,6 +139,10 @@ def generate(args):
         'cleanup': args.cleanup,
         'fit': args.fit,
     }
+    if args.lettering:
+        defaults['text_layers'] = library.normalize_text_layers(
+            json.loads(Path(args.lettering).expanduser().read_text('utf-8'))
+        )
     if args.plans:
         raw = json.loads(Path(args.plans).expanduser().read_text('utf-8'))
     elif args.compare:
@@ -238,6 +245,8 @@ def generate(args):
         }
         if palette is not None:
             request['palette'] = palette
+        if plan.get('text_layers'):
+            request['text_layers'] = plan['text_layers']
         if options['cleanup'] == 4:
             detail = fit_image(
                 prepared, (size[0] * 6, size[1] * 6), plan['fit'], options['background'] == 'keep'
@@ -285,6 +294,8 @@ def generate(args):
             'archive': None,
             'warnings': [],
         }
+        if generated.get('lettering'):
+            entry['lettering'] = generated['lettering']
         if not entry['bead_count']:
             entry['warnings'].append(
                 '该方案全为空格；请检查原图、背景模式和透明阈值，不应作为可制作图纸交付。'
@@ -355,6 +366,9 @@ def parser():
     p.add_argument('--fit', choices=('contain', 'cover'), default='contain')
     p.add_argument('--mode', choices=('bead', 'cross-stitch'), default='bead')
     p.add_argument('--palette', help='用户明确提供的色板 JSON；不自动合并色号')
+    p.add_argument(
+        '--lettering', help='已确认文字的分区配置 JSON；按点阵字重排，不是OCR或原品牌字体'
+    )
     p.add_argument('--output', help='新的独立输出目录；存在时拒绝覆盖')
     p.add_argument('--title')
     p.add_argument('--tags')

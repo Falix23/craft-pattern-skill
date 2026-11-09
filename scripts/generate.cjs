@@ -8,6 +8,7 @@ function generate(request) {
   const { width, height } = request;
   if (![width, height].every(n => Number.isInteger(n) && n >= 4 && n <= 160)) throw Error('宽高须为 4–160 的整数');
   const options = core.normalizeOptions(request.options);
+  const textLayers = request.text_layers === undefined ? [] : core.validateTextLayers(request.text_layers);
   let rgba = Buffer.from(request.rgba, 'base64');
   if (rgba.length !== width * height * 4) throw Error('采样像素数量无效');
   const sampling = request.background_masked ? { ...options, background: 'transparent' } : options;
@@ -21,12 +22,18 @@ function generate(request) {
   const result = core.processRGBA(rgba, width, height, palette, sampling);
   result.processing = options;
   result.metrics.removed_background += request.source_removed || 0;
-  const pattern = core.validatePattern({ version: 2, title: request.title, mode: request.mode || 'bead',
+  let pattern = core.validatePattern({ version: 2, title: request.title, mode: request.mode || 'bead',
     width, height, palette, ...result, source: request.source,
     notes: [request.palette ? '按用户提供的色板映射；屏幕色与实物材料可能有差异。' : '自动配色为通用 RGB 参考，不是品牌官方色号。',
       ...(flat ? ['纯色区域采样；短线按源图弯折重建，局部可在一格范围内调整。'] : []),
       '格子图不是实物尺寸模板；请检查轮廓与关键细节。'] });
-  return { pattern, svg: core.toSVG(pattern, true), csv: core.toCSV(pattern) };
+  let lettering;
+  if (textLayers.length) {
+    const composed = core.composeTextLayers(pattern, textLayers);
+    pattern = composed.pattern;
+    lettering = composed.reports;
+  }
+  return { pattern, svg: core.toSVG(pattern, true), csv: core.toCSV(pattern), ...(lettering ? { lettering } : {}) };
 }
 
 if (require.main === module) {
