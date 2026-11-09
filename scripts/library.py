@@ -9,6 +9,7 @@ import binascii
 import hashlib
 import io
 import json
+import math
 import os
 import re
 import shutil
@@ -50,6 +51,73 @@ def _text(value, maximum, name, empty=True):
     if not isinstance(value, str) or len(value) > maximum or (not empty and not value.strip()):
         raise ValueError(f'{name} 格式或长度无效')
     return value.strip()
+
+
+def normalize_text_layers(raw):
+    if not isinstance(raw, list) or len(raw) > 4:
+        raise ValueError('文字配置须为最多4项的数组')
+
+    def rectangle(box):
+        if (
+            not isinstance(box, list)
+            or len(box) != 4
+            or any(type(n) not in (int, float) or not math.isfinite(n) for n in box)
+            or box[0] < 0
+            or box[1] < 0
+            or box[2] <= 0
+            or box[3] <= 0
+            or box[0] + box[2] > 1 + 1e-9
+            or box[1] + box[3] > 1 + 1e-9
+        ):
+            raise ValueError('文字区域须为画布比例 [x,y,width,height]，范围在0–1内')
+        return box.copy()
+
+    def color(value, nullable=False):
+        if nullable and value is None:
+            return None
+        if not isinstance(value, str) or not re.fullmatch(r'#[0-9a-fA-F]{6}', value):
+            raise ValueError('文字颜色须为 #RRGGBB；背景可为 null 留空')
+        return value.upper()
+
+    layers = []
+    allowed = {'text', 'box', 'clear_box', 'foreground', 'background', 'layout'}
+    for raw_layer in raw:
+        if not isinstance(raw_layer, dict) or set(raw_layer) - allowed:
+            raise ValueError('文字配置含未知字段')
+        text = raw_layer.get('text')
+        if (
+            not isinstance(text, str)
+            or not text.strip()
+            or len(text) > 80
+            or re.search(r'[^A-Z0-9 .\/\n-]', text)
+        ):
+            raise ValueError(
+                '文字须先确认内容；目前支持1–80个大写英文字母、数字、空格、换行及 - . /'
+            )
+        box = rectangle(raw_layer.get('box'))
+        layer = {
+            'text': text.strip(),
+            'box': box,
+            'clear_box': rectangle(raw_layer.get('clear_box', box)),
+            'foreground': color(raw_layer.get('foreground', '#000000')),
+            'background': color(raw_layer.get('background'), nullable=True),
+            'layout': raw_layer.get('layout', 'auto'),
+        }
+        if layer['layout'] not in ('auto', 'single'):
+            raise ValueError('文字 layout 须为 auto 或 single')
+        layers.append(layer)
+    for i, layer in enumerate(layers):
+        for other in layers[i + 1 :]:
+            for a in [layer['box'], layer['clear_box']]:
+                for b in [other['box'], other['clear_box']]:
+                    if (
+                        a[0] < b[0] + b[2]
+                        and b[0] < a[0] + a[2]
+                        and a[1] < b[1] + b[3]
+                        and b[1] < a[1] + a[3]
+                    ):
+                        raise ValueError('文字区域不能相互重叠')
+    return layers
 
 
 def normalize_pattern(pattern):
@@ -142,6 +210,8 @@ def normalize_pattern(pattern):
                 result['metrics'][key] = value
     if isinstance(pattern.get('notes'), list):
         result['notes'] = [note[:1000] for note in pattern['notes'][:50] if isinstance(note, str)]
+    if 'text_layers' in pattern:
+        result['text_layers'] = normalize_text_layers(pattern['text_layers'])
     if len(_json(result).encode('utf-8')) > MAX_PATTERN_BYTES:
         raise ValueError('图纸 JSON 不能超过 5 MB')
     return result

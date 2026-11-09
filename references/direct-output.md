@@ -14,6 +14,8 @@ python <skill>/scripts/generate.py /用户目录/photo.png --plans /用户目录
 
 默认单方案最长边 64、中区分度、最多 8 色、清理 4（拼豆优先）、完整保留、拼豆模式。只给最大边或一条边时按 EXIF 校正后的原图比例计算另一边；最短边至少 4 格，完整保留留边而不拉伸。显式宽高各 4–160。无透明区域默认 `auto`；已有透明区域默认 `transparent`。这只是起点：查看原图后可显式 `--background auto` 去除外围白边，或 `keep` 保留底色。去底不适合所有照片，不能把主体同色背景误删后直接交付。
 
+查看输入时默认检查是否带字；只要有文字，就按[文字分区](lettering.md)分别评估文字区与图案区，不等用户单独要求保清。确认字串、区域和格数预算后决定保留原字形或独立重排；当前脚本不会自动检测文字，不支持的字符不能强行替换。
+
 纯色插画优先从稳定色区提色并按覆盖量采样，短线按源图游程中心线及弯折重建，局部可在一格内对齐；不把封闭舌头或腮红改成暗线。复杂图像的低格数使用原图的 6× 子采样，以形态学黑帽与 Shi–Tomasi 结构张量响应辅助保留紧凑暗线；填色、近色合并、材料预算与清理共同保护明显不同的色相。核对配色时要确认黄色、粉色、毛色等仍分别对应，不能只检查主体占位。它不识别人脸；出图后仍须检查眼睛、嘴线、唇色、地标色块与轮廓。关键特征丢失时先调整配色、清理或裁切范围；用户明确指定格数时保持该格数交付，可另附更高格数的对照，不能用放大图纸代替问题修复。
 
 `--compare` 是三个起始方案：48/低/最多 8 色、64/中/最多 8 色、96/高/最多 12 色；其余处理参数由命令行继承。它同时改变尺寸和区分度，适合选制作难度；若用户要单独比较某个参数，用 `--plans` 固定其余参数。命令行 `--width/--height/--longest-edge` 仅用于单方案，不与 `--compare/--plans` 混用。
@@ -28,9 +30,11 @@ python <skill>/scripts/generate.py /用户目录/photo.png --plans /用户目录
 ]
 ```
 
-每项可覆盖 `name`、`longest_edge` 或 `width/height`、`color_detail`、`max_colors`、`background`、`background_tolerance`、`alpha_threshold`、`cleanup`、`fit`。未覆盖项继承命令行默认值。`longest_edge` 不能与 `width/height` 同项使用。低区分度更愿意合并近似色，高区分度保留更多细微色差；不保证色数严格递增。不同尺寸总格数含背景空格，制作工作量以实际用豆数为准。
+每项可覆盖 `name`、`longest_edge` 或 `width/height`、`color_detail`、`max_colors`、`background`、`background_tolerance`、`alpha_threshold`、`cleanup`、`fit`、`text_layers`。未覆盖项继承命令行默认值。`longest_edge` 不能与 `width/height` 同项使用。低区分度更愿意合并近似色，高区分度保留更多细微色差；不保证色数严格递增。不同尺寸总格数含背景空格，制作工作量以实际用豆数为准。
 
 其他选项：`--palette <JSON>` 接受 `{id,hex}` 数组或含 `palette` 的对象，按用户色板映射而不自动合并；`--mode cross-stitch` 共用格子数据；`--fit cover` 等比居中裁切；`--cleanup 0..4`；`--max-colors 2..36`。背景容差 0–120、透明阈值 1–255 与[图纸协议](schema.md)一致。输入限 40 MiB 和 4000 万像素，GIF 首帧；规范化源图最长边 1024，先校正 EXIF。
+
+`--lettering <JSON>` 为已确认的英文/数字独立分区重排，方案项也可覆盖 `text_layers`。它使用现有色板、在杂色清理后排字，保持预留区外的格子不变；不是 OCR 或原品牌字体还原。配置、最小格数和编辑器边界见[文字分区](lettering.md)。
 
 ## 输出与交付
 

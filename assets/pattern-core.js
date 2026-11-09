@@ -14,6 +14,136 @@
     medium: { tolerance: .075, blackL: .32, blackC: .035 },
     high: { tolerance: .035, blackL: 0, blackC: 0 },
   };
+  // Hand-drawn grid glyphs, not resized outlines or OCR. Narrow I and a wider
+  // M/W leave a full blank column between letters at very small bead counts.
+  const GRID_FONT = Object.fromEntries(Object.entries({
+    A: '010/101/111/101/101', B: '110/101/110/101/110', C: '011/100/100/100/011',
+    D: '110/101/101/101/110', E: '111/100/110/100/111', F: '111/100/110/100/100',
+    G: '011/100/101/101/011', H: '101/101/111/101/101', I: '1/1/1/1/1',
+    J: '001/001/001/101/010', K: '101/101/110/101/101', L: '100/100/100/100/111',
+    M: '10001/11011/10101/10001/10001', N: '101/111/111/111/101', O: '010/101/101/101/010',
+    P: '110/101/110/100/100', Q: '010/101/101/111/011', R: '110/101/110/101/101',
+    S: '011/100/010/001/110', T: '111/010/010/010/010', U: '101/101/101/101/111',
+    V: '101/101/101/101/010', W: '10001/10001/10101/11011/10001', X: '101/101/010/101/101',
+    Y: '101/101/010/010/010', Z: '111/001/010/100/111',
+    0: '111/101/101/101/111', 1: '01/11/01/01/01', 2: '110/001/010/100/111',
+    3: '110/001/010/001/110', 4: '101/101/111/001/001', 5: '111/100/110/001/110',
+    6: '011/100/111/101/111', 7: '111/001/010/010/010', 8: '111/101/111/101/111',
+    9: '111/101/111/001/110', '-': '000/000/111/000/000',
+    '.': '0/0/0/0/1', '/': '001/001/010/100/100',
+  }).map(([key, rows]) => [key, rows.split('/')]));
+
+  function validateTextLayers(input) {
+    if (!Array.isArray(input) || input.length > 4) throw Error('文字配置须为最多4项的数组');
+    const allowed = new Set(['text', 'box', 'clear_box', 'foreground', 'background', 'layout']);
+    const rectangle = box => {
+      if (!Array.isArray(box) || box.length !== 4 || box.some(n => typeof n !== 'number' || !Number.isFinite(n)) ||
+        box[0] < 0 || box[1] < 0 || box[2] <= 0 || box[3] <= 0 || box[0] + box[2] > 1 + 1e-9 || box[1] + box[3] > 1 + 1e-9) {
+        throw Error('文字区域须为画布比例 [x,y,width,height]，范围在0–1内');
+      }
+      return box.slice();
+    };
+    const layers = input.map(layer => {
+      if (!layer || typeof layer !== 'object' || Array.isArray(layer) || Object.keys(layer).some(k => !allowed.has(k))) throw Error('文字配置含未知字段');
+      if (typeof layer.text !== 'string' || !layer.text.trim() || layer.text.length > 80 || /[^A-Z0-9 .\/\n-]/.test(layer.text)) {
+        throw Error('文字须先确认内容；目前支持1–80个大写英文字母、数字、空格、换行及 - . /');
+      }
+      const color = (value, nullable) => {
+        if (nullable && value === null) return null;
+        if (typeof value !== 'string' || !/^#[\da-f]{6}$/i.test(value)) throw Error('文字颜色须为 #RRGGBB；背景可为 null 留空');
+        return value.toUpperCase();
+      };
+      const box = rectangle(layer.box);
+      const result = { text: layer.text.trim(), box, clear_box: rectangle(layer.clear_box === undefined ? box : layer.clear_box),
+        foreground: color(layer.foreground === undefined ? '#000000' : layer.foreground, false),
+        background: color(layer.background === undefined ? null : layer.background, true), layout: layer.layout === undefined ? 'auto' : layer.layout };
+      if (!['auto', 'single'].includes(result.layout)) throw Error('文字 layout 须为 auto 或 single');
+      return result;
+    });
+    // A later layer must not silently erase a previously drawn text box.
+    for (let i = 0; i < layers.length; i++) for (let j = i + 1; j < layers.length; j++) {
+      for (const a of [layers[i].box, layers[i].clear_box]) for (const b of [layers[j].box, layers[j].clear_box]) {
+        if (a[0] < b[0] + b[2] && b[0] < a[0] + a[2] && a[1] < b[1] + b[3] && b[1] < a[1] + a[3]) throw Error('文字区域不能相互重叠');
+      }
+    }
+    return layers;
+  }
+
+  function textRectangle(box, width, height) {
+    const x = Math.round(box[0] * width), y = Math.round(box[1] * height);
+    return { x, y, w: Math.round((box[0] + box[2]) * width) - x, h: Math.round((box[1] + box[3]) * height) - y };
+  }
+
+  function textWidth(line) {
+    return line.split(' ').reduce((sum, word, i) => sum + (i ? 2 : 0) +
+      Array.from(word).reduce((n, c, j) => n + GRID_FONT[c][0].length + (j ? 1 : 0), 0), 0);
+  }
+
+  function layoutGridText(text, width, height, layout = 'auto') {
+    if (typeof text !== 'string' || !text.trim() || text.length > 80 || /[^A-Z0-9 .\/\n-]/.test(text)) throw Error('请先确认大写英文或数字文字内容');
+    integer(width, 1, 160, '文字区域宽度不足或无效');
+    integer(height, 1, 160, '文字区域高度不足或无效');
+    if (!['auto', 'single'].includes(layout)) throw Error('文字 layout 须为 auto 或 single');
+    if (layout === 'single' && (text.includes('\n') || textWidth(text.trim().replace(/ +/g, ' ')) > width)) throw Error(`文字单行放不下：至少需要${textWidth(text.trim().replace(/\n/g, ' ').replace(/ +/g, ' '))}格宽`);
+    const lines = [];
+    for (const paragraph of text.split('\n')) {
+      const words = paragraph.split(' ').filter(Boolean);
+      if (!words.length) throw Error('文字不能包含空白行');
+      let line = '';
+      for (const word of words) {
+        if (textWidth(word) > width) throw Error(`文字放不下：${word} 至少需要${textWidth(word)}格宽，请提高格数或明确分行`);
+        const next = line ? line + ' ' + word : word;
+        if (line && textWidth(next) > width) { lines.push(line); line = word; }
+        else line = next;
+      }
+      lines.push(line);
+    }
+    if ((layout === 'single' && lines.length !== 1) || lines.length * 6 - 1 > height) {
+      throw Error(`文字放不下：当前需要${lines.length * 6 - 1}格高，区域只有${height}格；请提高格数、扩大区域或减少文字`);
+    }
+    const scale = Math.min(Math.floor(width / Math.max(...lines.map(textWidth))), Math.floor(height / (lines.length * 6 - 1)));
+    if (scale < 1) throw Error('文字区域不足，无法保证完整笔画');
+    return { lines, scale, font: 'compact-5', width: Math.max(...lines.map(textWidth)) * scale, height: (lines.length * 6 - 1) * scale };
+  }
+
+  function composeTextLayers(input, configs) {
+    const pattern = validatePattern(input), layers = validateTextLayers(configs);
+    const labs = paletteRGB(pattern.palette).map(oklab);
+    const match = hex => {
+      const lab = oklab([1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)));
+      let best = 0, distance = Infinity;
+      labs.forEach((candidate, i) => { const d = colorDistance(lab, candidate); if (d < distance) { best = i; distance = d; } });
+      return best;
+    };
+    const reports = [];
+    for (const layer of layers) {
+      const ink = match(layer.foreground), paper = layer.background === null ? null : match(layer.background);
+      if (ink === paper || (paper !== null && colorDistance(labs[ink], labs[paper]) < .08 ** 2)) throw Error('色板中没有可区分的文字与背景颜色；请调整色板或颜色上限');
+      const r = textRectangle(layer.box, pattern.width, pattern.height);
+      const layout = layoutGridText(layer.text, r.w, r.h, layer.layout);
+      const clear = textRectangle(layer.clear_box, pattern.width, pattern.height);
+      for (const region of [clear, r]) for (let y = region.y; y < region.y + region.h; y++) for (let x = region.x; x < region.x + region.w; x++) pattern.cells[y * pattern.width + x] = paper;
+      layout.lines.forEach((line, row) => {
+        let x = r.x + Math.floor((r.w - textWidth(line) * layout.scale) / 2);
+        const y = r.y + row * 6 * layout.scale;
+        line.split(' ').forEach((word, wi) => {
+          if (wi) x += 2 * layout.scale;
+          Array.from(word).forEach((letter, ci) => {
+            if (ci) x += layout.scale;
+            GRID_FONT[letter].forEach((bits, gy) => Array.from(bits).forEach((bit, gx) => {
+              if (bit !== '1') return;
+              for (let dy = 0; dy < layout.scale; dy++) for (let dx = 0; dx < layout.scale; dx++) pattern.cells[(y + gy * layout.scale + dy) * pattern.width + x + gx * layout.scale + dx] = ink;
+            }));
+            x += GRID_FONT[letter][0].length * layout.scale;
+          });
+        });
+      });
+      reports.push({ text: layer.text, lines: layout.lines, scale: layout.scale, font: layout.font, box: r });
+    }
+    pattern.text_layers = layers;
+    pattern.notes = [...(pattern.notes || []), ...layers.map(layer => `文字分区重排：${JSON.stringify(layer.text)}；内容已确认，使用独立点阵字，非原品牌字体。`)];
+    return { pattern: validatePattern(pattern), reports };
+  }
 
   function colorDetailSettings(level) {
     if (typeof level !== 'string' || !Object.prototype.hasOwnProperty.call(COLOR_DETAILS, level)) throw Error('颜色区分度须为 low、medium 或 high');
@@ -95,6 +225,7 @@
     }
     if (input.processing != null) result.processing = normalizeOptions(input.processing);
     if (Array.isArray(input.notes)) result.notes = input.notes.filter(note => typeof note === 'string').slice(0, 50);
+    if (input.text_layers !== undefined) result.text_layers = validateTextLayers(input.text_layers);
     const blanks = cells.filter(value => value === null).length;
     result.metrics = { blank_cells: blanks, bead_count: size - blanks, removed_background: 0, cleaned_cells: 0 };
     if (input.metrics && typeof input.metrics === 'object' && !Array.isArray(input.metrics)) {
@@ -1031,5 +1162,5 @@
   }
 
   const prepareSourceRGBA = (rgba, width, height, options) => prepareRGBA(rgba, width, height, options, true);
-  return { normalizeOptions, validatePattern, prepareRGBA, prepareSourceRGBA, extractCraftFeatures, flatCraftRGBA, sampleCraftRGBA, processRGBA, cleanCells, derivePalette, mergeSimilarColors, counts, symbol, toSVG, toCSV };
+  return { normalizeOptions, validatePattern, validateTextLayers, layoutGridText, composeTextLayers, prepareRGBA, prepareSourceRGBA, extractCraftFeatures, flatCraftRGBA, sampleCraftRGBA, processRGBA, cleanCells, derivePalette, mergeSimilarColors, counts, symbol, toSVG, toCSV };
 }));
